@@ -12,8 +12,8 @@ generator = models.GeneratorMNIST().to(device)
 discriminator = models.DiscriminatorMNIST().to(device)
 
 # Load weights (model.load_state_dict(torch.load(PATH)))
-generator.load_state_dict(torch.load('weights/gen_epoch_49.pth'))
-discriminator.load_state_dict(torch.load('weights/disc_epoch_49.pth'))
+generator.load_state_dict(torch.load('weights/gen_epoch_49.pth', map_location=torch.device(device)))
+discriminator.load_state_dict(torch.load('weights/disc_epoch_49.pth', map_location=torch.device(device)))
 
 # Generate a fake sample
 noise = torch.randn(1, 100, 1, 1, device=device)
