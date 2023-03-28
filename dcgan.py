@@ -1,21 +1,18 @@
 import argparse
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import random
-
 from tqdm import tqdm
 import torchvision.utils as vutils
 import matplotlib.pyplot as plt
+from utils import models, datasets
 
-import datasets
-import models
 
 if __name__ == '__main__':
     # Arguments
     parser = argparse.ArgumentParser(description='DCGAN')
-    parser.add_argument('--epochs', type=int, default=50)
+    parser.add_argument('--epochs', type=int, default=10)
     args = parser.parse_args()
 
     # Set manual seed to a constant get a consistent output
@@ -66,7 +63,7 @@ if __name__ == '__main__':
     print("Starting Training Loop...")
 
     for epoch in range(num_epochs):
-        with tqdm(total=938, desc="Epoch {}".format(epoch+1)) as pbar:
+        with tqdm(total=len(dataset), desc="Epoch {}".format(epoch+1)) as pbar:
             for data in dataset:
                 ############################
                 # (1) Update discriminator: maximize log(D(x)) + log(1 - D(G(z)))
@@ -119,11 +116,11 @@ if __name__ == '__main__':
             
             # Save images of the epoch
             fake = generator(fixed_noise)
-            vutils.save_image(fake.detach(), 'output/fake_samples_epoch_%03d.png' % epoch, normalize=True)
+            vutils.save_image(fake.detach(), 'results/fake_images/fake_samples_epoch_%03d.png' % epoch, normalize=True)
 
             # Save models
-            torch.save(generator.state_dict(), 'weights/gen_epoch_%d.pth' % epoch)
-            torch.save(discriminator.state_dict(), 'weights/disc_epoch_%d.pth' % epoch)
+            torch.save(generator.state_dict(), 'results/weights/gen_epoch_%d.pth' % epoch)
+            torch.save(discriminator.state_dict(), 'results/weights/disc_epoch_%d.pth' % epoch)
 
     # Plot the error
     plt.figure(figsize=(10, 5))
