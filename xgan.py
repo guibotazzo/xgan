@@ -16,7 +16,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='XGAN')
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist'], default='mnist')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'nhl'], default='mnist')
     args = parser.parse_args()
 
     # Set manual seed to a constant get a consistent output
@@ -39,11 +39,18 @@ if __name__ == '__main__':
     dataset = datasets.make_dataset(args.dataset, args.batch_size)
 
     # Create models
-    generator = models.GeneratorMNIST().to(device)
-    generator.apply(models.weights_init)
+    if args.dataset == 'mnist':
+        generator = models.GeneratorMNIST().to(device)
+        generator.apply(models.weights_init)
 
-    discriminator = models.DiscriminatorMNIST().to(device)
-    discriminator.apply(models.weights_init)
+        discriminator = models.DiscriminatorMNIST().to(device)
+        discriminator.apply(models.weights_init)
+    else:
+        generator = models.GeneratorCelebA().to(device)
+        generator.apply(models.weights_init)
+
+        discriminator = models.DiscriminatorCelebA().to(device)
+        discriminator.apply(models.weights_init)
 
     ###############
     # Training Loop
