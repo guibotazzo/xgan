@@ -30,7 +30,7 @@ if __name__ == '__main__':
         device = torch.device("mps")  # For M1 Macs
         print("MPS device selected.")
     elif torch.cuda.is_available():
-        device = torch.device("cuda")
+        device = torch.device("cuda:0")
         print("CUDA device selected.")
     else:
         device = torch.device('cpu')
@@ -74,7 +74,11 @@ if __name__ == '__main__':
 
     print("Starting Training Loop...")
     writer = SummaryWriter()
+
     for epoch in range(args.epochs):
+        running_loss_g = 0.0
+        running_loss_d = 0.0
+
         with tqdm(total=len(dataset), desc="Epoch {}".format(epoch+1)) as pbar:
             for i, data in enumerate(dataset):
                 ############################
@@ -86,7 +90,7 @@ if __name__ == '__main__':
 
                 real_cpu = data[0].to(device)
                 batch_size = real_cpu.size(0)
-                label = torch.full((batch_size,), real_label, dtype=torch.float, device=device)
+                label = torch.full((batch_size, 1, 1, 1), real_label, dtype=torch.float, device=device)
 
                 output = discriminator(real_cpu)
                 errD_real = cross_entropy(output, label)
@@ -137,12 +141,14 @@ if __name__ == '__main__':
                 # Save Losses for plotting later
                 G_losses.append(errG.item())
                 D_losses.append(errD.item())
-
-                writer.add_scalar('xgan/loss/generator', errG.item(), i)
-                writer.add_scalar('xgan/loss/discriminator', errD.item(), i)
+                running_loss_g += errG.item()
+                running_loss_d += errD.item()
 
                 # pbar.set_postfix(g_loss=errG.item(), d_loss=errD.item())
                 pbar.update(1)
+
+            writer.add_scalar('xgan/loss/generator', running_loss_g/len(dataset.dataset), epoch)
+            writer.add_scalar('xgan/loss/discriminator', running_loss_d/len(dataset.dataset), epoch)
 
             ###############
             # Saving the results
@@ -165,11 +171,11 @@ if __name__ == '__main__':
     writer.close()
 
     # Plot the error
-    plt.figure(figsize=(10, 5))
-    plt.title("Generator and Discriminator Loss During Training")
-    plt.plot(G_losses, label="G")
-    plt.plot(D_losses, label="D")
-    plt.xlabel("iterations")
-    plt.ylabel("Loss")
-    plt.legend()
-    plt.savefig("loss.png")
+    # plt.figure(figsize=(10, 5))
+    # plt.title("Generator and Discriminator Loss During Training")
+    # plt.plot(G_losses, label="G")
+    # plt.plot(D_losses, label="D")
+    # plt.xlabel("iterations")
+    # plt.ylabel("Loss")
+    # plt.legend()
+    # plt.savefig("loss.png")
