@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from utils import models, datasets
 from captum.attr import Saliency
 from torchvision.transforms import Normalize
+from torch.utils.tensorboard import SummaryWriter
 
 
 if __name__ == '__main__':
@@ -16,7 +17,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='XGAN')
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'nhl'], default='mnist')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='mnist')
     args = parser.parse_args()
 
     # Set manual seed to a constant get a consistent output
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     dataset = datasets.make_dataset(args.dataset, args.batch_size)
 
     # Create models
-    if args.dataset == 'mnist':
+    if args.dataset == 'mnist' or args.dataset == 'fmnist':
         generator = models.GeneratorMNIST().to(device)
         generator.apply(models.weights_init)
 
@@ -72,10 +73,10 @@ if __name__ == '__main__':
     D_losses = []
 
     print("Starting Training Loop...")
-
+    writer = SummaryWriter()
     for epoch in range(args.epochs):
         with tqdm(total=len(dataset), desc="Epoch {}".format(epoch+1)) as pbar:
-            for data in dataset:
+            for i, data in enumerate(dataset):
                 ############################
                 # (1) Update discriminator: maximize log(D(x)) + log(1 - D(G(z)))
                 ###########################
@@ -137,6 +138,9 @@ if __name__ == '__main__':
                 G_losses.append(errG.item())
                 D_losses.append(errD.item())
 
+                writer.add_scalar('xgan/loss/generator', errG.item(), i)
+                writer.add_scalar('xgan/loss/discriminator', errD.item(), i)
+
                 # pbar.set_postfix(g_loss=errG.item(), d_loss=errD.item())
                 pbar.update(1)
 
@@ -147,13 +151,18 @@ if __name__ == '__main__':
             # Save images of the epoch
             fake = generator(fixed_noise)
             vutils.save_image(fake.detach(),
-                              'results/' + args.dataset + '/fake_images/fake_samples_epoch_%03d.png' % epoch,
+                              'results/xgan/' + args.dataset + '/fake_images/fake_samples_epoch_%03d.png' % epoch,
                               normalize=True
                               )
 
             # Save models
-            torch.save(generator.state_dict(), 'results/' + args.dataset + '/weights/gen_epoch_%d.pth' % epoch)
-            torch.save(discriminator.state_dict(), 'results/' + args.dataset + '/weights/disc_epoch_%d.pth' % epoch)
+            torch.save(generator.state_dict(),
+                       'results/xgan/' + args.dataset + '/weights/gen_epoch_%d.pth' % epoch)
+            torch.save(discriminator.state_dict(),
+                       'results/xgan/' + args.dataset + '/weights/disc_epoch_%d.pth' % epoch)
+
+    writer.flush()
+    writer.close()
 
     # Plot the error
     plt.figure(figsize=(10, 5))
