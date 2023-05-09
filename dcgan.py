@@ -15,7 +15,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DCGAN')
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='mnist')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='celeba')
     args = parser.parse_args()
 
     # Set manual seed to a constant get a consistent output
@@ -47,9 +47,15 @@ if __name__ == '__main__':
     else:
         generator = models.GeneratorCelebA().to(device)
         generator.apply(models.weights_init)
+        generator.load_state_dict(
+            torch.load('results/xgan/celeba/weights/gen_epoch_19.pth', map_location=torch.device(device))
+        )
 
         discriminator = models.DiscriminatorCelebA().to(device)
         discriminator.apply(models.weights_init)
+        discriminator.load_state_dict(
+            torch.load('results/xgan/celeba/weights/disc_epoch_19.pth', map_location=torch.device(device))
+        )
 
     ###############
     # Training Loop

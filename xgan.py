@@ -15,9 +15,10 @@ from torch.utils.tensorboard import SummaryWriter
 if __name__ == '__main__':
     # Arguments
     parser = argparse.ArgumentParser(description='XGAN')
-    parser.add_argument('--epochs', '-e', type=int, default=10)
+    parser.add_argument('--epochs', '-e', type=int, default=20)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='mnist')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='celeba')
+    parser.add_argument('--cuda_device', '-c', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:1')
     args = parser.parse_args()
 
     # Set manual seed to a constant get a consistent output
@@ -30,7 +31,7 @@ if __name__ == '__main__':
         device = torch.device("mps")  # For M1 Macs
         print("MPS device selected.")
     elif torch.cuda.is_available():
-        device = torch.device("cuda:0")
+        device = torch.device(args.cuda_device)
         print("CUDA device selected.")
     else:
         device = torch.device('cpu')
@@ -49,16 +50,22 @@ if __name__ == '__main__':
     else:
         generator = models.GeneratorCelebA().to(device)
         generator.apply(models.weights_init)
+        # generator.load_state_dict(
+        #     torch.load('results/xgan/celeba/weights/gen_epoch_19.pth', map_location=torch.device(device))
+        # )
 
         discriminator = models.DiscriminatorCelebA().to(device)
         discriminator.apply(models.weights_init)
+        # discriminator.load_state_dict(
+        #     torch.load('results/xgan/celeba/weights/disc_epoch_19.pth', map_location=torch.device(device))
+        # )
 
     ###############
     # Training Loop
     ###############
     fixed_noise = torch.randn(64, 100, 1, 1, device=device)
     cross_entropy = nn.BCELoss()  # Binary cross entropy function
-    mse = nn.MSELoss(reduction='none')
+    l1_loss = nn.L1Loss(reduction='none')
     normalize = Normalize((0.5,), (0.5,))
 
     real_label = 1.
@@ -125,10 +132,10 @@ if __name__ == '__main__':
                     shape = torch.ones_like(input=explanations, dtype=torch.float32)
 
                     errG = cross_entropy(output, label)
-                    diff = fake - explanations
-                    ed_loss = mse(fake, diff)
+                    # diff = fake - explanations
+                    # ed_loss = l1_loss(fake, -explanations)
 
-                    errTotal = errG * ed_loss
+                    errTotal = errG * -explanations
                     # -------------------------------------
 
                     errTotal.backward(gradient=shape)
