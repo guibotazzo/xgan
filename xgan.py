@@ -1,25 +1,58 @@
+import os
 import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import random
 from tqdm import tqdm
-import torchvision.utils as vutils
-import matplotlib.pyplot as plt
-from utils import models, datasets
+from torchvision.utils import make_grid
+from lib import models, datasets
 from captum.attr import Saliency
 from torchvision.transforms import Normalize
 from torch.utils.tensorboard import SummaryWriter
 
 
+def _select_device():
+    if torch.backends.mps.is_available():
+        print("MPS device selected.")
+        return torch.device("mps")  # For M1 Macs
+    elif torch.cuda.is_available():
+        print("CUDA device selected.")
+        return torch.device("cuda:0")
+    else:
+        print("CPU device selected.")
+        return torch.device('cpu')
+
+
+def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_maps: int):
+    if ds == 'mnist' or ds == 'fmnist':
+        g_model = models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init)
+        d_model = models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
+    elif ds == 'nhl':
+        if im_size == 128:
+            g_model = models.Generator128(noise_dim, channels, feature_maps).to(device).apply(models.weights_init)
+            d_model = models.Discriminator128(channels, feature_maps).to(device).apply(models.weights_init)
+    else:
+        g_model = models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init)
+        d_model = models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
+
+    return g_model, d_model
+
+
 if __name__ == '__main__':
     # Arguments
     parser = argparse.ArgumentParser(description='XGAN')
-    parser.add_argument('--epochs', '-e', type=int, default=20)
+    parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='celeba')
-    parser.add_argument('--cuda_device', '-c', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:1')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='mnist')
+    parser.add_argument('--img_size', '-s', type=int, default=28)
+    parser.add_argument('--channels', '-c', type=int, default=1)
+    parser.add_argument('--noise_size', '-z', type=int, default=100)
+    parser.add_argument('--feature_maps', '-f', type=int, default=64)
     args = parser.parse_args()
+
+    if not os.path.exists('weights/xgan/' + args.dataset):
+        os.mkdir('weights/xgan/' + args.dataset)
 
     # Set manual seed to a constant get a consistent output
     manualSeed = random.randint(1, 10000)
@@ -27,45 +60,24 @@ if __name__ == '__main__':
     torch.manual_seed(manualSeed)
 
     # Parameters
-    if torch.backends.mps.is_available():
-        device = torch.device("mps")  # For M1 Macs
-        print("MPS device selected.")
-    elif torch.cuda.is_available():
-        device = torch.device(args.cuda_device)
-        print("CUDA device selected.")
-    else:
-        device = torch.device('cpu')
-        print("CPU device selected.")
+    device = _select_device()
 
     # Load dataset
-    dataset = datasets.make_dataset(args.dataset, args.batch_size)
+    dataset = datasets.make_dataset(args.dataset, args.batch_size, args.img_size)
 
     # Create models
-    if args.dataset == 'mnist' or args.dataset == 'fmnist':
-        generator = models.GeneratorMNIST().to(device)
-        generator.apply(models.weights_init)
-
-        discriminator = models.DiscriminatorMNIST().to(device)
-        discriminator.apply(models.weights_init)
-    else:
-        generator = models.GeneratorCelebA().to(device)
-        generator.apply(models.weights_init)
-        # generator.load_state_dict(
-        #     torch.load('results/xgan/celeba/weights/gen_epoch_19.pth', map_location=torch.device(device))
-        # )
-
-        discriminator = models.DiscriminatorCelebA().to(device)
-        discriminator.apply(models.weights_init)
-        # discriminator.load_state_dict(
-        #     torch.load('results/xgan/celeba/weights/disc_epoch_19.pth', map_location=torch.device(device))
-        # )
+    generator, discriminator = _load_models(args.dataset,
+                                            args.img_size,
+                                            args.noise_size,
+                                            args.channels,
+                                            args.feature_maps)
 
     ###############
     # Training Loop
     ###############
     fixed_noise = torch.randn(64, 100, 1, 1, device=device)
     cross_entropy = nn.BCELoss()  # Binary cross entropy function
-    l1_loss = nn.L1Loss(reduction='none')
+    # mse = nn.L1Loss(reduction='none')
     normalize = Normalize((0.5,), (0.5,))
 
     real_label = 1.
@@ -97,7 +109,10 @@ if __name__ == '__main__':
 
                 real_cpu = data[0].to(device)
                 batch_size = real_cpu.size(0)
-                label = torch.full((batch_size, 1, 1, 1), real_label, dtype=torch.float, device=device)
+                label = torch.full((batch_size, 1, 1, 1) if args.channels == 3 else (batch_size, ),
+                                   real_label,
+                                   dtype=torch.float,
+                                   device=device)
 
                 output = discriminator(real_cpu)
                 errD_real = cross_entropy(output, label)
@@ -129,15 +144,14 @@ if __name__ == '__main__':
                     explanations = saliency.attribute(fake)
                     explanations = normalize(explanations)
 
-                    shape = torch.ones_like(input=explanations, dtype=torch.float32)
-
                     errG = cross_entropy(output, label)
                     # diff = fake - explanations
-                    # ed_loss = l1_loss(fake, -explanations)
+                    # ed_loss = mse(fake, explanations)
 
                     errTotal = errG * -explanations
                     # -------------------------------------
 
+                    shape = torch.ones_like(input=explanations, dtype=torch.float32)
                     errTotal.backward(gradient=shape)
                 else:
                     errG = cross_entropy(output, label)
@@ -154,35 +168,19 @@ if __name__ == '__main__':
                 # pbar.set_postfix(g_loss=errG.item(), d_loss=errD.item())
                 pbar.update(1)
 
+            # Write epoch loss on Tensorboard
             writer.add_scalar('xgan/loss/generator', running_loss_g/len(dataset.dataset), epoch)
             writer.add_scalar('xgan/loss/discriminator', running_loss_d/len(dataset.dataset), epoch)
 
-            ###############
-            # Saving the results
-            ###############
-            
             # Save images of the epoch
-            fake = generator(fixed_noise)
-            vutils.save_image(fake.detach(),
-                              'results/xgan/' + args.dataset + '/fake_images/fake_samples_epoch_%03d.png' % epoch,
-                              normalize=True
-                              )
+            with torch.no_grad():
+                fake = generator(fixed_noise)
+                img_grid_fake = make_grid(fake[:32], normalize=True)
+                writer.add_image("Fake images", img_grid_fake, global_step=epoch)
 
             # Save models
-            torch.save(generator.state_dict(),
-                       'results/xgan/' + args.dataset + '/weights/gen_epoch_%d.pth' % epoch)
-            torch.save(discriminator.state_dict(),
-                       'results/xgan/' + args.dataset + '/weights/disc_epoch_%d.pth' % epoch)
+            torch.save(generator.state_dict(), 'weights/xgan/' + args.dataset + '/gen_epoch_%d.pth' % epoch)
+            torch.save(discriminator.state_dict(), 'weights/xgan/' + args.dataset + '/disc_epoch_%d.pth' % epoch)
 
     writer.flush()
     writer.close()
-
-    # Plot the error
-    # plt.figure(figsize=(10, 5))
-    # plt.title("Generator and Discriminator Loss During Training")
-    # plt.plot(G_losses, label="G")
-    # plt.plot(D_losses, label="D")
-    # plt.xlabel("iterations")
-    # plt.ylabel("Loss")
-    # plt.legend()
-    # plt.savefig("loss.png")

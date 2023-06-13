@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 from torchvision.utils import make_grid
 from tensorboardX import SummaryWriter
-from utils import datasets, models
+from lib import datasets, models
 import argparse
 from tqdm import tqdm
 

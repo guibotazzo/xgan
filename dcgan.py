@@ -6,7 +6,7 @@ import random
 from tqdm import tqdm
 import torchvision.utils as vutils
 import matplotlib.pyplot as plt
-from utils import models, datasets
+from lib import models, datasets
 from torch.utils.tensorboard import SummaryWriter
 
 
