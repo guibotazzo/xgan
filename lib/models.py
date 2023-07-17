@@ -191,3 +191,36 @@ class Discriminator64(nn.Module):
 
     def forward(self, input):
         return self.main(input)
+
+
+class Generator256(nn.Module):
+    def __init__(self, noise_dim, channels, feature_maps):
+        super(Generator256, self).__init__()
+
+        self.nz = noise_dim  # Size of z latent vector
+        self.ngf = feature_maps  # Size of feature maps in generator
+        self.nc = channels  # Number of channels in the training images
+        self.network = nn.Sequential(
+            nn.ConvTranspose2d(in_channels=self.nz, out_channels=self.ngf*16,
+                               kernel_size=10, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(self.ngf*16),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*16, out_channels=self.ngf*8,
+                               kernel_size=10, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(self.ngf*8),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*8, out_channels=self.ngf*4,
+                               kernel_size=10, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(self.ngf*4),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*4, out_channels=self.ngf*2,
+                               kernel_size=10, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(self.ngf*2),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*2, out_channels=self.nc,
+                               kernel_size=14, stride=2, padding=0, bias=False),
+            nn.Tanh()
+        )
+
+    def forward(self, input):
+        return self.network(input)
