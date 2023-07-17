@@ -2,6 +2,9 @@ import torch.nn as nn
 
 
 def weights_init(m):
+    """
+        Initial weights for DCGAN.
+    """
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
         nn.init.normal_(m.weight.data, 0.0, 0.02)
@@ -10,11 +13,40 @@ def weights_init(m):
         nn.init.constant_(m.bias.data, 0)
 
 
+def reset_weights(m):
+    """
+        Reset model weights to avoid weight leakage.
+    """
+    for layer in m.children():
+        if hasattr(layer, 'reset_parameters'):
+            layer.reset_parameters()
+
+
+class ConvNet(nn.Module):
+    """
+        Simple ConvNet for classification (MNIST and FMNIST datasets).
+    """
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Conv2d(1, 10, kernel_size=3),
+            nn.ReLU(),
+            nn.Flatten(),
+            nn.Linear(26 * 26 * 10, 50),
+            nn.ReLU(),
+            nn.Linear(50, 20),
+            nn.ReLU(),
+            nn.Linear(20, 10)
+        )
+
+    def forward(self, x):
+        return self.layers(x)
+
+
 class Generator28(nn.Module):
     """
         Generator model for 28x28-sized images.
     """
-
     def __init__(self, noise_dim, channels, feature_maps):
         super(Generator28, self).__init__()
         self.zd = noise_dim  # Size of the input noise
