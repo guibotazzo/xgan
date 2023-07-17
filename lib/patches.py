@@ -1,5 +1,10 @@
 from tqdm import tqdm
 from matplotlib.pyplot import imread, imsave
+import models
+
+
+def create_fake_dataset():
+    pass
 
 
 def make_nhl_patches():
@@ -31,6 +36,7 @@ def make_nhl_patches():
                         k = k + 1
 
                 pbar.update(1)
+
 
 if __name__ == '__main__':
     make_nhl_patches()

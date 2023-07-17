@@ -26,17 +26,15 @@ def _select_device():
 
 def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_maps: int):
     if ds == 'mnist' or ds == 'fmnist':
-        g_model = models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init)
-        d_model = models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
+        return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
+               models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
     elif ds == 'nhl':
         if im_size == 128:
-            g_model = models.Generator128(noise_dim, channels, feature_maps).to(device).apply(models.weights_init)
-            d_model = models.Discriminator128(channels, feature_maps).to(device).apply(models.weights_init)
+            return models.Generator128(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
+                   models.Discriminator128(channels, feature_maps).to(device).apply(models.weights_init)
     else:
-        g_model = models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init)
-        d_model = models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
-
-    return g_model, d_model
+        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
+               models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
 
 
 if __name__ == '__main__':

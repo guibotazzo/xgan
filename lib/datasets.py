@@ -1,17 +1,17 @@
 import os
-from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, Grayscale
 from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST, FashionMNIST, ImageFolder
 from gdown import download
 from zipfile import ZipFile
 
 
-def make_mnist_dataset(batch_size: int):
-    # loading the dataset
+def make_mnist_dataset(batch_size: int, img_size=28):
     dataset = MNIST(root='./datasets',
                     download=True,
+                    train=True,
                     transform=Compose([
-                        Resize(28),
+                        Resize(img_size),
                         ToTensor(),
                         Normalize((0.5,), (0.5,)),
                     ]))
@@ -19,12 +19,13 @@ def make_mnist_dataset(batch_size: int):
     return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
 
-def make_fmnist_dataset(batch_size: int):
+def make_fmnist_dataset(batch_size: int, img_size=28):
     # loading the dataset
     dataset = FashionMNIST(root='./datasets',
                            download=True,
+                           train=True,
                            transform=Compose([
-                               Resize(28),
+                               Resize(img_size),
                                ToTensor(),
                                Normalize((0.5,), (0.5,)),
                            ]))
@@ -55,12 +56,14 @@ def make_celebA_dataset(batch_size: int, img_size: int):
 
 
 def make_nhl_dataset(batch_size: int, img_size: int):
-    path = '/Users/guilherme/Downloads/Datasets/Patches/NHL' + str(img_size)
+    path = '/Users/guilherme/Downloads/artificial_datasets/mnist'
 
     dataset = ImageFolder(root=path,
                           transform=Compose([
+                              Resize(img_size),
+                              Grayscale(),
                               ToTensor(),
-                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                              Normalize((0.5,), (0.5,)),
                           ]))
 
     return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
@@ -68,9 +71,9 @@ def make_nhl_dataset(batch_size: int, img_size: int):
 
 def make_dataset(dataset: str, batch_size: int, img_size: int):
     if dataset == 'mnist':
-        return make_mnist_dataset(batch_size)
+        return make_mnist_dataset(batch_size, img_size)
     elif dataset == 'fminist':
-        return make_fmnist_dataset(batch_size)
+        return make_fmnist_dataset(batch_size, img_size)
     elif dataset == 'celeba':
         return make_celebA_dataset(batch_size, img_size)
     elif dataset == 'nhl':
