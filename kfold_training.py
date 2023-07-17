@@ -126,7 +126,7 @@ def train_model(num_epochs, batch_size, k, device):
         # display.print_style('Loss graph saved as: ' + graph_file_name, color='GREEN')
 
         # Save model weights
-        trained_model_file = 'weights/fold_' + str(fold)
+        trained_model_file = 'weights/cnn/mnist/fold_' + str(fold)
         torch.save(model.state_dict(), trained_model_file)
         # display.print_style('Models weights saved as: ' + trained_model_file, color='GREEN')
 
