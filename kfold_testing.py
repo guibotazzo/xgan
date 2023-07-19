@@ -3,11 +3,12 @@ import numpy as np
 from tqdm import tqdm
 from lib import models, datasets
 from sklearn.metrics import classification_report, confusion_matrix
+from torchvision.models import alexnet
 
 
 def test(test_dataset, device):
-    model = models.ConvNet().to(device)
-    model.load_state_dict(torch.load('weights/fold_1'))
+    model = alexnet().to(device)
+    model.load_state_dict(torch.load('weights/alexnet/nhl256a/fold_1'))
 
     actual = np.array([])
     expected = np.array([])
@@ -26,7 +27,7 @@ def test(test_dataset, device):
 
             pbar.update(1)
 
-    acc = (actual == expected).sum()/actual.size
+    acc = (actual == expected).sum() / actual.size
 
     print('Confusion matrix:')
     print(confusion_matrix(expected, actual))
@@ -36,7 +37,12 @@ def test(test_dataset, device):
 
 
 if __name__ == '__main__':
-    ds = datasets.make_dataset(dataset='mnist', img_size=28, artificial=False, train=False)
-    dl = torch.utils.data.DataLoader(ds, batch_size=1)
+    ds = datasets.make_dataset(dataset='nhl256',
+                               batch_size=32,
+                               img_size=256,
+                               classification=True,
+                               artificial=False,
+                               train=True)
+    dl = torch.utils.data.DataLoader(ds, batch_size=32)
 
     test(test_dataset=dl, device=torch.device('mps'))

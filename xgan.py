@@ -10,6 +10,7 @@ from lib import models, datasets
 from captum.attr import Saliency
 from torchvision.transforms import Normalize
 from torch.utils.tensorboard import SummaryWriter
+import pathlib
 
 
 def _select_device():
@@ -29,16 +30,15 @@ def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_m
         return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
                models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
     elif ds == 'nhl':
-        if im_size == 128:
-            return models.Generator128(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-                   models.Discriminator128(channels, feature_maps).to(device).apply(models.weights_init)
+        if im_size == 256:
+            return models.Generator256(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
+                   models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
     else:
         return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
 
 
 if __name__ == '__main__':
-    # Arguments
     parser = argparse.ArgumentParser(description='XGAN')
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
@@ -50,7 +50,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if not os.path.exists('weights/xgan/' + args.dataset):
-        os.mkdir('weights/xgan/' + args.dataset)
+        path = 'weights/xgan/' + args.dataset
+        path = pathlib.Path(path)
+        path.mkdir(parents=True)
 
     # Set manual seed to a constant get a consistent output
     manualSeed = random.randint(1, 10000)
@@ -61,14 +63,19 @@ if __name__ == '__main__':
     device = _select_device()
 
     # Load dataset
-    dataset = datasets.make_dataset(args.dataset, args.batch_size, args.img_size)
+    dataset = datasets.make_dataset(dataset=args.dataset,
+                                    batch_size=args.batch_size,
+                                    img_size=args.img_size,
+                                    classification=False,
+                                    artificial=False,
+                                    train=True)
 
     # Create models
-    generator, discriminator = _load_models(args.dataset,
-                                            args.img_size,
-                                            args.noise_size,
-                                            args.channels,
-                                            args.feature_maps)
+    generator, discriminator = _load_models(ds=args.dataset,
+                                            im_size=args.img_size,
+                                            noise_dim=args.noise_size,
+                                            channels=args.channels,
+                                            feature_maps=args.feature_maps)
 
     ###############
     # Training Loop
@@ -175,6 +182,11 @@ if __name__ == '__main__':
                 fake = generator(fixed_noise)
                 img_grid_fake = make_grid(fake[:32], normalize=True)
                 writer.add_image("Fake images", img_grid_fake, global_step=epoch)
+
+                saliency = Saliency(discriminator)
+                explanations = saliency.attribute(fake)
+                exp_grid = make_grid(explanations[:32], normalize=True)
+                writer.add_image("Explanations", exp_grid, global_step=epoch)
 
             # Save models
             torch.save(generator.state_dict(), 'weights/xgan/' + args.dataset + '/gen_epoch_%d.pth' % epoch)

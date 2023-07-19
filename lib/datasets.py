@@ -50,8 +50,8 @@ def _make_fmnist_dataset(batch_size: int, img_size=28):
     return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
 
-def _make_celeba_dataset(batch_size: int, img_size: int):
-    path = './datasets/CelebA/data.zip'
+def _make_celeba_dataset(batch_size: int, img_size: int, classification: bool):
+    path = '/Users/guilherme/Downloads/datasets/original/celeba/data.zip'
 
     if not os.path.exists(path):
         url = 'https://drive.google.com/uc?id=1O7m1010EJjLE5QxLZiM9Fpjs7Oj6e684'
@@ -59,9 +59,9 @@ def _make_celeba_dataset(batch_size: int, img_size: int):
         download(url, path, quiet=True)
 
         with ZipFile(path, 'r') as zipobj:
-            zipobj.extractall('./datasets/CelebA/')
+            zipobj.extractall('/Users/guilherme/Downloads/datasets/original/celeba/')
 
-    dataset = ImageFolder(root='./datasets/CelebA/',
+    dataset = ImageFolder(root='/Users/guilherme/Downloads/datasets/original/celeba/',
                           transform=Compose([
                               Resize(img_size),
                               CenterCrop(img_size),
@@ -69,32 +69,44 @@ def _make_celeba_dataset(batch_size: int, img_size: int):
                               Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                           ]))
 
-    return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+
+    if classification:
+        return dataset
+    else:
+        return dataloader
 
 
-def _make_nhl_dataset(batch_size: int, img_size: int):
-    path = '/Users/guilherme/Downloads/artificial_datasets/mnist'
-
+def _make_nhl256_dataset(path, batch_size: int, img_size: int, classification: bool):
     dataset = ImageFolder(root=path,
                           transform=Compose([
                               Resize(img_size),
-                              Grayscale(),
                               ToTensor(),
                               Normalize((0.5,), (0.5,)),
                           ]))
 
-    return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+
+    if classification:
+        return dataset
+    else:
+        return dataloader
 
 
 def make_dataset(dataset: str, batch_size: int, img_size: int, classification: bool, artificial: bool, train: bool):
     if dataset == 'mnist':
         if artificial:
-            _make_artificial_mnist_dataset(img_size)
+            return _make_artificial_mnist_dataset(img_size)
         else:
             return _make_mnist_dataset(batch_size, img_size, classification, train)
-    elif dataset == 'fminist':
-        return _make_fmnist_dataset(batch_size, img_size)
+
     elif dataset == 'celeba':
-        return _make_celeba_dataset(batch_size, img_size)
-    elif dataset == 'nhl':
-        return _make_nhl_dataset(batch_size, img_size)
+        return _make_celeba_dataset(batch_size, img_size, classification)
+
+    elif dataset == 'nhl256':
+        if artificial:
+            path = '/Users/guilherme/Downloads/datasets/artificial/xwgan-gp/nhl256/'
+            return _make_nhl256_dataset(path, batch_size, img_size, classification)
+        else:
+            path = '/Users/guilherme/Downloads/datasets/patches/NHL256/'
+            return _make_nhl256_dataset(path, batch_size, img_size, classification)

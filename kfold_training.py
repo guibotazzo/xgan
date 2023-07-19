@@ -1,11 +1,13 @@
 import copy
 import torch
-from torch.nn import CrossEntropyLoss
-from torch.optim import lr_scheduler
+import argparse
 from tqdm import tqdm
+from lib import models, datasets
 from numpy import Infinity, zeros
+from torch.optim import lr_scheduler
+from torch.nn import CrossEntropyLoss
+from torchvision.models import alexnet
 from sklearn.model_selection import StratifiedKFold
-from lib import models, datasets  # our custom libs
 
 
 class PhaseHistory:
@@ -22,35 +24,53 @@ class ModelLearningSummary:
         self.eval = PhaseHistory(epochs)
 
 
-def train_model(num_epochs, batch_size, k, device):
-    history = ModelLearningSummary(num_epochs)
+def _load_model(net, device):
+    if net == 'convnet':
+        model = models.ConvNet().to(device)
+        model.apply(models.reset_weights)
+        return model
+
+    if net == 'alexnet':
+        model = alexnet(weights='DEFAULT').to(device)
+        model.apply(models.reset_weights)
+        return model
+
+
+def train_model(args):
+    device = torch.device('mps')
+    history = ModelLearningSummary(args.epochs)
     best_acc = 0.0
+
+    skf = StratifiedKFold(n_splits=args.num_folds, shuffle=True, random_state=42)
+
+    dataset = datasets.make_dataset(dataset=args.dataset,
+                                    batch_size=args.batch_size,
+                                    img_size=args.img_size,
+                                    classification=True,
+                                    artificial=False,
+                                    train=True)
+
     fold = 1
-
-    skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
-    dataset = datasets.make_dataset(dataset='mnist', img_size=28, artificial=True, train=True)
-
     for train_idx, val_idx in skf.split(dataset, dataset.targets):
         print(f"--- Fold: {fold} ---")
 
         train_sampler = torch.utils.data.sampler.SubsetRandomSampler(train_idx)
         val_sampler = torch.utils.data.sampler.SubsetRandomSampler(val_idx)
 
-        train_ds = torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=train_sampler)
-        val_ds = torch.utils.data.DataLoader(dataset, batch_size=batch_size, sampler=val_sampler)
+        train_ds = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=train_sampler)
+        val_ds = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=val_sampler)
 
-        dataset_sizes = {'train': 48000, 'val': 12000}
+        dataset_sizes = {'train': len(train_idx), 'val': len(val_idx)}
 
         # Reset model
-        model = models.ConvNet().to(device)
-        model.apply(models.reset_weights)
+        model = _load_model(args.model, device)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
         scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
         criterion = CrossEntropyLoss()
 
         # Training loop
-        for epoch in range(num_epochs):
+        for epoch in range(args.epochs):
             # Each epoch has a training and validation phase
             for phase in ['train', 'val']:
                 if phase == 'train':
@@ -126,7 +146,7 @@ def train_model(num_epochs, batch_size, k, device):
         # display.print_style('Loss graph saved as: ' + graph_file_name, color='GREEN')
 
         # Save model weights
-        trained_model_file = 'weights/cnn/mnist/fold_' + str(fold)
+        trained_model_file = 'weights/alexnet/nhl256o/fold_' + str(fold)
         torch.save(model.state_dict(), trained_model_file)
         # display.print_style('Models weights saved as: ' + trained_model_file, color='GREEN')
 
@@ -134,4 +154,13 @@ def train_model(num_epochs, batch_size, k, device):
 
 
 if __name__ == '__main__':
-    train_model(num_epochs=10, batch_size=32, k=5, device=torch.device('cpu'))
+    parser = argparse.ArgumentParser(description='XGAN')
+    parser.add_argument('--epochs', '-e', type=int, default=10)
+    parser.add_argument('--batch_size', '-b', type=int, default=32)
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'nhl256'], default='mnist')
+    parser.add_argument('--model', '-m', type=str, choices=['convnet', 'alexnet'], default='convnet')
+    parser.add_argument('--img_size', '-s', type=int, default=28)
+    parser.add_argument('--num_folds', '-k', type=int, default=5)
+    arguments = parser.parse_args()
+
+    train_model(arguments)
