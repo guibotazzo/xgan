@@ -49,8 +49,8 @@ if __name__ == '__main__':
     parser.add_argument('--feature_maps', '-f', type=int, default=64)
     args = parser.parse_args()
 
-    if not os.path.exists('weights/xgan/' + args.dataset):
-        path = 'weights/xgan/' + args.dataset
+    if not os.path.exists('weights/xdcgan/' + args.dataset):
+        path = 'weights/xdcgan/' + args.dataset
         path = pathlib.Path(path)
         path.mkdir(parents=True)
 
@@ -174,8 +174,8 @@ if __name__ == '__main__':
                 pbar.update(1)
 
             # Write epoch loss on Tensorboard
-            writer.add_scalar('xgan/loss/generator', running_loss_g/len(dataset.dataset), epoch)
-            writer.add_scalar('xgan/loss/discriminator', running_loss_d/len(dataset.dataset), epoch)
+            writer.add_scalar('xdcgan/loss/generator', running_loss_g/len(dataset.dataset), epoch)
+            writer.add_scalar('xdcgan/loss/discriminator', running_loss_d/len(dataset.dataset), epoch)
 
             # Save images of the epoch
             with torch.no_grad():
@@ -189,8 +189,8 @@ if __name__ == '__main__':
                 writer.add_image("Explanations", exp_grid, global_step=epoch)
 
             # Save models
-            torch.save(generator.state_dict(), 'weights/xgan/' + args.dataset + '/gen_epoch_%d.pth' % epoch)
-            torch.save(discriminator.state_dict(), 'weights/xgan/' + args.dataset + '/disc_epoch_%d.pth' % epoch)
+            torch.save(generator.state_dict(), 'weights/xdcgan/' + args.dataset + '/gen_epoch_%d.pth' % epoch)
+            torch.save(discriminator.state_dict(), 'weights/xdcgan/' + args.dataset + '/disc_epoch_%d.pth' % epoch)
 
     writer.flush()
     writer.close()

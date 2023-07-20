@@ -43,7 +43,7 @@ def _create_nhl256(args, device):
             folder.mkdir(parents=True)
 
         generator.load_state_dict(torch.load(
-            '/Users/guilherme/Documents/Doutorado/Sources/xgan/weights/xwgan-gp/nhl256/' + label + '_gen',
+            '/Users/guilherme/Documents/Doutorado/Sources/xdcgan/weights/xwgan-gp/nhl256/' + label + '_gen',
             map_location=torch.device('cpu')
         ))
 
@@ -62,7 +62,7 @@ def _create_nhl256(args, device):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create a artificial dataset')
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'nhl256'], default='mnist')
-    parser.add_argument('--model', '-m', type=str, choices=['dcgan', 'xgan', 'xwgan-gp'], default='dcgan')
+    parser.add_argument('--model', '-m', type=str, choices=['dcgan', 'xdcgan', 'xwgan-gp'], default='dcgan')
     arguments = parser.parse_args()
 
     dev = torch.device('cpu')
