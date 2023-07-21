@@ -6,22 +6,10 @@ import torch.optim as optim
 import random
 from tqdm import tqdm
 from torchvision.utils import make_grid
-from lib import models, datasets
+from lib import models, datasets, utils
 from captum.attr import Saliency
 from torch.utils.tensorboard import SummaryWriter
 import pathlib
-
-
-def _select_device():
-    if torch.backends.mps.is_available():
-        print("MPS device selected.")
-        return torch.device("mps")  # For M1 Macs
-    elif torch.cuda.is_available():
-        print("CUDA device selected.")
-        return torch.device("cuda:0")
-    else:
-        print("CPU device selected.")
-        return torch.device('cpu')
 
 
 def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_maps: int):
@@ -64,7 +52,7 @@ if __name__ == '__main__':
     torch.manual_seed(manualSeed)
 
     # Parameters
-    device = _select_device()
+    device = utils.select_device()
 
     # Load dataset
     dataset = datasets.make_dataset(dataset=args.dataset,

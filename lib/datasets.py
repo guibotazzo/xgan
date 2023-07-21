@@ -51,7 +51,7 @@ def _make_fmnist_dataset(batch_size: int, img_size=28):
 
 
 def _make_celeba_dataset(batch_size: int, img_size: int, classification: bool):
-    path = '/Users/guilherme/Downloads/datasets/original/celeba/data.zip'
+    path = 'datasets/celeba/data.zip'
 
     if not os.path.exists(path):
         url = 'https://drive.google.com/uc?id=1O7m1010EJjLE5QxLZiM9Fpjs7Oj6e684'
@@ -59,9 +59,9 @@ def _make_celeba_dataset(batch_size: int, img_size: int, classification: bool):
         download(url, path, quiet=True)
 
         with ZipFile(path, 'r') as zipobj:
-            zipobj.extractall('/Users/guilherme/Downloads/datasets/original/celeba/')
+            zipobj.extractall('datasets/celeba/')
 
-    dataset = ImageFolder(root='/Users/guilherme/Downloads/datasets/original/celeba/',
+    dataset = ImageFolder(root='datasets/celeba/',
                           transform=Compose([
                               Resize(img_size),
                               CenterCrop(img_size),

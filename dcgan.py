@@ -6,21 +6,9 @@ import torch.optim as optim
 import random
 from tqdm import tqdm
 from torchvision.utils import make_grid
-from lib import models, datasets
+from lib import models, datasets, utils
 from torch.utils.tensorboard import SummaryWriter
 import pathlib
-
-
-def _select_device():
-    if torch.backends.mps.is_available():
-        print("MPS device selected.")
-        return torch.device("mps")  # For M1 Macs
-    elif torch.cuda.is_available():
-        print("CUDA device selected.")
-        return torch.device("cuda:0")
-    else:
-        print("CPU device selected.")
-        return torch.device('cpu')
 
 
 def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_maps: int):
@@ -28,9 +16,9 @@ def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_m
         return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
                models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
     elif ds == 'nhl':
-        if im_size == 128:
-            return models.Generator128(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-                   models.Discriminator128(channels, feature_maps).to(device).apply(models.weights_init)
+        if im_size == 256:
+            return models.Generator256(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
+                   models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
     else:
         return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
@@ -59,17 +47,22 @@ if __name__ == '__main__':
     torch.manual_seed(manualSeed)
 
     # Parameters
-    device = _select_device()
+    device = utils.select_device()
 
     # Load dataset
-    dataset = datasets.make_dataset(args.dataset, args.batch_size, args.img_size)
+    dataset = datasets.make_dataset(dataset=args.dataset,
+                                    batch_size=args.batch_size,
+                                    img_size=args.img_size,
+                                    classification=False,
+                                    artificial=False,
+                                    train=True)
 
     # Create models
-    generator, discriminator = _load_models(args.dataset,
-                                            args.img_size,
-                                            args.noise_size,
-                                            args.channels,
-                                            args.feature_maps)
+    generator, discriminator = _load_models(ds=args.dataset,
+                                            im_size=args.img_size,
+                                            noise_dim=args.noise_size,
+                                            channels=args.channels,
+                                            feature_maps=args.feature_maps)
 
     ###############
     # Training Loop
@@ -106,7 +99,10 @@ if __name__ == '__main__':
 
                 real_cpu = data[0].to(device)
                 batch_size = real_cpu.size(0)
-                label = torch.full((batch_size, ), real_label, dtype=torch.float, device=device)
+                label = torch.full((batch_size, 1, 1, 1) if args.channels == 3 else (batch_size,),
+                                   real_label,
+                                   dtype=torch.float,
+                                   device=device)
 
                 output = discriminator(real_cpu)
                 errD_real = cross_entropy(output, label)
