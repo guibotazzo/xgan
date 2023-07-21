@@ -5,6 +5,7 @@ from torchvision.utils import save_image
 from torch.autograd import Variable
 from tqdm import tqdm
 from lib import models, datasets
+from torchvision.transforms import Normalize
 from captum.attr import DeepLift
 from copy import deepcopy
 
@@ -110,9 +111,22 @@ if __name__ == '__main__':
 
                 # Loss measures generator's ability to fool the discriminator
                 validity, pred_label = discriminator(gen_imgs)
-                g_loss = 0.5 * (adversarial_loss(validity, valid) + auxiliary_loss(pred_label, gen_labels))
 
-                g_loss.backward()
+                if epoch > 4:
+                    g_loss = 0.5 * (adversarial_loss(validity, valid) + auxiliary_loss(pred_label, gen_labels))
+
+                    discriminatoraux.load_state_dict(discriminator.state_dict())
+                    deeplift = DeepLift(discriminatoraux)
+                    explanations = deeplift.attribute(inputs=gen_imgs, target=torch.argmax(pred_label, dim=1))
+
+                    g_loss = g_loss * explanations
+
+                    shape = torch.ones_like(input=explanations, dtype=torch.float32)
+                    g_loss.backward(gradient=shape)
+                else:
+                    g_loss = 0.5 * (adversarial_loss(validity, valid) + auxiliary_loss(pred_label, gen_labels))
+                    g_loss.backward()
+
                 optimizer_G.step()
 
                 # ---------------------

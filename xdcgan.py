@@ -8,7 +8,6 @@ from tqdm import tqdm
 from torchvision.utils import make_grid
 from lib import models, datasets
 from captum.attr import Saliency
-from torchvision.transforms import Normalize
 from torch.utils.tensorboard import SummaryWriter
 import pathlib
 
@@ -36,6 +35,11 @@ def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_m
     else:
         return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
+
+
+def minmax_scaler(arr, *, vmin=0, vmax=1):
+    arr_min, arr_max = arr.min(), arr.max()
+    return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
 
 
 if __name__ == '__main__':
@@ -82,8 +86,6 @@ if __name__ == '__main__':
     ###############
     fixed_noise = torch.randn(64, 100, 1, 1, device=device)
     cross_entropy = nn.BCELoss()  # Binary cross entropy function
-    # mse = nn.L1Loss(reduction='none')
-    normalize = Normalize((0.5,), (0.5,))
 
     real_label = 1.
     fake_label = 0.
@@ -142,22 +144,21 @@ if __name__ == '__main__':
                 label.fill_(real_label)
 
                 output = discriminator(fake)
+                fooled = (output > 0.6).float().reshape((batch_size, 1, 1, 1))
 
-                if epoch > 4:
+                if epoch > int(epoch/2):
                     # -------------------------------------
                     saliency = Saliency(discriminator)
                     explanations = saliency.attribute(fake)
-                    explanations = normalize(explanations)
+                    explanations = minmax_scaler(explanations)
+                    explanations = fooled * explanations
 
                     errG = cross_entropy(output, label)
-                    # diff = fake - explanations
-                    # ed_loss = mse(fake, explanations)
-
-                    errTotal = errG * -explanations
-                    # -------------------------------------
+                    errX = errG * explanations
 
                     shape = torch.ones_like(input=explanations, dtype=torch.float32)
-                    errTotal.backward(gradient=shape)
+                    errX.backward(gradient=shape)
+                    # -------------------------------------
                 else:
                     errG = cross_entropy(output, label)
                     errG.backward()
@@ -183,10 +184,10 @@ if __name__ == '__main__':
                 img_grid_fake = make_grid(fake[:32], normalize=True)
                 writer.add_image("Fake images", img_grid_fake, global_step=epoch)
 
-                saliency = Saliency(discriminator)
-                explanations = saliency.attribute(fake)
-                exp_grid = make_grid(explanations[:32], normalize=True)
-                writer.add_image("Explanations", exp_grid, global_step=epoch)
+            saliency = Saliency(discriminator)
+            explanations = saliency.attribute(fake)
+            exp_grid = make_grid(explanations[:32], normalize=True)
+            writer.add_image("Saliency", exp_grid, global_step=epoch)
 
             # Save models
             torch.save(generator.state_dict(), 'weights/xdcgan/' + args.dataset + '/gen_epoch_%d.pth' % epoch)
