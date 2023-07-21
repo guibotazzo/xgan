@@ -147,12 +147,12 @@ if __name__ == '__main__':
 
                 if epoch > int(args.epochs/2):
                     # -------------------------------------
-                    fooled = (output > 0.6).float().reshape((batch_size, 1, 1, 1))
+                    # fooled = (output > 0.6).float().reshape((batch_size, 1, 1, 1))
 
                     saliency = Saliency(discriminator)
                     explanations = saliency.attribute(fake)
                     explanations = minmax_scaler(explanations)
-                    explanations = fooled * explanations
+                    # explanations = fooled * explanations
 
                     errG = cross_entropy(output, label)
                     errX = errG * explanations
