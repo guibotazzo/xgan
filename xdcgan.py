@@ -144,10 +144,11 @@ if __name__ == '__main__':
                 label.fill_(real_label)
 
                 output = discriminator(fake)
-                fooled = (output > 0.6).float().reshape((batch_size, 1, 1, 1))
 
-                if epoch > int(epoch/2):
+                if epoch > int(args.epochs/2):
                     # -------------------------------------
+                    fooled = (output > 0.6).float().reshape((batch_size, 1, 1, 1))
+
                     saliency = Saliency(discriminator)
                     explanations = saliency.attribute(fake)
                     explanations = minmax_scaler(explanations)
