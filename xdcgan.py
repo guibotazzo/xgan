@@ -7,7 +7,7 @@ import random
 from tqdm import tqdm
 from torchvision.utils import make_grid
 from lib import models, datasets, utils
-from captum.attr import Saliency
+from captum.attr import Saliency, DeepLift, GuidedGradCam
 from torch.utils.tensorboard import SummaryWriter
 import pathlib
 
@@ -16,13 +16,19 @@ def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_m
     if ds == 'mnist' or ds == 'fmnist':
         return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
                models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
+
+    elif ds == 'cifar10':
+        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
+            models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
+
+    elif ds == 'celeba':
+        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
+               models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
+
     elif ds == 'nhl':
         if im_size == 256:
             return models.Generator256(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                    models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
-    else:
-        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-               models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
 
 
 def minmax_scaler(arr, *, vmin=0, vmax=1):
@@ -30,15 +36,25 @@ def minmax_scaler(arr, *, vmin=0, vmax=1):
     return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
 
 
+def _xai_method(method: str, model):
+    if method == 'saliency':
+        return Saliency(model)
+    elif method == 'deeplift':
+        return DeepLift(model)
+    elif method == 'gradcam':
+        return GuidedGradCam(model, model.network[9])
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='XGAN')
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='mnist')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'], default='mnist')
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--channels', '-c', type=int, default=1)
     parser.add_argument('--noise_size', '-z', type=int, default=100)
     parser.add_argument('--feature_maps', '-f', type=int, default=64)
+    parser.add_argument('--xai', '-x', type=str, choices=['saliency', 'deeplift', 'gradcam'], default='saliency')
     args = parser.parse_args()
 
     if not os.path.exists('weights/xdcgan/' + args.dataset):
@@ -61,6 +77,7 @@ if __name__ == '__main__':
                                     classification=False,
                                     artificial=False,
                                     train=True)
+    utils.print_style('Loaded dataset: ' + args.dataset, color='GREEN', formatting="ITALIC")
 
     # Create models
     generator, discriminator = _load_models(ds=args.dataset,
@@ -133,11 +150,11 @@ if __name__ == '__main__':
 
                 output = discriminator(fake)
 
-                if epoch > int(args.epochs/2):
+                if epoch > -1:  # int(args.epochs/2):
                     # -------------------------------------
                     # fooled = (output > 0.6).float().reshape((batch_size, 1, 1, 1))
 
-                    saliency = Saliency(discriminator)
+                    saliency = _xai_method(args.xai, discriminator)
                     explanations = saliency.attribute(fake)
                     explanations = minmax_scaler(explanations)
                     # explanations = fooled * explanations
