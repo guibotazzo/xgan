@@ -81,8 +81,10 @@ def main():
     args = parser.parse_args()
 
     device = utils.select_device()
-
-    weights_path = 'weights/xdcgan/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:02d}.pth'
+    if args.gan == 'xdcgan':
+        weights_path = 'weights/xdcgan/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:02d}.pth'
+    else:
+        weights_path = 'weights/dcgan/' + args.dataset + f'/gen_epoch_{args.epoch:d}.pth'
 
     generator, _ = _load_models(ds=args.dataset,
                                 im_size=args.img_size,
