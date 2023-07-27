@@ -69,9 +69,10 @@ def main():
     parser = argparse.ArgumentParser(description='Evaluation metrics')
     parser.add_argument('--metric', '-m', type=str, choices=['fid', 'is'], default='fid')
     parser.add_argument('--gan', '-g', type=str, choices=['dcgan', 'xdcgan'], default='dcgan')
+    parser.add_argument('--xai', '-x', type=str, choices=['saliency', 'deeplift', 'gradcam'], default='saliency')
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
                         default='mnist')
-    parser.add_argument('--epoch', '-e', type=int, default=9)
+    parser.add_argument('--epoch', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--channels', '-c', type=int, default=1)
@@ -81,6 +82,8 @@ def main():
 
     device = utils.select_device()
 
+    weights_path = 'weights/xdcgan/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:02d}.pth'
+
     generator, _ = _load_models(ds=args.dataset,
                                 im_size=args.img_size,
                                 noise_dim=args.noise_size,
@@ -88,9 +91,7 @@ def main():
                                 feature_maps=args.feature_maps,
                                 device=device)
 
-    generator.load_state_dict(
-        torch.load('weights/' + args.gan + '/' + args.dataset + '/gen_epoch_' + str(args.epoch) + '.pth',
-                   map_location=device))
+    generator.load_state_dict(torch.load(weights_path, map_location=device))
 
     dataset = datasets.make_dataset(dataset=args.dataset,
                                     batch_size=args.batch_size,
