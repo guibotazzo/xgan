@@ -15,13 +15,19 @@ def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_m
     if ds == 'mnist' or ds == 'fmnist':
         return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
                models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
+
+    elif ds == 'cifar10':
+        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
+            models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
+
+    elif ds == 'celeba':
+        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
+               models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
+
     elif ds == 'nhl':
         if im_size == 256:
             return models.Generator256(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                    models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
-    else:
-        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-               models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
 
 
 if __name__ == '__main__':
@@ -29,7 +35,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DCGAN')
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'celeba', 'nhl'], default='mnist')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'], default='mnist')
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--channels', '-c', type=int, default=1)
     parser.add_argument('--noise_size', '-z', type=int, default=100)

@@ -31,7 +31,7 @@ def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_m
                    models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
 
 
-def minmax_scaler(arr, *, vmin=0, vmax=1):
+def _minmax_scaler(arr, *, vmin=0, vmax=1):
     arr_min, arr_max = arr.min(), arr.max()
     return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
 
@@ -57,9 +57,10 @@ if __name__ == '__main__':
     parser.add_argument('--xai', '-x', type=str, choices=['saliency', 'deeplift', 'gradcam'], default='saliency')
     args = parser.parse_args()
 
-    if not os.path.exists('weights/xdcgan/' + args.dataset):
-        path = 'weights/xdcgan/' + args.dataset
-        path = pathlib.Path(path)
+    weights_path = 'weights/xdcgan/' + args.dataset + '/' + args.xai
+
+    if not os.path.exists(weights_path):
+        path = pathlib.Path(weights_path)
         path.mkdir(parents=True)
 
     # Set manual seed to a constant get a consistent output
@@ -77,7 +78,7 @@ if __name__ == '__main__':
                                     classification=False,
                                     artificial=False,
                                     train=True)
-    utils.print_style('Loaded dataset: ' + args.dataset, color='GREEN', formatting="ITALIC")
+    utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='GREEN', formatting="ITALIC")
 
     # Create models
     generator, discriminator = _load_models(ds=args.dataset,
@@ -156,7 +157,7 @@ if __name__ == '__main__':
 
                     saliency = _xai_method(args.xai, discriminator)
                     explanations = saliency.attribute(fake)
-                    explanations = minmax_scaler(explanations)
+                    explanations = _minmax_scaler(explanations)
                     # explanations = fooled * explanations
 
                     errG = cross_entropy(output, label)
@@ -196,8 +197,8 @@ if __name__ == '__main__':
             writer.add_image("Saliency", exp_grid, global_step=epoch)
 
             # Save models
-            torch.save(generator.state_dict(), 'weights/xdcgan/' + args.dataset + '/gen_epoch_%d.pth' % epoch)
-            torch.save(discriminator.state_dict(), 'weights/xdcgan/' + args.dataset + '/disc_epoch_%d.pth' % epoch)
+            torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch+1:02d}.pth')
+            torch.save(discriminator.state_dict(), weights_path + f'/disc_epoch_{epoch+1:02d}.pth')
 
     writer.flush()
     writer.close()
