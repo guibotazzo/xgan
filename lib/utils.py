@@ -63,8 +63,8 @@ def select_device():
         print_style("MPS device selected.", color='GREEN', formatting="ITALIC")
         return torch.device("mps")  # For M1 Macs
     elif torch.cuda.is_available():
-        print_style("CUDA device selected.",color='GREEN', formatting="ITALIC")
-        return torch.device("cuda:0")
+        print_style("CUDA device selected.", color='GREEN', formatting="ITALIC")
+        return torch.device("cuda:1")
     else:
         print_style("CPU device selected.")
         return torch.device('cpu', color='GREEN', formatting="ITALIC")

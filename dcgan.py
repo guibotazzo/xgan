@@ -42,9 +42,10 @@ if __name__ == '__main__':
     parser.add_argument('--feature_maps', '-f', type=int, default=64)
     args = parser.parse_args()
 
-    if not os.path.exists('weights/dcgan/' + args.dataset):
-        path = 'weights/dcgan/' + args.dataset
-        path = pathlib.Path(path)
+    weights_path = 'weights/dcgan/' + args.dataset
+
+    if not os.path.exists(weights_path):
+        path = pathlib.Path(weights_path)
         path.mkdir(parents=True)
 
     # Set manual seed to a constant get a consistent output
@@ -160,8 +161,8 @@ if __name__ == '__main__':
                 writer.add_image("Fake images", img_grid_fake, global_step=epoch)
 
             # Save models
-            torch.save(generator.state_dict(), 'weights/dcgan/' + args.dataset + '/gen_epoch_%d.pth' % epoch)
-            torch.save(discriminator.state_dict(), 'weights/dcgan/' + args.dataset + '/disc_epoch_%d.pth' % epoch)
+            torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch+1:02d}.pth')
+            torch.save(discriminator.state_dict(), weights_path + f'/disc_epoch_{epoch+1:02d}.pth')
 
     writer.flush()
     writer.close()
