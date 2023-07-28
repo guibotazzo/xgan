@@ -333,4 +333,4 @@ class DiscriminatorACGANaux(nn.Module):
         validity = self.adv_layer(out)
         label = self.aux_layer(out)
 
-        return label
+        return validity
