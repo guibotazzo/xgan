@@ -41,7 +41,7 @@ def main():
     parser.add_argument('--channels', '-c', type=int, default=1, help="number of image channels")
     parser.add_argument('--epochs', '-e', type=int, default=10, help="number of epochs of training")
     parser.add_argument('--n_classes', type=int, default=10, help="number of classes for dataset")
-    parser.add_argument('--batch_size', '-d', type=int, default=64, help="size of the batches")
+    parser.add_argument('--batch_size', '-b', type=int, default=64, help="size of the batches")
     parser.add_argument('--noise_dim', '-z', type=int, default=100, help="dimensionality of the latent space")
     parser.add_argument('--lr', type=float, default=0.0002, help="adam: learning rate")
     parser.add_argument('--b1', type=float, default=0.5, help="adam: decay of first order momentum of gradient")
