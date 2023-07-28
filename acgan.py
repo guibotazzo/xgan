@@ -13,7 +13,7 @@ from lib import models, datasets, utils
 
 def _load_models(args, device):
     if args.dataset == 'mnist' or args.dataset == 'fmnist':
-        generator = models.GeneratorACGAN(args.n_classes, args.z_dim, args.img_size, args.channels).to(device)
+        generator = models.GeneratorACGAN(args.n_classes, args.noise_dim, args.img_size, args.channels).to(device)
         generator.apply(models.weights_init)
 
         discriminator = models.DiscriminatorACGAN(args.channels, args.img_size, args.n_classes).to(device)
@@ -90,7 +90,7 @@ def main():
     # Training Loop
     ###############
     print("Starting Training Loop...")
-    for epoch in range(args.n_epochs):
+    for epoch in range(args.epochs):
         running_loss_g = 0.0
         running_loss_d = 0.0
 
@@ -114,7 +114,7 @@ def main():
                 generator_optimizer.zero_grad()
 
                 # Sample noise and labels as generator input
-                z = Variable(float_tensor(np.random.normal(0, 1, (batch_size, args.z_dim)))).to(device)
+                z = Variable(float_tensor(np.random.normal(0, 1, (batch_size, args.noise_dim)))).to(device)
                 gen_labels = Variable(long_tensor(np.random.randint(0, args.n_classes, batch_size))).to(device)
 
                 # Generate a batch of images
@@ -172,7 +172,7 @@ def main():
 
             # Save images of the epoch
             n_row = 10
-            z = Variable(float_tensor(np.random.normal(0, 1, (n_row ** 2, args.z_dim)))).to(device)
+            z = Variable(float_tensor(np.random.normal(0, 1, (n_row ** 2, args.noise_dim)))).to(device)
             # Get labels ranging from 0 to n_classes for n rows
             labels = np.array([num for _ in range(n_row) for num in range(n_row)])
             labels = Variable(long_tensor(labels)).to(device)
