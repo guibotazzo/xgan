@@ -84,13 +84,12 @@ if __name__ == '__main__':
     generator_optimizer = optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
     # Lists to keep track of progress
-    img_list = []
     G_losses = []
     D_losses = []
 
-    print("Starting Training Loop...")
     writer = SummaryWriter()
 
+    print("Starting Training Loop...")
     for epoch in range(args.epochs):
         running_loss_g = 0.0
         running_loss_d = 0.0
@@ -147,12 +146,11 @@ if __name__ == '__main__':
                 # pbar.set_postfix(g_loss=errG.item(), d_loss=errD.item())
                 pbar.update(1)
 
-            writer.add_scalar('dcgan/loss/generator', running_loss_g / len(dataset.dataset), epoch)
-            writer.add_scalar('dcgan/loss/discriminator', running_loss_d / len(dataset.dataset), epoch)
-
             ###############
             # Saving the results
             ###############
+            writer.add_scalar('dcgan/loss/generator', running_loss_g / len(dataset.dataset), epoch)
+            writer.add_scalar('dcgan/loss/discriminator', running_loss_d / len(dataset.dataset), epoch)
 
             # Save images of the epoch
             with torch.no_grad():
