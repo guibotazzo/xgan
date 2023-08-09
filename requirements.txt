@@ -2,4 +2,5 @@ pathlib
 tqdm
 captum
 gdown
-zipfile
+tensorboard
+zipfile36
