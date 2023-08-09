@@ -11,35 +11,34 @@ from torch.utils.tensorboard import SummaryWriter
 import pathlib
 
 
-def _load_models(ds: str, im_size: int, noise_dim: int, channels: int, feature_maps: int):
-    if ds == 'mnist' or ds == 'fmnist':
+def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, device):
+    if dataset == 'mnist' or dataset == 'fmnist':
         return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
                models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
-
-    elif ds == 'cifar10':
+    elif dataset == 'cifar10':
         return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
             models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
-
-    elif ds == 'celeba':
+    elif dataset == 'celeba':
         return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
+    elif dataset == 'nhl':
+        return models.Generator256(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
+               models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
+    else:
+        utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
 
-    elif ds == 'nhl':
-        if im_size == 256:
-            return models.Generator256(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-                   models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
 
-
-if __name__ == '__main__':
+def main():
     # Arguments
     parser = argparse.ArgumentParser(description='DCGAN')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
+                        default='mnist')
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'], default='mnist')
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--channels', '-c', type=int, default=1)
-    parser.add_argument('--noise_size', '-z', type=int, default=100)
     parser.add_argument('--feature_maps', '-f', type=int, default=64)
+    parser.add_argument('--noise_dim', '-z', type=int, default=100)
     args = parser.parse_args()
 
     weights_path = 'weights/dcgan/' + args.dataset
@@ -65,11 +64,11 @@ if __name__ == '__main__':
                                     train=True)
 
     # Create models
-    generator, discriminator = _load_models(ds=args.dataset,
-                                            im_size=args.img_size,
-                                            noise_dim=args.noise_size,
+    generator, discriminator = _load_models(dataset=args.dataset,
+                                            noise_dim=args.noise_dim,
                                             channels=args.channels,
-                                            feature_maps=args.feature_maps)
+                                            feature_maps=args.feature_maps,
+                                            device=device)
 
     ###############
     # Training Loop
@@ -164,3 +163,7 @@ if __name__ == '__main__':
 
     writer.flush()
     writer.close()
+
+
+if __name__ == '__main__':
+    main()

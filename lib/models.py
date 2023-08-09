@@ -1,17 +1,9 @@
 import torch
 import torch.nn as nn
 
-
-def weights_init(m):
-    """
-        Initial weights for DCGAN.
-    """
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        nn.init.normal_(m.weight.data, 0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        nn.init.normal_(m.weight.data, 1.0, 0.02)
-        nn.init.constant_(m.bias.data, 0)
+###########################
+# Models for classification
+###########################
 
 
 def reset_weights(m):
@@ -42,6 +34,22 @@ class ConvNet(nn.Module):
 
     def forward(self, x):
         return self.layers(x)
+
+#####################################
+# Models for generation (DCGAN-based)
+#####################################
+
+
+def weights_init(m):
+    """
+        Initial weights for DCGAN.
+    """
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
 
 
 class Generator28(nn.Module):
@@ -79,8 +87,8 @@ class Generator28(nn.Module):
             nn.Tanh()
         )
 
-    def forward(self, input):
-        output = self.network(input)
+    def forward(self, noise):
+        output = self.network(noise)
         return output
 
 
@@ -111,8 +119,8 @@ class Discriminator28(nn.Module):
             nn.Sigmoid()
         )
 
-    def forward(self, input):
-        output = self.network(input)
+    def forward(self, img):
+        output = self.network(img)
         return output.view(-1, 1).squeeze(1)
 
 
@@ -154,8 +162,8 @@ class Generator64(nn.Module):
             # state size. (nc) x 64 x 64
         )
 
-    def forward(self, input):
-        return self.main(input)
+    def forward(self, noise):
+        return self.main(noise)
 
 
 class Discriminator64(nn.Module):
@@ -190,8 +198,8 @@ class Discriminator64(nn.Module):
             nn.Sigmoid()
         )
 
-    def forward(self, input):
-        return self.main(input)
+    def forward(self, img):
+        return self.main(img)
 
 
 class Generator256(nn.Module):
@@ -202,29 +210,63 @@ class Generator256(nn.Module):
         self.ngf = feature_maps  # Size of feature maps in generator
         self.nc = channels  # Number of channels in the training images
         self.network = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=self.nz, out_channels=self.ngf*16,
-                               kernel_size=10, stride=1, padding=0, bias=False),
+            nn.ConvTranspose2d(in_channels=self.nz, out_channels=self.ngf*16, kernel_size=10, stride=1, padding=0,
+                               bias=False),
             nn.BatchNorm2d(self.ngf*16),
             nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=self.ngf*16, out_channels=self.ngf*8,
-                               kernel_size=10, stride=2, padding=1, bias=False),
+            nn.ConvTranspose2d(in_channels=self.ngf*16, out_channels=self.ngf*8, kernel_size=10, stride=2, padding=1,
+                               bias=False),
             nn.BatchNorm2d(self.ngf*8),
             nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=self.ngf*8, out_channels=self.ngf*4,
-                               kernel_size=10, stride=2, padding=1, bias=False),
+            nn.ConvTranspose2d(in_channels=self.ngf*8, out_channels=self.ngf*4, kernel_size=10, stride=2, padding=1,
+                               bias=False),
             nn.BatchNorm2d(self.ngf*4),
             nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=self.ngf*4, out_channels=self.ngf*2,
-                               kernel_size=10, stride=2, padding=1, bias=False),
+            nn.ConvTranspose2d(in_channels=self.ngf*4, out_channels=self.ngf*2, kernel_size=10, stride=2, padding=1,
+                               bias=False),
             nn.BatchNorm2d(self.ngf*2),
             nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=self.ngf*2, out_channels=self.nc,
-                               kernel_size=14, stride=2, padding=0, bias=False),
+            nn.ConvTranspose2d(in_channels=self.ngf*2, out_channels=self.nc, kernel_size=14, stride=2, padding=0,
+                               bias=False),
             nn.Tanh()
         )
 
-    def forward(self, input):
-        return self.network(input)
+    def forward(self, noise):
+        return self.network(noise)
+
+
+class Discriminator256(nn.Module):
+    def __init__(self, channels, feature_maps):
+        super(Discriminator256, self).__init__()
+        self.ndf = feature_maps  # Size of feature maps in discriminator
+        self.nc = channels  # Number of channels of the training images
+
+        self.network = nn.Sequential(
+            nn.Conv2d(in_channels=self.nc, out_channels=self.ndf, kernel_size=10, stride=2, padding=1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(in_channels=self.ndf, out_channels=self.ndf*2, kernel_size=10, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(self.ndf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(in_channels=self.ndf*2, out_channels=self.ndf*4, kernel_size=10, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(self.ndf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(in_channels=self.ndf*4, out_channels=self.ndf*8, kernel_size=10, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(self.ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            nn.Conv2d(in_channels=self.ndf*8, out_channels=1, kernel_size=10, stride=1, padding=0, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, img):
+        return self.network(img)
+
+#####################################
+# Models for generation (ACGAN-based)
+#####################################
 
 
 class GeneratorACGAN(nn.Module):
@@ -331,6 +373,6 @@ class DiscriminatorACGANaux(nn.Module):
         out = self.conv_blocks(img)
         out = out.view(out.shape[0], -1)
         validity = self.adv_layer(out)
-        label = self.aux_layer(out)
+        # label = self.aux_layer(out)
 
         return validity
