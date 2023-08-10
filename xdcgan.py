@@ -79,7 +79,7 @@ def main():
                                     classification=False,
                                     artificial=False,
                                     train=True)
-    utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='GREEN', formatting="ITALIC")
+    utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
 
     # Create models
     generator, discriminator = _load_models(dataset=args.dataset,

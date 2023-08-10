@@ -16,8 +16,8 @@ def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, devi
         return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
                models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
     elif dataset == 'cifar10':
-        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
-            models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
+        return models.Generator32(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
+            models.Discriminator32(channels, feature_maps).to(device).apply(models.weights_init)
     elif dataset == 'celeba':
         return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
@@ -62,6 +62,7 @@ def main():
                                     classification=False,
                                     artificial=False,
                                     train=True)
+    utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
 
     # Create models
     generator, discriminator = _load_models(dataset=args.dataset,
