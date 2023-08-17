@@ -106,7 +106,7 @@ def main():
                 critic_fake = critic(fake).reshape(-1)
                 gp = _gradient_penalty(critic, real, fake, device=device)
                 loss_critic = (
-                        -(torch.mean(critic_real) - torch.mean(critic_fake)) + args.lamba_gp * gp
+                        -(torch.mean(critic_real) - torch.mean(critic_fake)) + args.lambda_gp * gp
                 )
                 critic.zero_grad()
                 loss_critic.backward(retain_graph=True)
