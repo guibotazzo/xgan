@@ -48,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser(description='WGAN-GP')
     parser.add_argument('--dataset', '-d', type=str, choices=['nhl'], default='nhl')
     parser.add_argument('--img_size', '-s', type=int, default=256, help="size of each image dimension")
-    parser.add_argument('--channels', '-c', type=int, default=1, help="number of image channels")
+    parser.add_argument('--channels', '-c', type=int, default=3, help="number of image channels")
     parser.add_argument('--epochs', '-e', type=int, default=50, help="number of epochs of training")
     parser.add_argument('--batch_size', '-b', type=int, default=8, help="size of the batches")
     parser.add_argument('--feature_maps', '-f', type=int, default=16)
