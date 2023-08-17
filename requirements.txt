@@ -1,6 +1,10 @@
-pathlib
-tqdm
-captum
-gdown
-tensorboard
-zipfile36
+torch~=2.0.0.dev20230206
+tqdm~=4.64.1
+matplotlib~=3.6.3
+gdown~=4.7.1
+torchvision~=0.15.0.dev20230206
+numpy~=1.24.2
+tensorboardx~=2.6
+captum~=0.6.0
+torchmetrics~=0.11.4
+scikit-learn~=1.2.1

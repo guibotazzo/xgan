@@ -4,7 +4,7 @@ from gdown import download
 from zipfile import ZipFile
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, Grayscale
-from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, ImageFolder, STL10
+from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, CelebA, STL10, ImageFolder
 from lib.utils import print_style
 
 
@@ -94,27 +94,14 @@ def _make_stl10_dataset(batch_size: int, img_size: int, classification: bool, tr
 
 
 def _make_celeba_dataset(batch_size: int, img_size: int, classification: bool):
-    zip_path = './datasets/CelebA/data.zip'
-
-    if not os.path.exists('./datasets/CelebA'):
-        path = pathlib.Path('./datasets/CelebA')
-        path.mkdir(parents=True)
-
-    if not os.path.exists(zip_path):
-        url = 'https://drive.google.com/uc?id=1O7m1010EJjLE5QxLZiM9Fpjs7Oj6e684'
-
-        download(url, zip_path, quiet=True)
-
-        with ZipFile(zip_path, 'r') as zipobj:
-            zipobj.extractall('./datasets/CelebA/')
-
-    dataset = ImageFolder(root='./datasets/CelebA/',
-                          transform=Compose([
-                              Resize(img_size),
-                              CenterCrop(img_size),
-                              ToTensor(),
-                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                          ]))
+    dataset = CelebA(root='./datasets',
+                     download=True,
+                     split='all',
+                     transform=Compose([
+                         Resize(img_size),
+                         ToTensor(),
+                         Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                     ]))
 
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
