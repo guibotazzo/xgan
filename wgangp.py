@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 def _load_models(args, device):
     if args.dataset == 'nhl':
-        generator = models.Generator256(args.noise_dim, args.channels, args.feature_maps).to(device)
+        generator = models.Generator256(args.z_dim, args.channels, args.feature_maps).to(device)
         generator.apply(models.weights_init)
 
         discriminator = models.Critic256(args.channels, args.feature_maps).to(device)
