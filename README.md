@@ -1,10 +1,10 @@
 # xgan
 
-## Status de implementacao
+## Status de implementação
 
 ✅ - Implementado e funcionando <br>
-❌ - Nao implementado ou nao funciona ainda <br>
-🚫 - Modelo nao é compativel com o dataset
+❌ - Não implementado ou não funciona ainda <br>
+🚫 - Modelo não é compatível com o dataset
 
 ### Modelos originais
 
