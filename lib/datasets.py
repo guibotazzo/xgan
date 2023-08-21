@@ -78,7 +78,7 @@ def _make_cifar10_dataset(batch_size: int, img_size: int, classification: bool, 
 def _make_stl10_dataset(batch_size: int, img_size: int, classification: bool, train: bool):
     dataset = STL10(root='./datasets',
                     download=True,
-                    # train=train,
+                    split='train+unlabeled',
                     transform=Compose([
                         Resize(img_size),
                         ToTensor(),
