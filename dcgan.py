@@ -38,7 +38,7 @@ def main():
                         type=str,
                         choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'stl10', 'nhl'],
                         default='mnist')
-    parser.add_argument('--epochs', '-e', type=int, default=10)
+    parser.add_argument('--epochs', '-e', type=int, default=50)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--channels', '-c', type=int, default=1)
@@ -58,7 +58,7 @@ def main():
     torch.manual_seed(manualSeed)
 
     # Parameters
-    device = utils.select_device()
+    device = torch.device('cuda:1')  # utils.select_device()
 
     # Load dataset
     dataset = datasets.make_dataset(dataset=args.dataset,

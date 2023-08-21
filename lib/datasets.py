@@ -93,22 +93,32 @@ def _make_stl10_dataset(batch_size: int, img_size: int, classification: bool, tr
         return dataloader
 
 
-def _make_celeba_dataset(batch_size: int, img_size: int, classification: bool):
-    dataset = CelebA(root='./datasets',
-                     download=True,
-                     split='all',
-                     transform=Compose([
-                         Resize(img_size),
-                         ToTensor(),
-                         Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                     ]))
+def _make_celeba_dataset(image_size: int, batch_size: int):
+    path = './datasets/CelebA/data.zip'
 
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    if not os.path.exists(path):
+        url = 'https://drive.google.com/uc?id=1O7m1010EJjLE5QxLZiM9Fpjs7Oj6e684'
 
-    if classification:
-        return dataset
-    else:
-        return dataloader
+        download(url, path, quiet=True)
+
+        with ZipFile(path, 'r') as zipobj:
+            zipobj.extractall('./datasets/CelebA/')
+
+    dataset = ImageFolder(root='./datasets/CelebA/',
+                          transform=Compose([
+                              Resize(image_size),
+                              CenterCrop(image_size),
+                              ToTensor(),
+                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                          ]))
+
+    dataloader = DataLoader(dataset,
+                            batch_size=batch_size,
+                            shuffle=True,
+                            num_workers=2
+                            )
+
+    return dataloader
 
 
 def _make_nhl256_dataset(batch_size: int, img_size: int, classification: bool):
@@ -154,7 +164,7 @@ def make_dataset(dataset: str, batch_size: int, img_size: int, classification: b
     elif dataset == 'stl10':
         return _make_stl10_dataset(batch_size, img_size, classification, train)
     elif dataset == 'celeba':
-        return _make_celeba_dataset(batch_size, img_size, classification)
+        return _make_celeba_dataset(batch_size, img_size)
     elif dataset == 'nhl':
         return _make_nhl256_dataset(batch_size, img_size, classification)
     else:

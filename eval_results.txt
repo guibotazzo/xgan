@@ -34,20 +34,15 @@ CELEBA
 dcgan		106.0641	
 xdcgan (s)	106.0514
 xdcgan (dl)	
-xdcgan (gc)	
----
-acgan		
-xacgan (s)	
-xacgan (dl)	
-xacgan (gc)	
+xdcgan (gc)		
 
 
 NHL256
 		FID		IS
-dcgan		
-xdcgan (s)	
-xdcgan (dl)	
-xdcgan (gc)	
+wgan-gp		
+xwgan-gp (s)	
+xwgan-gp (dl)	
+xwgan-gp (gc)	
 ---
 acgan		
 xacgan (s)	
