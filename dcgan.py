@@ -58,7 +58,7 @@ def main():
     torch.manual_seed(manualSeed)
 
     # Parameters
-    device = torch.device('cuda:1')  # utils.select_device()
+    device = torch.device('cuda')  # utils.select_device()
 
     # Load dataset
     dataset = datasets.make_dataset(dataset=args.dataset,
