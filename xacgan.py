@@ -196,7 +196,7 @@ def main():
             labels = Variable(long_tensor(labels)).to(device)
             gen_imgs = generator(z, labels)
             img_grid_fake = make_grid(gen_imgs, normalize=True, nrow=n_row)
-            writer.add_image("XACGAN fake images", img_grid_fake, global_step=epoch)
+            writer.add_image("XACGAN fake images " + args.xai, img_grid_fake, global_step=epoch)
 
             # Save models
             torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch + 1:02d}.pth')

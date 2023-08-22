@@ -70,7 +70,7 @@ def main():
     parser.add_argument('--xai', '-x', type=str, choices=['saliency', 'deeplift', 'gradcam'], default='saliency')
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
                         default='mnist')
-    parser.add_argument('--epoch', '-e', type=int, default=10)
+    parser.add_argument('--epoch', '-e', type=int, default=50)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--channels', '-c', type=int, default=1)

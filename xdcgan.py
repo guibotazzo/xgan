@@ -190,12 +190,12 @@ def main():
             with torch.no_grad():
                 fake = generator(fixed_noise)
                 img_grid_fake = make_grid(fake[:32], normalize=True)
-                writer.add_image("Fake images", img_grid_fake, global_step=epoch)
+                writer.add_image("XDCGAN fake images " + args.xai, img_grid_fake, global_step=epoch)
 
             saliency = Saliency(discriminator)
             explanations = saliency.attribute(fake)
             exp_grid = make_grid(explanations[:32], normalize=True)
-            writer.add_image("Saliency", exp_grid, global_step=epoch)
+            writer.add_image(args.xai, exp_grid, global_step=epoch)
 
             # Save models
             torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch+1:02d}.pth')
