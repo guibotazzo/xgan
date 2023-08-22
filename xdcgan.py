@@ -34,13 +34,16 @@ def _minmax_scaler(arr, *, vmin=0, vmax=1):
     return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
 
 
-def _xai_method(method: str, model):
+def _xai_method(dataset, method: str, model):
     if method == 'saliency':
         return Saliency(model)
     elif method == 'deeplift':
         return DeepLift(model)
     elif method == 'gradcam':
-        return GuidedGradCam(model, model.network[9])
+        if dataset == 'mnist' or dataset == 'fmnist':
+            return GuidedGradCam(model, model.network[9])
+        elif dataset == 'celeba':
+            return GuidedGradCam(model, model.network[12])
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
 
@@ -156,7 +159,7 @@ def main():
                     # -------------------------------------
                     # fooled = (output > 0.6).float().reshape((batch_size, 1, 1, 1))
 
-                    saliency = _xai_method(args.xai, discriminator)
+                    saliency = _xai_method(args.dataset, args.xai, discriminator)
                     explanations = saliency.attribute(fake)
                     explanations = _minmax_scaler(explanations)
                     # explanations = fooled * explanations
