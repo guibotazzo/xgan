@@ -43,7 +43,7 @@ def _xai_method(dataset, method: str, model):
         if dataset == 'mnist' or dataset == 'fmnist':
             return GuidedGradCam(model, model.network[9])
         elif dataset == 'celeba':
-            return GuidedGradCam(model, model.network[12])
+            return GuidedGradCam(model, model.network[11])
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
 

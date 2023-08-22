@@ -27,7 +27,7 @@ def _xai_method(method: str, model):
     elif method == 'deeplift':
         return DeepLift(model)
     elif method == 'gradcam':
-        return GuidedGradCam(model, model.network[18])
+        return GuidedGradCam(model, model.network[17])
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
 
