@@ -230,7 +230,7 @@ class Discriminator64(nn.Module):
         super(Discriminator64, self).__init__()
         self.ndf = feature_maps  # Size of feature maps in discriminator
         self.nc = channels  # Number of channels in the training images
-        self.main = nn.Sequential(
+        self.network = nn.Sequential(
             # input is (nc) x 64 x 64
             nn.Conv2d(in_channels=self.nc, out_channels=self.ndf, kernel_size=4, stride=2, padding=1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
@@ -254,7 +254,7 @@ class Discriminator64(nn.Module):
         )
 
     def forward(self, img):
-        return self.main(img)
+        return self.network(img)
 
 
 class Generator96(nn.Module):
