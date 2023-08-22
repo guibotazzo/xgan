@@ -49,7 +49,7 @@ def main():
     parser = argparse.ArgumentParser(description='XGAN')
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
                         default='mnist')
-    parser.add_argument('--epochs', '-e', type=int, default=10)
+    parser.add_argument('--epochs', '-e', type=int, default=50)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--channels', '-c', type=int, default=1)
