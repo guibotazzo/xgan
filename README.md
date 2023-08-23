@@ -22,4 +22,4 @@
 | XDCGAN   |   ✅    |    ✅    |    ✅    |   🚫    |
 | XCGAN    |   ❌    |    ❌    |   🚫    |    ❌    |
 | XACGAN   |   ✅    |    ✅    |   🚫    |    ❌    |
-| XWGAN-GP |   ❌    |    ❌    |    ❌    |    ❌    |
+| XWGAN-GP |   ❌    |    ❌    |    ❌    |    ✅    |
