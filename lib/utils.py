@@ -58,10 +58,10 @@ def print_style(msg, color=None, formatting=None):
     print(msg)
 
 
-def select_device():
+def select_device(cuda_device):
     if torch.cuda.is_available():
         print_style("CUDA device selected.", color='CYAN', formatting="ITALIC")
-        return torch.device("cuda:0")
+        return torch.device(cuda_device)
     elif torch.backends.mps.is_available():
         print_style("MPS device selected.", color='CYAN', formatting="ITALIC")
         return torch.device("mps")  # For M1 Macs

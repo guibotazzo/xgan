@@ -161,7 +161,7 @@ def main():
             with torch.no_grad():
                 fake = generator(fixed_noise)
                 img_grid_fake = make_grid(fake[:32], normalize=True)
-                writer.add_image("Fake images", img_grid_fake, global_step=epoch)
+                writer.add_image("DCGAN", img_grid_fake, global_step=epoch)
 
             # Save models
             torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch+1:02d}.pth')

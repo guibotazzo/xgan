@@ -186,14 +186,14 @@ def main():
                 pbar.update(1)
 
             # Write epoch loss on Tensorboard
-            writer.add_scalar('xdcgan/loss/generator', running_loss_g/len(dataset.dataset), epoch)
-            writer.add_scalar('xdcgan/loss/discriminator', running_loss_d/len(dataset.dataset), epoch)
+            writer.add_scalar('xdcgan' + args.xai + '/loss/generator', running_loss_g/len(dataset.dataset), epoch)
+            writer.add_scalar('xdcgan' + args.xai + '/loss/discriminator', running_loss_d/len(dataset.dataset), epoch)
 
             # Save images of the epoch
             with torch.no_grad():
                 fake = generator(fixed_noise)
                 img_grid_fake = make_grid(fake[:32], normalize=True)
-                writer.add_image("XDCGAN fake images " + args.xai, img_grid_fake, global_step=epoch)
+                writer.add_image("XDCGAN + " + args.xai, img_grid_fake, global_step=epoch)
 
             saliency = Saliency(discriminator)
             explanations = saliency.attribute(fake)

@@ -189,7 +189,7 @@ class Generator64(nn.Module):
         self.zd = noise_dim  # Size of z latent vector
         self.ngf = feature_maps  # Number of feature maps
         self.nc = channels  # Number of channels in the training images
-        self.network = nn.Sequential(
+        self.main = nn.Sequential(
             # input is Z, going into a convolution
             nn.ConvTranspose2d(in_channels=self.zd, out_channels=self.ngf * 8, kernel_size=4, stride=1,
                                padding=0, bias=False),
@@ -218,7 +218,7 @@ class Generator64(nn.Module):
         )
 
     def forward(self, noise):
-        return self.network(noise)
+        return self.main(noise)
 
 
 class Discriminator64(nn.Module):
@@ -230,7 +230,7 @@ class Discriminator64(nn.Module):
         super(Discriminator64, self).__init__()
         self.ndf = feature_maps  # Size of feature maps in discriminator
         self.nc = channels  # Number of channels in the training images
-        self.network = nn.Sequential(
+        self.main = nn.Sequential(
             # input is (nc) x 64 x 64
             nn.Conv2d(in_channels=self.nc, out_channels=self.ndf, kernel_size=4, stride=2, padding=1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
@@ -254,7 +254,7 @@ class Discriminator64(nn.Module):
         )
 
     def forward(self, img):
-        return self.network(img)
+        return self.main(img)
 
 
 class Generator96(nn.Module):

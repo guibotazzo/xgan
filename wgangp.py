@@ -58,15 +58,16 @@ def main():
     parser.add_argument('--b2', type=float, default=0.9, help="adam: decay of first order momentum of gradient")
     parser.add_argument('--ci', type=int, default=5, help="critic iterations")
     parser.add_argument('--lambda_gp', type=int, default=10)
+    parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
     args = parser.parse_args()
 
-    weights_path = 'weights/xgangp/' + args.dataset
+    weights_path = 'weights/wgangp/' + args.dataset
 
     if not os.path.exists(weights_path):
         path = pathlib.Path(weights_path)
         path.mkdir(parents=True)
 
-    device = utils.select_device()
+    device = utils.select_device(args.cuda_device)
 
     # Load dataset
     dataset = datasets.make_dataset(dataset=args.dataset,
@@ -142,7 +143,14 @@ def main():
             with torch.no_grad():
                 fake = generator(fixed_noise)
                 img_grid_fake = make_grid(fake[:32], normalize=True)
-                writer.add_image("Fake images", img_grid_fake, global_step=epoch)
+                writer.add_image("WGAN-GP", img_grid_fake, global_step=epoch)
+
+            # Save models
+            torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch + 1:02d}.pth')
+            torch.save(critic.state_dict(), weights_path + f'/disc_epoch_{epoch + 1:02d}.pth')
+
+    writer.flush()
+    writer.close()
 
 
 if __name__ == '__main__':

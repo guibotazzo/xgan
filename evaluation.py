@@ -17,8 +17,13 @@ def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, devi
         return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
     elif dataset == 'nhl':
-        return models.Generator256(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-               models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
+        generator = models.WGenerator256(noise_dim, channels, feature_maps).to(device)
+        generator.apply(models.weights_init)
+
+        discriminator = models.Critic256(channels, feature_maps).to(device)
+        discriminator.apply(models.weights_init)
+
+        return generator, discriminator
     else:
         utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
 
@@ -66,7 +71,7 @@ def _compute_is(args, generator, dataset, device):
 def main():
     parser = argparse.ArgumentParser(description='Evaluation metrics')
     parser.add_argument('--metric', '-m', type=str, choices=['fid', 'is'], default='fid')
-    parser.add_argument('--gan', '-g', type=str, choices=['dcgan', 'xdcgan'], default='dcgan')
+    parser.add_argument('--gan', '-g', type=str, choices=['dcgan', 'xdcgan', 'wgangp', 'xwgangp'], default='dcgan')
     parser.add_argument('--xai', '-x', type=str, choices=['saliency', 'deeplift', 'gradcam'], default='saliency')
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
                         default='mnist')
@@ -76,13 +81,14 @@ def main():
     parser.add_argument('--channels', '-c', type=int, default=1)
     parser.add_argument('--noise_dim', '-z', type=int, default=100)
     parser.add_argument('--feature_maps', '-f', type=int, default=64)
+    parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
     args = parser.parse_args()
 
-    device = utils.select_device()
-    if args.gan == 'xdcgan':
-        weights_path = 'weights/xdcgan/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:02d}.pth'
+    device = utils.select_device(args.cuda_device)
+    if args.gan == 'xdcgan' or args.gan == 'xwgangp':
+        weights_path = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:02d}.pth'
     else:
-        weights_path = 'weights/dcgan/' + args.dataset + f'/gen_epoch_{args.epoch:d}.pth'
+        weights_path = 'weights/' + args.gan + '/' + args.dataset + f'/gen_epoch_{args.epoch:d}.pth'
 
     generator, _ = _load_models(dataset=args.dataset,
                                 noise_dim=args.noise_dim,
