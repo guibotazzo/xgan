@@ -59,6 +59,7 @@ def main():
     parser.add_argument('--feature_maps', '-f', type=int, default=64)
     parser.add_argument('--noise_dim', '-z', type=int, default=100)
     parser.add_argument('--xai', '-x', type=str, choices=['saliency', 'deeplift', 'gradcam'], default='saliency')
+    parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
     args = parser.parse_args()
 
     weights_path = 'weights/xdcgan/' + args.dataset + '/' + args.xai
@@ -73,7 +74,7 @@ def main():
     torch.manual_seed(manualSeed)
 
     # Parameters
-    device = utils.select_device()
+    device = utils.select_device(args.cuda_device)
 
     # Load dataset
     dataset = datasets.make_dataset(dataset=args.dataset,

@@ -44,6 +44,7 @@ def main():
     parser.add_argument('--channels', '-c', type=int, default=1)
     parser.add_argument('--feature_maps', '-f', type=int, default=64)
     parser.add_argument('--noise_dim', '-z', type=int, default=100)
+    parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
     args = parser.parse_args()
 
     weights_path = 'weights/dcgan/' + args.dataset
@@ -58,7 +59,7 @@ def main():
     torch.manual_seed(manualSeed)
 
     # Parameters
-    device = torch.device('cuda')  # utils.select_device()
+    device = utils.select_device(args.cuda_device)
 
     # Load dataset
     dataset = datasets.make_dataset(dataset=args.dataset,
