@@ -29,12 +29,21 @@ xacgan (dl)	115.6395	2.6531(0.0167)
 xacgan (gc)	130.4818	2.5937(0.0169)
 
 
+CIFAR10
+
+		FID		IS
+real		-		
+dcgan		56.5079		1(0)
+xdcgan (s)	56.5079		1(0)
+xdcgan (dl)	56.5079		1(0)
+
+
 CELEBA
 		FID		IS
-dcgan		106.0641	
-xdcgan (s)	106.0514
-xdcgan (dl)	
-xdcgan (gc)		
+real		-		
+dcgan		106.0641	1(0)
+xdcgan (s)	106.0514	1(0)
+xdcgan (dl)	106.0514	1(0)
 
 
 NHL256
@@ -42,9 +51,4 @@ NHL256
 wgan-gp		
 xwgan-gp (s)	
 xwgan-gp (dl)	
-xwgan-gp (gc)	
----
-acgan		
-xacgan (s)	
-xacgan (dl)	
-xacgan (gc)	
+xwgan-gp (gc)		

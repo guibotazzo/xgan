@@ -111,7 +111,7 @@ def main():
 
                 real_cpu = data[0].to(device)
                 batch_size = real_cpu.size(0)
-                label = torch.full((batch_size, 1, 1, 1) if args.channels == 3 else (batch_size,),
+                label = torch.full((batch_size, 1, 1, 1), #if args.channels == 3 else (batch_size,),
                                    real_label,
                                    dtype=torch.float,
                                    device=device)
