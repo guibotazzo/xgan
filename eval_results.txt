@@ -41,14 +41,13 @@ xdcgan (dl)	56.5079		1(0)
 CELEBA
 		FID		IS
 real		-		
-dcgan		106.0641	1(0)
+dcgan		106.0641	1(0)** ruido
 xdcgan (s)	106.0514	1(0)
 xdcgan (dl)	106.0514	1(0)
 
 
 NHL256
 		FID		IS
-wgan-gp		
-xwgan-gp (s)	
-xwgan-gp (dl)	
-xwgan-gp (gc)		
+wgan-gp		0.1714		1(0)
+xwgan-gp (s)	0.1714		1(0)
+xwgan-gp (dl)	0.1714		1(0)
