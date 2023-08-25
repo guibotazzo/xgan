@@ -6,9 +6,21 @@ from sklearn.metrics import classification_report, confusion_matrix
 from torchvision.models import alexnet
 
 
+def _load_model(net, device):
+    if net == 'convnet':
+        model = models.ConvNet().to(device)
+        model.apply(models.reset_weights)
+        return model
+
+    if net == 'alexnet':
+        model = alexnet(weights='DEFAULT').to(device)
+        model.apply(models.reset_weights)
+        return model
+
+
 def test(test_dataset, device):
-    model = alexnet().to(device)
-    model.load_state_dict(torch.load('weights/alexnet/nhl256a/fold_1'))
+    model = _load_model('convnet', device)
+    model.load_state_dict(torch.load('weights/classification/fold_1'))
 
     actual = np.array([])
     expected = np.array([])
@@ -37,9 +49,9 @@ def test(test_dataset, device):
 
 
 if __name__ == '__main__':
-    ds = datasets.make_dataset(dataset='nhl256',
+    ds = datasets.make_dataset(dataset='mnist',
                                batch_size=32,
-                               img_size=256,
+                               img_size=28,
                                classification=True,
                                artificial=False,
                                train=True)

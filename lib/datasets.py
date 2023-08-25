@@ -26,16 +26,24 @@ def _make_mnist_dataset(batch_size: int, img_size: int, classification: bool, tr
         return dataloader
 
 
-def _make_artificial_mnist_dataset(img_size: int):
-    path = '/Users/guilherme/Downloads/artificial_datasets/mnist'
+def _make_artificial_mnist_dataset(batch_size: int, img_size: int, classification: bool):
+    # path = '/Users/guilherme/datasets/artificial/xacgan/mnist'
+    path = '/Users/guilherme/datasets/artificial/acgan/mnist'
 
-    return ImageFolder(root=path,
-                       transform=Compose([
-                           Resize(img_size),
-                           Grayscale(),
-                           ToTensor(),
-                           Normalize((0.5,), (0.5,)),
-                       ]))
+    dataset = ImageFolder(root=path,
+                          transform=Compose([
+                              Resize(img_size),
+                              Grayscale(),
+                              ToTensor(),
+                              Normalize((0.5,), (0.5,)),
+                          ]))
+
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+
+    if classification:
+        return dataset
+    else:
+        return dataloader
 
 
 def _make_fmnist_dataset(batch_size: int, img_size: int, classification: bool, train: bool):
@@ -205,7 +213,7 @@ def _make_nhl256_dataset(batch_size: int, img_size: int, classification: bool):
 def make_dataset(dataset: str, batch_size: int, img_size: int, classification: bool, artificial: bool, train: bool):
     if dataset == 'mnist':
         if artificial:
-            return _make_artificial_mnist_dataset(img_size)
+            return _make_artificial_mnist_dataset(batch_size, img_size, classification)
         else:
             return _make_mnist_dataset(batch_size, img_size, classification, train)
     elif dataset == 'fmnist':

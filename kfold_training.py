@@ -1,6 +1,8 @@
+import os
 import copy
 import torch
 import argparse
+import pathlib
 from tqdm import tqdm
 from lib import models, datasets
 from numpy import Infinity, zeros
@@ -8,6 +10,7 @@ from torch.optim import lr_scheduler
 from torch.nn import CrossEntropyLoss
 from torchvision.models import alexnet
 from sklearn.model_selection import StratifiedKFold
+from lib import utils
 
 
 class PhaseHistory:
@@ -37,7 +40,13 @@ def _load_model(net, device):
 
 
 def train_model(args):
-    device = torch.device('mps')
+    weights_path = 'weights/classification/'
+
+    if not os.path.exists(weights_path):
+        path = pathlib.Path(weights_path)
+        path.mkdir(parents=True)
+
+    device = utils.select_device(args.cuda_device)
     history = ModelLearningSummary(args.epochs)
     best_acc = 0.0
 
@@ -47,7 +56,7 @@ def train_model(args):
                                     batch_size=args.batch_size,
                                     img_size=args.img_size,
                                     classification=True,
-                                    artificial=False,
+                                    artificial=args.artificial,
                                     train=True)
 
     fold = 1
@@ -146,7 +155,7 @@ def train_model(args):
         # display.print_style('Loss graph saved as: ' + graph_file_name, color='GREEN')
 
         # Save model weights
-        trained_model_file = 'weights/alexnet/nhl256o/fold_' + str(fold)
+        trained_model_file = weights_path + 'fold_' + str(fold)
         torch.save(model.state_dict(), trained_model_file)
         # display.print_style('Models weights saved as: ' + trained_model_file, color='GREEN')
 
@@ -158,9 +167,11 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=32)
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'nhl256'], default='mnist')
+    parser.add_argument('--artificial', '-a', action=argparse.BooleanOptionalAction)
     parser.add_argument('--model', '-m', type=str, choices=['convnet', 'alexnet'], default='convnet')
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--num_folds', '-k', type=int, default=5)
+    parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
     arguments = parser.parse_args()
 
     train_model(arguments)
