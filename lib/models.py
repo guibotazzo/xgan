@@ -388,6 +388,63 @@ class Discriminator256(nn.Module):
 #####################################
 # Models for generation (WGAN-based)
 #####################################
+class WGenerator28(nn.Module):
+    def __init__(self, noise_dim, channels, feature_maps):
+        super(WGenerator28, self).__init__()
+        self.nz = noise_dim  # Size of z latent vector
+        self.ngf = feature_maps  # Size of feature maps in generator
+        self.nc = channels  # Number of channels in the training images
+        self.network = nn.Sequential(
+            nn.ConvTranspose2d(in_channels=self.nz, out_channels=self.ngf*32, kernel_size=4, stride=1, padding=0,
+                               bias=False),
+            nn.BatchNorm2d(self.ngf*32),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*32, out_channels=self.ngf*16, kernel_size=4, stride=2, padding=1,
+                               bias=False),
+            nn.BatchNorm2d(self.ngf*16),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*16, out_channels=self.ngf*8, kernel_size=4, stride=2, padding=1,
+                               bias=False),
+            nn.BatchNorm2d(self.ngf*8),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*8, out_channels=self.ngf*4, kernel_size=4, stride=2, padding=1,
+                               bias=False),
+            nn.BatchNorm2d(self.ngf*4),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*4, out_channels=self.nc, kernel_size=1, stride=1, padding=2,
+                               bias=False),
+            nn.Tanh()
+        )
+
+    def forward(self, noise):
+        return self.network(noise)
+
+
+class Critic28(nn.Module):
+    """
+        WGAN-GP Critic model for 28x28-sized images.
+    """
+    def __init__(self, channels, feature_maps):
+        super(Critic28, self).__init__()
+        self.ndf = feature_maps  # Size of feature maps in discriminator
+        self.nc = channels  # Number of channels of the training images
+
+        self.network = nn.Sequential(
+            nn.Conv2d(in_channels=self.nc, out_channels=self.ndf, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf, out_channels=self.ndf*2, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(self.ndf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf*2, out_channels=self.ndf*4, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(self.ndf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf*4, out_channels=1, kernel_size=4, stride=2, padding=1, bias=False),
+        )
+
+    def forward(self, img):
+        return self.network(img)
+
+
 class WGenerator256(nn.Module):
     def __init__(self, noise_dim, channels, feature_maps):
         super(WGenerator256, self).__init__()

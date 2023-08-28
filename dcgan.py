@@ -139,7 +139,7 @@ def main():
                 label.fill_(real_label)
 
                 output = discriminator(fake)
-                errG = cross_entropy(output, label)
+                errG = cross_entropy(output, label) * 0.00001
                 errG.backward()
                 generator_optimizer.step()
 

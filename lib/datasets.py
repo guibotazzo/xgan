@@ -2,7 +2,7 @@ import os
 import pathlib
 from gdown import download
 from zipfile import ZipFile
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, Grayscale
 from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, STL10, DTD, FER2013, StanfordCars, ImageFolder
 from lib.utils import print_style
@@ -18,7 +18,9 @@ def _make_mnist_dataset(batch_size: int, img_size: int, classification: bool, tr
                         Normalize((0.5,), (0.5,)),
                     ]))
 
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    subset = Subset(dataset, range(12000))
+
+    dataloader = DataLoader(subset, batch_size=batch_size, shuffle=True, num_workers=2)
 
     if classification:
         return dataset

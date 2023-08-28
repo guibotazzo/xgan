@@ -10,7 +10,15 @@ from tqdm import tqdm
 
 
 def _load_models(args, device):
-    if args.dataset == 'nhl':
+    if args.dataset == 'mnist' or args.dataset == 'fmnist':
+        generator = models.WGenerator28(args.z_dim, args.channels, args.feature_maps).to(device)
+        generator.apply(models.weights_init)
+
+        discriminator = models.Critic28(args.channels, args.feature_maps).to(device)
+        discriminator.apply(models.weights_init)
+
+        return generator, discriminator
+    elif args.dataset == 'nhl':
         generator = models.WGenerator256(args.z_dim, args.channels, args.feature_maps).to(device)
         generator.apply(models.weights_init)
 
@@ -46,7 +54,7 @@ def _gradient_penalty(critic, real, fake, device="cpu"):
 
 def main():
     parser = argparse.ArgumentParser(description='WGAN-GP')
-    parser.add_argument('--dataset', '-d', type=str, choices=['nhl'], default='nhl')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'nhl'], default='nhl')
     parser.add_argument('--img_size', '-s', type=int, default=256, help="size of each image dimension")
     parser.add_argument('--channels', '-c', type=int, default=3, help="number of image channels")
     parser.add_argument('--epochs', '-e', type=int, default=50, help="number of epochs of training")
