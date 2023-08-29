@@ -156,7 +156,7 @@ def main():
 
                 output = discriminator(fake)
 
-                if epoch > 4:  # int(args.epochs/2):
+                if epoch > -1:  # int(args.epochs/2):
                     # -------------------------------------
                     # fooled = (output > 0.6).float().reshape((batch_size, 1, 1, 1))
 
