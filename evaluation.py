@@ -28,12 +28,19 @@ def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, devi
         utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
 
 
+def _minmax_scaler(arr, *, vmin=0, vmax=255):
+    arr_min, arr_max = arr.min(), arr.max()
+    return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
+
+
 def _compute_fid(args, generator, dataset, device):
     fid = FrechetInceptionDistance(feature=2048).to(device)
 
     with tqdm(total=len(dataset), desc='Computing FID') as pbar:
         for reals, _ in dataset:
             reals = reals.to(device)
+            reals = _minmax_scaler(reals)
+
             if args.channels == 1:
                 reals = reals.repeat(1, 3, 1, 1)
 
@@ -41,6 +48,8 @@ def _compute_fid(args, generator, dataset, device):
 
             noise = torch.randn(args.batch_size, 100, 1, 1, device=device)
             fakes = generator(noise)
+            fakes = _minmax_scaler(fakes)
+
             if args.channels == 1:
                 fakes = fakes.repeat(1, 3, 1, 1)
 
@@ -58,6 +67,8 @@ def _compute_is(args, generator, dataset, device):
         for _, _ in dataset:
             noise = torch.randn(args.batch_size, 100, 1, 1, device=device)
             fakes = generator(noise)
+            fakes = _minmax_scaler(fakes)
+            
             if args.channels == 1:
                 fakes = fakes.repeat(1, 3, 1, 1)
 
