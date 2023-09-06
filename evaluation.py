@@ -68,7 +68,7 @@ def _compute_is(args, generator, dataset, device):
             noise = torch.randn(args.batch_size, 100, 1, 1, device=device)
             fakes = generator(noise)
             fakes = _minmax_scaler(fakes)
-            
+
             if args.channels == 1:
                 fakes = fakes.repeat(1, 3, 1, 1)
 

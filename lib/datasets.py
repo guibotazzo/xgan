@@ -4,7 +4,7 @@ from gdown import download
 from zipfile import ZipFile
 from torch.utils.data import DataLoader, Subset
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, Grayscale
-from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, ImageFolder
+from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, PCAM, ImageFolder
 from lib.utils import print_style
 
 
@@ -85,6 +85,23 @@ def _make_cifar10_dataset(batch_size: int, img_size: int, classification: bool, 
         return dataloader
 
 
+def _make_pcam_dataset(batch_size: int, img_size: int, classification: bool):
+    dataset = PCAM(root='./datasets',
+                   download=True,
+                   transform=Compose([
+                       Resize(img_size),
+                       ToTensor(),
+                       Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                   ]))
+
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+
+    if classification:
+        return dataset
+    else:
+        return dataloader
+
+
 def _make_celeba_dataset(image_size: int, batch_size: int):
     path = './datasets/CelebA/data.zip'
 
@@ -153,6 +170,8 @@ def make_dataset(dataset: str, batch_size: int, img_size: int, classification: b
         return _make_fmnist_dataset(batch_size, img_size, classification, train)
     elif dataset == 'cifar10':
         return _make_cifar10_dataset(batch_size, img_size, classification, train)
+    elif dataset == 'pcam':
+        return _make_pcam_dataset(batch_size, img_size, classification)
     elif dataset == 'celeba':
         return _make_celeba_dataset(batch_size, img_size)
     elif dataset == 'nhl':

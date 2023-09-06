@@ -18,6 +18,9 @@ def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, devi
     elif dataset == 'cifar10':
         return models.Generator32(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
             models.Discriminator32(channels, feature_maps).to(device).apply(models.weights_init)
+    elif dataset == 'pcam':
+        return models.Generator96(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
+            models.Discriminator96(channels, feature_maps).to(device).apply(models.weights_init)
     elif dataset == 'celeba':
         return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
                models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
@@ -33,7 +36,7 @@ def main():
     parser = argparse.ArgumentParser(description='DCGAN')
     parser.add_argument('--dataset', '-d',
                         type=str,
-                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
+                        choices=['mnist', 'fmnist', 'cifar10', 'pcam', 'celeba', 'nhl'],
                         default='mnist')
     parser.add_argument('--epochs', '-e', type=int, default=50)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
