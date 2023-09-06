@@ -128,7 +128,7 @@ def _make_nhl256_dataset(batch_size: int, img_size: int, classification: bool):
         with ZipFile(zip_path, 'r') as zipobj:
             zipobj.extractall('./datasets/NHL256/')
 
-    dataset = ImageFolder(root='./datasets/NHL256/NHL256/FL',
+    dataset = ImageFolder(root='./datasets/NHL256/NHL256/',
                           transform=Compose([
                               Resize(img_size),
                               ToTensor(),
