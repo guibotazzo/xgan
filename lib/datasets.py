@@ -3,7 +3,7 @@ import pathlib
 from gdown import download
 from zipfile import ZipFile
 from torch.utils.data import DataLoader, Subset
-from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, Grayscale
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, Grayscale, Lambda
 from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, ImageFolder
 from lib.utils import print_style
 
@@ -15,7 +15,9 @@ def _make_mnist_dataset(batch_size: int, img_size: int, classification: bool, tr
                     transform=Compose([
                         Resize(img_size),
                         ToTensor(),
-                        Normalize((0.5,), (0.5,)),
+                        Lambda(lambda x: x.repeat(3, 1, 1) if x.size(0) == 1 else x),
+                        Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                        # Normalize((0.5,), (0.5,)),
                     ]))
 
     # subset = Subset(dataset, range(12000))

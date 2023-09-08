@@ -8,7 +8,7 @@ from lib import models, datasets
 from numpy import Infinity, zeros
 from torch.optim import lr_scheduler
 from torch.nn import CrossEntropyLoss
-from torchvision.models import alexnet
+from torchvision.models import alexnet, densenet121
 from sklearn.model_selection import StratifiedKFold
 from lib import utils
 
@@ -28,15 +28,21 @@ class ModelLearningSummary:
 
 
 def _load_model(net, device):
-    if net == 'convnet':
-        model = models.ConvNet().to(device)
+    if net == 'densenet121':
+        model = densenet121()
+        in_features = model.classifier.in_features
+        model.classifier = torch.nn.Linear(in_features=in_features, out_features=10)
         model.apply(models.reset_weights)
-        return model
+        return model.to(device)
+    if net == 'convnet':
+        model = models.ConvNet()
+        model.apply(models.reset_weights)
+        return model.to(device)
 
     if net == 'alexnet':
-        model = alexnet(weights='DEFAULT').to(device)
+        model = alexnet(weights='DEFAULT')
         model.apply(models.reset_weights)
-        return model
+        return model.to(device)
 
 
 def train_model(args):
@@ -168,7 +174,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', '-b', type=int, default=32)
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'nhl256'], default='mnist')
     parser.add_argument('--artificial', '-a', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--model', '-m', type=str, choices=['convnet', 'alexnet'], default='convnet')
+    parser.add_argument('--model', '-m', type=str, choices=['convnet', 'alexnet', 'densenet121'], default='convnet')
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--num_folds', '-k', type=int, default=5)
     parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
