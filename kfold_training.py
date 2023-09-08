@@ -173,7 +173,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=32)
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'nhl256'], default='mnist')
-    parser.add_argument('--artificial', '-a', action=argparse.BooleanOptionalAction)
+    # parser.add_argument('--artificial', '-a', action=argparse.BooleanOptionalAction)
     parser.add_argument('--model', '-m', type=str, choices=['convnet', 'alexnet', 'densenet121'], default='convnet')
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--num_folds', '-k', type=int, default=5)
