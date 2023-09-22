@@ -29,7 +29,7 @@ def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, devi
         utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
 
 
-def _minmax_scaler(arr, *, vmin=0, vmax=1):
+def _minmax_scaler(arr, *, vmin=1, vmax=2):
     arr_min, arr_max = arr.min(), arr.max()
     return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
 
@@ -187,8 +187,8 @@ def main():
                 pbar.update(1)
 
             # Write epoch loss on Tensorboard
-            writer.add_scalar('xdcgan' + args.xai + '/loss/generator', running_loss_g/len(dataset.dataset), epoch)
-            writer.add_scalar('xdcgan' + args.xai + '/loss/discriminator', running_loss_d/len(dataset.dataset), epoch)
+            writer.add_scalar('xdcgan/' + args.xai + '/loss/generator', running_loss_g/len(dataset.dataset), epoch)
+            writer.add_scalar('xdcgan/' + args.xai + '/loss/discriminator', running_loss_d/len(dataset.dataset), epoch)
 
             # Save images of the epoch
             with torch.no_grad():
@@ -196,10 +196,10 @@ def main():
                 img_grid_fake = make_grid(fake[:32], normalize=True)
                 writer.add_image("XDCGAN + " + args.xai, img_grid_fake, global_step=epoch)
 
-            saliency = Saliency(discriminator)
-            explanations = saliency.attribute(fake)
-            exp_grid = make_grid(explanations[:32], normalize=True)
-            writer.add_image(args.xai, exp_grid, global_step=epoch)
+                saliency = Saliency(discriminator)
+                explanations = saliency.attribute(fake)
+                exp_grid = make_grid(explanations[:32], normalize=True)
+                writer.add_image(args.xai.upper(), exp_grid, global_step=epoch)
 
             # Save models
             torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch+1:02d}.pth')

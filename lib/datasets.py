@@ -15,14 +15,14 @@ def _make_mnist_dataset(batch_size: int, img_size: int, classification: bool, tr
                     transform=Compose([
                         Resize(img_size),
                         ToTensor(),
-                        Lambda(lambda x: x.repeat(3, 1, 1) if x.size(0) == 1 else x),
-                        Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                        # Normalize((0.5,), (0.5,)),
+                        # Lambda(lambda x: x.repeat(3, 1, 1) if x.size(0) == 1 else x),
+                        # Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                        Normalize((0.5,), (0.5,)),
                     ]))
 
     # subset = Subset(dataset, range(12000))
 
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     if classification:
         return dataset
