@@ -10,6 +10,7 @@ from lib import models, datasets, utils
 from captum.attr import Saliency, DeepLift, GuidedGradCam
 from torch.utils.tensorboard import SummaryWriter
 import pathlib
+from torch.autograd import Variable
 
 
 def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, device):
@@ -52,7 +53,7 @@ def main():
     parser = argparse.ArgumentParser(description='XGAN')
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
                         default='mnist')
-    parser.add_argument('--epochs', '-e', type=int, default=50)
+    parser.add_argument('--epochs', '-e', type=int, default=100)
     parser.add_argument('--batch_size', '-b', type=int, default=64)
     parser.add_argument('--img_size', '-s', type=int, default=28)
     parser.add_argument('--channels', '-c', type=int, default=1)
@@ -163,6 +164,7 @@ def main():
                     saliency = _xai_method(args.dataset, args.xai, discriminator)
                     explanations = saliency.attribute(fake)
                     explanations = _minmax_scaler(explanations)
+                    explanations = explanations.clone().detach().requires_grad_(True)
                     # explanations = fooled * explanations
 
                     errG = cross_entropy(output, label)
