@@ -18,6 +18,13 @@ def _load_models(args, device):
         discriminator.apply(models.weights_init)
 
         return generator, discriminator
+    elif args.dataset == 'cifar10':
+        generator = models.Generator32(args.noise_dim, args.channels, args.feature_maps).to(device)
+        generator.apply(models.weights_init)
+        discriminator = models.Critic32(args.channels, args.feature_maps).to(device)
+        discriminator.apply(models.weights_init)
+
+        return generator, discriminator
     elif args.dataset == 'nhl':
         generator = models.WGenerator256(args.z_dim, args.channels, args.feature_maps).to(device)
         generator.apply(models.weights_init)

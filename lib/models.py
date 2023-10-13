@@ -445,6 +445,30 @@ class Critic28(nn.Module):
         return self.network(img)
 
 
+class Critic32(nn.Module):
+    def __init__(self, channels, feature_maps):
+        super(Critic32, self).__init__()
+        self.ndf = feature_maps  # Size of feature maps in discriminator
+        self.nc = channels  # Number of channels of the training images
+        self.network = nn.Sequential(
+            nn.Conv2d(in_channels=self.nc, out_channels=self.ndf, kernel_size=2, stride=2, padding=1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf, out_channels=self.ndf*2, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(self.ndf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf*2, out_channels=self.ndf*4, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(self.ndf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf*4, out_channels=self.ndf*8, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(self.ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf*8, out_channels=1, kernel_size=3, stride=1, padding=0, bias=False),
+        )
+
+    def forward(self, img):
+        return self.network(img)
+
+
 class WGenerator256(nn.Module):
     def __init__(self, noise_dim, channels, feature_maps):
         super(WGenerator256, self).__init__()
