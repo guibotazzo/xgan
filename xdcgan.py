@@ -10,7 +10,6 @@ from lib import models, datasets, utils
 from captum.attr import Saliency, DeepLift, GuidedGradCam
 from torch.utils.tensorboard import SummaryWriter
 import pathlib
-from torch.autograd import Variable
 
 
 def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, device):
@@ -43,7 +42,7 @@ def _xai_method(dataset, method: str, model):
     elif method == 'gradcam':
         if dataset == 'mnist' or dataset == 'fmnist':
             return GuidedGradCam(model, model.network[9])
-        elif dataset == 'celeba':
+        elif dataset == 'celeba' or dataset == 'cifar10':
             return GuidedGradCam(model, model.network[11])
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
