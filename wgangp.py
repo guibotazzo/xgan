@@ -66,7 +66,7 @@ def main():
     parser.add_argument('--channels', '-c', type=int, default=3, help="number of image channels")
     parser.add_argument('--epochs', '-e', type=int, default=50, help="number of epochs of training")
     parser.add_argument('--batch_size', '-b', type=int, default=32, help="size of the batches")
-    parser.add_argument('--feature_maps', '-f', type=int, default=16)
+    parser.add_argument('--feature_maps', '-f', type=int, default=64)
     parser.add_argument('--z_dim', '-z', type=int, default=100, help="dimensionality of the latent space")
     parser.add_argument('--lr', type=float, default=1e-4, help="adam: learning rate")
     parser.add_argument('--b1', type=float, default=0.0, help="adam: decay of first order momentum of gradient")
