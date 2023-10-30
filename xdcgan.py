@@ -32,7 +32,8 @@ def _xai_method(dataset, method: str, model):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='XGAN')
+    parser = argparse.ArgumentParser(description='XDCGAN')
+    parser.add_argument('--gan', '-g', type=str, choices=['xdcgan'], default='xdcgan')
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
                         default='mnist')
     parser.add_argument('--epochs', '-e', type=int, default=100)

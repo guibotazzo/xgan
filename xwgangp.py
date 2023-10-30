@@ -16,7 +16,7 @@ def _xai_method(method: str, model):
     elif method == 'deeplift':
         return DeepLift(model)
     elif method == 'gradcam':
-        return GuidedGradCam(model, model.network[17])
+        return GuidedGradCam(model, model.network[-1])
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
 
@@ -51,8 +51,9 @@ def _gradient_penalty(critic, real, fake, device="cpu"):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='WGAN-GP')
-    parser.add_argument('--dataset', '-d', type=str, choices=['nhl', 'mnist', 'cifar10'], default='nhl')
+    parser = argparse.ArgumentParser(description='XWGAN-GP')
+    parser.add_argument('--gan', '-g', type=str, choices=['xwgangp'], default='xwgangp')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'cifar10', 'nhl'], default='nhl')
     parser.add_argument('--img_size', '-s', type=int, default=256, help="size of each image dimension")
     parser.add_argument('--channels', '-c', type=int, default=3, help="number of image channels")
     parser.add_argument('--epochs', '-e', type=int, default=50, help="number of epochs of training")
