@@ -670,12 +670,16 @@ def load_models(args, device):
             generator = Generator32(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
             discriminator = Discriminator32(args.channels, args.feature_maps).to(device).apply(weights_init)
             return generator, discriminator
+        elif args.dataset == 'pcam':
+            generator = Generator96(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
+            discriminator = Discriminator96(args.channels, args.feature_maps).to(device).apply(weights_init)
+            return generator, discriminator
         elif args.dataset == 'celeba':
             generator = Generator64(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
             discriminator = Discriminator64(args.channels, args.feature_maps).to(device).apply(weights_init)
             return generator, discriminator
         else:
-            utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
+            utils.print_style('LOAD MODEL ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
     ####################
     # WGAN-GP / XWGAN-GP
     ####################
@@ -693,6 +697,6 @@ def load_models(args, device):
             discriminator = Critic256(args.channels, args.feature_maps).to(device).apply(weights_init)
             return generator, discriminator
         else:
-            utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
+            utils.print_style('LOAD MODEL ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
     else:
-        utils.print_style('ERROR: This method is not implemented.', color='RED', formatting="ITALIC")
+        utils.print_style('LOAD MODEL ERROR: This method is not implemented.', color='RED', formatting="ITALIC")

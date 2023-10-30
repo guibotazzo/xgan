@@ -160,4 +160,4 @@ def make_dataset(dataset: str, batch_size: int, img_size: int, classification: b
     elif dataset == 'nhl':
         return _make_nhl256_dataset(batch_size, img_size, classification)
     else:
-        print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
+        print_style('LOAD DATASET ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
