@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from lib import utils
 
 
 ###########################
@@ -654,3 +655,44 @@ class DiscriminatorACGANaux(nn.Module):
         # label = self.aux_layer(out)
 
         return validity
+
+
+def load_models(args, device):
+    ################
+    # DCGAN / XDCGAN
+    ################
+    if args.gan == 'dcgan' or args.gan == 'xdcgan':
+        if args.dataset == 'mnist' or args.dataset == 'fmnist':
+            generator = Generator28(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
+            discriminator = Discriminator28(args.channels, args.feature_maps).to(device).apply(weights_init)
+            return generator, discriminator
+        elif args.dataset == 'cifar10':
+            generator = Generator32(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
+            discriminator = Discriminator32(args.channels, args.feature_maps).to(device).apply(weights_init)
+            return generator, discriminator
+        elif args.dataset == 'celeba':
+            generator = Generator64(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
+            discriminator = Discriminator64(args.channels, args.feature_maps).to(device).apply(weights_init)
+            return generator, discriminator
+        else:
+            utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
+    ####################
+    # WGAN-GP / XWGAN-GP
+    ####################
+    elif args.gan == 'wgangp' or args.gan == 'xwgangp':
+        if args.dataset == 'mnist' or args.dataset == 'fmnist':
+            generator = WGenerator28(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
+            discriminator = Critic28(args.channels, args.feature_maps).to(device).apply(weights_init)
+            return generator, discriminator
+        elif args.dataset == 'cifar10':
+            generator = Generator32(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
+            discriminator = Critic32(args.channels, args.feature_maps).to(device).apply(weights_init)
+            return generator, discriminator
+        elif args.dataset == 'nhl':
+            generator = WGenerator256(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
+            discriminator = Critic256(args.channels, args.feature_maps).to(device).apply(weights_init)
+            return generator, discriminator
+        else:
+            utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
+    else:
+        utils.print_style('ERROR: This method is not implemented.', color='RED', formatting="ITALIC")

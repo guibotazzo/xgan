@@ -10,32 +10,6 @@ from tqdm import tqdm
 from captum.attr import Saliency, DeepLift, GuidedGradCam
 
 
-def _load_models(args, device):
-    if args.dataset == 'mnist' or args.dataset == 'fmnist':
-        generator = models.WGenerator28(args.z_dim, args.channels, args.feature_maps).to(device)
-        generator.apply(models.weights_init)
-
-        discriminator = models.Critic28(args.channels, args.feature_maps).to(device)
-        discriminator.apply(models.weights_init)
-
-        return generator, discriminator
-    elif args.dataset == 'cifar10':
-        generator = models.Generator32(args.z_dim, args.channels, args.feature_maps).to(device)
-        generator.apply(models.weights_init)
-        discriminator = models.Critic32(args.channels, args.feature_maps).to(device)
-        discriminator.apply(models.weights_init)
-
-        return generator, discriminator
-    if args.dataset == 'nhl':
-        generator = models.WGenerator256(args.z_dim, args.channels, args.feature_maps).to(device)
-        generator.apply(models.weights_init)
-
-        discriminator = models.Critic256(args.channels, args.feature_maps).to(device)
-        discriminator.apply(models.weights_init)
-
-        return generator, discriminator
-
-
 def _xai_method(method: str, model):
     if method == 'saliency':
         return Saliency(model)
@@ -111,7 +85,7 @@ def main():
                                     train=True)
 
     # Create models
-    generator, critic = _load_models(args, device)
+    generator, critic = models.load_models(args, device)
 
     opt_gen = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.b1, args.b2))
     opt_critic = optim.Adam(critic.parameters(), lr=args.lr, betas=(args.b1, args.b2))

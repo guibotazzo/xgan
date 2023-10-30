@@ -9,32 +9,6 @@ from lib import utils, datasets, models
 from tqdm import tqdm
 
 
-def _load_models(args, device):
-    if args.dataset == 'mnist' or args.dataset == 'fmnist':
-        generator = models.WGenerator28(args.z_dim, args.channels, args.feature_maps).to(device)
-        generator.apply(models.weights_init)
-
-        discriminator = models.Critic28(args.channels, args.feature_maps).to(device)
-        discriminator.apply(models.weights_init)
-
-        return generator, discriminator
-    elif args.dataset == 'cifar10':
-        generator = models.Generator32(args.z_dim, args.channels, args.feature_maps).to(device)
-        generator.apply(models.weights_init)
-        discriminator = models.Critic32(args.channels, args.feature_maps).to(device)
-        discriminator.apply(models.weights_init)
-
-        return generator, discriminator
-    elif args.dataset == 'nhl':
-        generator = models.WGenerator256(args.z_dim, args.channels, args.feature_maps).to(device)
-        generator.apply(models.weights_init)
-
-        discriminator = models.Critic256(args.channels, args.feature_maps).to(device)
-        discriminator.apply(models.weights_init)
-
-        return generator, discriminator
-
-
 def _gradient_penalty(critic, real, fake, device="cpu"):
     b, c, h, w = real.shape
 
@@ -67,7 +41,7 @@ def main():
     parser.add_argument('--epochs', '-e', type=int, default=50, help="number of epochs of training")
     parser.add_argument('--batch_size', '-b', type=int, default=64, help="size of the batches")
     parser.add_argument('--feature_maps', '-f', type=int, default=16)
-    parser.add_argument('--z_dim', '-z', type=int, default=100, help="dimensionality of the latent space")
+    parser.add_argument('--noise_dim', '-z', type=int, default=100, help="dimensionality of the latent space")
     parser.add_argument('--lr', type=float, default=1e-4, help="adam: learning rate")
     parser.add_argument('--b1', type=float, default=0.0, help="adam: decay of first order momentum of gradient")
     parser.add_argument('--b2', type=float, default=0.9, help="adam: decay of first order momentum of gradient")
@@ -93,7 +67,7 @@ def main():
                                     train=True)
 
     # Create models
-    generator, critic = _load_models(args, device)
+    generator, critic = models.load_models(args, device)
 
     opt_gen = optim.Adam(generator.parameters(), lr=args.lr, betas=(args.b1, args.b2))
     opt_critic = optim.Adam(critic.parameters(), lr=args.lr, betas=(args.b1, args.b2))

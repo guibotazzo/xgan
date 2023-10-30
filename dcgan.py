@@ -11,26 +11,6 @@ from torch.utils.tensorboard import SummaryWriter
 import pathlib
 
 
-def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, device):
-    if dataset == 'mnist' or dataset == 'fmnist':
-        return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
-               models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
-    elif dataset == 'cifar10':
-        return models.Generator32(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
-            models.Discriminator32(channels, feature_maps).to(device).apply(models.weights_init)
-    elif dataset == 'pcam':
-        return models.Generator96(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
-            models.Discriminator96(channels, feature_maps).to(device).apply(models.weights_init)
-    elif dataset == 'celeba':
-        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-               models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
-    elif dataset == 'nhl':
-        return models.Generator256(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-               models.Discriminator256(channels, feature_maps).to(device).apply(models.weights_init)
-    else:
-        utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
-
-
 def main():
     # Arguments
     parser = argparse.ArgumentParser(description='DCGAN')
@@ -71,11 +51,7 @@ def main():
     utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
 
     # Create models
-    generator, discriminator = _load_models(dataset=args.dataset,
-                                            noise_dim=args.noise_dim,
-                                            channels=args.channels,
-                                            feature_maps=args.feature_maps,
-                                            device=device)
+    generator, discriminator = models.load_models(args, device)
 
     ###############
     # Training Loop

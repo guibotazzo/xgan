@@ -6,28 +6,6 @@ from torchmetrics.image.inception import InceptionScore
 from lib import models, datasets, utils
 
 
-def _load_models(dataset, noise_dim: int, channels: int, feature_maps: int, device):
-    if dataset == 'mnist' or dataset == 'fmnist':
-        return models.Generator28(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
-               models.Discriminator28(channels, feature_maps).to(device).apply(models.weights_init)
-    elif dataset == 'cifar10':
-        return models.Generator32(noise_dim, channels, feature_maps).to(device).apply(models.weights_init), \
-            models.Discriminator32(channels, feature_maps).to(device).apply(models.weights_init)
-    elif dataset == 'celeba':
-        return models.Generator64(noise_dim, channels, feature_maps).to(device).apply(models.weights_init),\
-               models.Discriminator64(channels, feature_maps).to(device).apply(models.weights_init)
-    elif dataset == 'nhl':
-        generator = models.WGenerator256(noise_dim, channels, feature_maps).to(device)
-        generator.apply(models.weights_init)
-
-        discriminator = models.Critic256(channels, feature_maps).to(device)
-        discriminator.apply(models.weights_init)
-
-        return generator, discriminator
-    else:
-        utils.print_style('ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
-
-
 def _minmax_scaler(arr, *, vmin=0, vmax=255):
     arr_min, arr_max = arr.min(), arr.max()
     return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
@@ -96,16 +74,13 @@ def main():
     args = parser.parse_args()
 
     device = utils.select_device(args.cuda_device)
+
     if args.gan == 'xdcgan' or args.gan == 'xwgangp':
         weights_path = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:02d}.pth'
     else:
         weights_path = 'weights/' + args.gan + '/' + args.dataset + f'/gen_epoch_{args.epoch:d}.pth'
 
-    generator, _ = _load_models(dataset=args.dataset,
-                                noise_dim=args.noise_dim,
-                                channels=args.channels,
-                                feature_maps=args.feature_maps,
-                                device=device)
+    generator, _ = models.load_models(args, device)
 
     generator.load_state_dict(torch.load(weights_path, map_location=device))
 
