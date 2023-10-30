@@ -73,7 +73,7 @@ def main():
     opt_critic = optim.Adam(critic.parameters(), lr=args.lr, betas=(args.b1, args.b2))
 
     # for tensorboard plotting
-    fixed_noise = torch.randn(32, args.z_dim, 1, 1).to(device)
+    fixed_noise = torch.randn(32, args.noise_dim, 1, 1).to(device)
 
     # Lists to keep track of progress
     G_losses = []
@@ -96,7 +96,7 @@ def main():
                 # Train Critic: max E[critic(real)] - E[critic(fake)]
                 # equivalent to minimizing the negative of that
                 for _ in range(args.ci):
-                    noise = torch.randn(cur_batch_size, args.z_dim, 1, 1).to(device)
+                    noise = torch.randn(cur_batch_size, args.noise_dim, 1, 1).to(device)
                     fake = generator(noise)
                     critic_real = critic(real).reshape(-1)
                     critic_fake = critic(fake).reshape(-1)

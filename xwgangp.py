@@ -59,7 +59,6 @@ def main():
     parser.add_argument('--epochs', '-e', type=int, default=50, help="number of epochs of training")
     parser.add_argument('--batch_size', '-b', type=int, default=32, help="size of the batches")
     parser.add_argument('--feature_maps', '-f', type=int, default=16)
-    parser.add_argument('--noise_dim', '-z', type=int, default=100, help="dimensionality of the latent space")
     parser.add_argument('--lr', type=float, default=1e-4, help="adam: learning rate")
     parser.add_argument('--b1', type=float, default=0.0, help="adam: decay of first order momentum of gradient")
     parser.add_argument('--b2', type=float, default=0.9, help="adam: decay of first order momentum of gradient")
@@ -92,7 +91,7 @@ def main():
     opt_critic = optim.Adam(critic.parameters(), lr=args.lr, betas=(args.b1, args.b2))
 
     # for tensorboard plotting
-    fixed_noise = torch.randn(32, args.z_dim, 1, 1).to(device)
+    fixed_noise = torch.randn(32, args.noise_dim, 1, 1).to(device)
 
     # Lists to keep track of progress
     G_losses = []
@@ -115,7 +114,7 @@ def main():
                 # Train Critic: max E[critic(real)] - E[critic(fake)]
                 # equivalent to minimizing the negative of that
                 for _ in range(args.ci):
-                    noise = torch.randn(cur_batch_size, args.z_dim, 1, 1).to(device)
+                    noise = torch.randn(cur_batch_size, args.noise_dim, 1, 1).to(device)
                     fake = generator(noise)
                     critic_real = critic(real).reshape(-1)
                     critic_fake = critic(fake).reshape(-1)
