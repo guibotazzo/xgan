@@ -115,7 +115,7 @@ def _make_celeba_dataset(image_size: int, batch_size: int):
     return dataloader
 
 
-def _make_nhl256_dataset(batch_size: int, img_size: int, classification: bool):
+def _make_nhl_dataset(batch_size: int, img_size: int, classification: bool):
     zip_path = './datasets/NHL256/nhl256_original.zip'
 
     if not os.path.exists('./datasets/NHL256'):
@@ -145,22 +145,27 @@ def _make_nhl256_dataset(batch_size: int, img_size: int, classification: bool):
         return dataloader
 
 
-def _make_cr256_dataset(batch_size: int, img_size: int, classification: bool):
-    zip_path = './datasets/CR256_original.zip'
+def _make_cr_dataset(batch_size: int, img_size: int, classification: bool):
+    zip_path = './datasets/CR' + str(img_size) + '_original.zip'
 
     # if not os.path.exists('./datasets/'):
     #     path = pathlib.Path('./datasets/')
     #     path.mkdir(parents=True)
 
     if not os.path.exists(zip_path):
-        url = 'https://drive.google.com/uc?id=1cCahPLuY2__RJ2V_L-TVgvIGYa97hEXG'
+        if img_size == 256:
+            url = 'https://drive.google.com/uc?id=1cCahPLuY2__RJ2V_L-TVgvIGYa97hEXG'
+        elif img_size == 128:
+            url = 'https://drive.google.com/uc?id=1iN3U7CgXiS-KJWaE0Zr2uf13J3zjq5w0'
+        else:
+            url = ''
 
         download(url, zip_path, quiet=False)
 
         with ZipFile(zip_path, 'r') as zipobj:
             zipobj.extractall('./datasets/')
 
-    dataset = ImageFolder(root='./datasets/CR256/',
+    dataset = ImageFolder(root='./datasets/CR' + str(img_size) + '/',
                           transform=Compose([
                               Resize(img_size),
                               ToTensor(),
@@ -175,7 +180,7 @@ def _make_cr256_dataset(batch_size: int, img_size: int, classification: bool):
         return dataloader
 
 
-def _make_ucsb256_dataset(batch_size: int, img_size: int, classification: bool):
+def _make_ucsb_dataset(batch_size: int, img_size: int, classification: bool):
     zip_path = './datasets/UCSB256_original.zip'
 
     # if not os.path.exists('./datasets/'):
@@ -218,10 +223,10 @@ def make_dataset(dataset: str, batch_size: int, img_size: int, classification: b
     elif dataset == 'celeba':
         return _make_celeba_dataset(batch_size, img_size)
     elif dataset == 'nhl':
-        return _make_nhl256_dataset(batch_size, img_size, classification)
+        return _make_nhl_dataset(batch_size, img_size, classification)
     elif dataset == 'cr':
-        return _make_cr256_dataset(batch_size, img_size, classification)
+        return _make_cr_dataset(batch_size, img_size, classification)
     elif dataset == 'ucsb':
-        return _make_ucsb256_dataset(batch_size, img_size, classification)
+        return _make_ucsb_dataset(batch_size, img_size, classification)
     else:
         print_style('LOAD DATASET ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
