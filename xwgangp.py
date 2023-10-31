@@ -53,7 +53,7 @@ def _gradient_penalty(critic, real, fake, device="cpu"):
 def main():
     parser = argparse.ArgumentParser(description='XWGAN-GP')
     parser.add_argument('--gan', '-g', type=str, choices=['xwgangp'], default='xwgangp')
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'cifar10', 'nhl', 'cr'], default='nhl')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'cifar10', 'nhl', 'cr', 'uscb'], default='nhl')
     parser.add_argument('--img_size', '-s', type=int, default=256, help="size of each image dimension")
     parser.add_argument('--channels', '-c', type=int, default=3, help="number of image channels")
     parser.add_argument('--noise_dim', '-z', type=int, default=100, help="dimensionality of the latent space")

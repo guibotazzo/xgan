@@ -175,6 +175,36 @@ def _make_cr256_dataset(batch_size: int, img_size: int, classification: bool):
         return dataloader
 
 
+def _make_ucsb256_dataset(batch_size: int, img_size: int, classification: bool):
+    zip_path = './datasets/UCSB256_original.zip'
+
+    # if not os.path.exists('./datasets/'):
+    #     path = pathlib.Path('./datasets/')
+    #     path.mkdir(parents=True)
+
+    if not os.path.exists(zip_path):
+        url = 'https://drive.google.com/uc?id=16gaFfP5GzfitpMNi-lF63grOOCxVOx3Q'
+
+        download(url, zip_path, quiet=False)
+
+        with ZipFile(zip_path, 'r') as zipobj:
+            zipobj.extractall('./datasets/')
+
+    dataset = ImageFolder(root='./datasets/UCSB256/',
+                          transform=Compose([
+                              Resize(img_size),
+                              ToTensor(),
+                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                          ]))
+
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+
+    if classification:
+        return dataset
+    else:
+        return dataloader
+
+
 def make_dataset(dataset: str, batch_size: int, img_size: int, classification: bool, artificial: bool, train: bool):
     if dataset == 'mnist':
         if artificial:
@@ -191,5 +221,7 @@ def make_dataset(dataset: str, batch_size: int, img_size: int, classification: b
         return _make_nhl256_dataset(batch_size, img_size, classification)
     elif dataset == 'cr':
         return _make_cr256_dataset(batch_size, img_size, classification)
+    elif dataset == 'ucsb':
+        return _make_ucsb256_dataset(batch_size, img_size, classification)
     else:
         print_style('LOAD DATASET ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")

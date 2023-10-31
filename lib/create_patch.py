@@ -10,7 +10,6 @@ def create_fake_dataset():
 
 
 def make_nhl_patches():
-    dataset = 'UCSB'
     root = '/Users/guilherme/datasets/original/UCSB/'
     width = 896
     height = 768
@@ -37,9 +36,10 @@ def make_nhl_patches():
 
                 for h in range(0, height-size_out, size_out):
                     for w in range(0, width - size_out, size_out):
-                        patch = img[w:w+size_out, h:h+size_out, :]
-                        imsave(dir_out + class_name + ' (' + str(k) + ').png', patch)
-                        k = k + 1
+                        patch = img[w:w + size_out, h:h + size_out, :]
+                        if patch.shape[0] == size_out and patch.shape[1] == size_out:
+                            imsave(dir_out + class_name + ' (' + str(k) + ').png', patch)
+                            k = k + 1
 
                 pbar.update(1)
 
