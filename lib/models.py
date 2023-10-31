@@ -692,7 +692,7 @@ def load_models(args, device):
             generator = Generator32(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
             discriminator = Critic32(args.channels, args.feature_maps).to(device).apply(weights_init)
             return generator, discriminator
-        elif args.dataset == 'nhl':
+        elif args.dataset == 'nhl' or args.dataset == 'cr':
             generator = WGenerator256(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
             discriminator = Critic256(args.channels, args.feature_maps).to(device).apply(weights_init)
             return generator, discriminator
