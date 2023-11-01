@@ -493,7 +493,7 @@ class WGenerator128(nn.Module):
                                bias=False),
             nn.BatchNorm2d(self.ngf),
             nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=self.ngf, out_channels=self.nc, kernel_size=6, stride=2, padding=1,
+            nn.ConvTranspose2d(in_channels=self.ngf, out_channels=self.nc, kernel_size=8, stride=2, padding=1,
                                bias=False),
             nn.Tanh()
         )
