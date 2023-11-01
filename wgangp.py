@@ -35,6 +35,7 @@ def _gradient_penalty(critic, real, fake, device="cpu"):
 
 def main():
     parser = argparse.ArgumentParser(description='WGAN-GP')
+    parser.add_argument('--gan', '-g', type=str, choices=['wgangp'], default='wgangp')
     parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'nhl', 'cr', 'ucsb'],
                         default='nhl')
     parser.add_argument('--img_size', '-s', type=int, default=256, help="size of each image dimension")
