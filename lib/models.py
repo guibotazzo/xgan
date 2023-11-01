@@ -470,6 +470,62 @@ class Critic32(nn.Module):
         return self.network(img)
 
 
+class WGenerator128(nn.Module):
+    def __init__(self, noise_dim, channels, feature_maps):
+        super(WGenerator128, self).__init__()
+        self.nz = noise_dim  # Size of z latent vector
+        self.ngf = feature_maps  # Size of feature maps in generator
+        self.nc = channels  # Number of channels in the training images
+        self.network = nn.Sequential(
+            nn.ConvTranspose2d(in_channels=self.nz, out_channels=self.ngf*8, kernel_size=6, stride=1, padding=0,
+                               bias=False),
+            nn.BatchNorm2d(self.ngf*8),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*8, out_channels=self.ngf*4, kernel_size=6, stride=2, padding=1,
+                               bias=False),
+            nn.BatchNorm2d(self.ngf*4),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*4, out_channels=self.ngf*2, kernel_size=6, stride=2, padding=1,
+                               bias=False),
+            nn.BatchNorm2d(self.ngf*2),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf*2, out_channels=self.ngf, kernel_size=6, stride=2, padding=1,
+                               bias=False),
+            nn.BatchNorm2d(self.ngf),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.ngf, out_channels=self.nc, kernel_size=6, stride=2, padding=1,
+                               bias=False),
+            nn.Tanh()
+        )
+
+    def forward(self, img):
+        return self.network(img)
+
+
+class Critic128(nn.Module):
+    def __init__(self, channels, feature_maps):
+        super(Critic128, self).__init__()
+        self.ndf = feature_maps  # Size of feature maps in discriminator
+        self.nc = channels  # Number of channels of the training images
+        self.network = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=self.ndf, kernel_size=6, stride=2, padding=1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf, out_channels=self.ndf*2, kernel_size=6, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(self.ndf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf*2, out_channels=self.ndf*4, kernel_size=6, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(self.ndf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf*4, out_channels=self.ndf*8, kernel_size=6, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(self.ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=self.ndf*8, out_channels=1, kernel_size=6, stride=1, padding=0, bias=False),
+        )
+
+    def forward(self, img):
+        return self.network(img)
+
+
 class WGenerator256(nn.Module):
     def __init__(self, noise_dim, channels, feature_maps):
         super(WGenerator256, self).__init__()
@@ -693,8 +749,18 @@ def load_models(args, device):
             discriminator = Critic32(args.channels, args.feature_maps).to(device).apply(weights_init)
             return generator, discriminator
         elif args.dataset == 'nhl' or args.dataset == 'cr' or args.dataset == 'ucsb':
-            generator = WGenerator256(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
-            discriminator = Critic256(args.channels, args.feature_maps).to(device).apply(weights_init)
+            if args.img_size == 256:
+                generator = WGenerator256(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
+                discriminator = Critic256(args.channels, args.feature_maps).to(device).apply(weights_init)
+            if args.img_size == 128:
+                generator = WGenerator128(args.noise_dim, args.channels, args.feature_maps).to(device).apply(
+                    weights_init)
+                discriminator = Critic128(args.channels, args.feature_maps).to(device).apply(weights_init)
+            else:
+                generator = []
+                discriminator = []
+                utils.print_style('LOAD MODEL ERROR: This dataset is not implemented.', color='RED',
+                                  formatting="ITALIC")
             return generator, discriminator
         else:
             utils.print_style('LOAD MODEL ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")
