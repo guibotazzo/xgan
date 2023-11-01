@@ -752,7 +752,7 @@ def load_models(args, device):
             if args.img_size == 256:
                 generator = WGenerator256(args.noise_dim, args.channels, args.feature_maps).to(device).apply(weights_init)
                 discriminator = Critic256(args.channels, args.feature_maps).to(device).apply(weights_init)
-            if args.img_size == 128:
+            elif args.img_size == 128:
                 generator = WGenerator128(args.noise_dim, args.channels, args.feature_maps).to(device).apply(
                     weights_init)
                 discriminator = Critic128(args.channels, args.feature_maps).to(device).apply(weights_init)
