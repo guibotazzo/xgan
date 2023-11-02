@@ -62,7 +62,7 @@ def main():
     parser.add_argument('--metric', '-m', type=str, choices=['fid', 'is'], default='fid')
     parser.add_argument('--gan', '-g', type=str, choices=['dcgan', 'xdcgan', 'wgangp', 'xwgangp'], default='dcgan')
     parser.add_argument('--xai', '-x', type=str, choices=['saliency', 'deeplift', 'gradcam'], default='saliency')
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl', 'cr'],
                         default='mnist')
     parser.add_argument('--epoch', '-e', type=int, default=50)
     parser.add_argument('--batch_size', '-b', type=int, default=64)

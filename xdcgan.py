@@ -23,10 +23,7 @@ def _xai_method(dataset, method: str, model):
     elif method == 'deeplift':
         return DeepLift(model)
     elif method == 'gradcam':
-        if dataset == 'mnist' or dataset == 'fmnist':
-            return GuidedGradCam(model, model.network[9])
-        elif dataset == 'celeba' or dataset == 'cifar10':
-            return GuidedGradCam(model, model.network[11])
+        return GuidedGradCam(model, model.network[-2])
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
 
