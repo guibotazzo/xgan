@@ -14,6 +14,7 @@ import pathlib
 def main():
     # Arguments
     parser = argparse.ArgumentParser(description='DCGAN')
+    parser.add_argument('--gan', '-g', type=str, choices=['dcgan'], default='dcgan')
     parser.add_argument('--dataset', '-d',
                         type=str,
                         choices=['mnist', 'fmnist', 'cifar10', 'pcam', 'celeba', 'nhl'],
