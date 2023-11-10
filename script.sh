@@ -1,7 +1,7 @@
 #!/bin/bash
 
-rm -r weights
-rm -r runs
+# rm -r weights
+# rm -r runs
 
 # python xdcgan.py -x gradcam -d mnist -s 28 -c 1 -e 100
 # mkdir weights/xdcgan/mnist/gradcam/run1/
