@@ -165,7 +165,7 @@ def _make_cr_dataset(batch_size: int, img_size: int, classification: bool):
         with ZipFile(zip_path, 'r') as zipobj:
             zipobj.extractall('./datasets/')
 
-    dataset = ImageFolder(root='./datasets/CR' + str(img_size) + '/',
+    dataset = ImageFolder(root='./datasets/CR/Benign/' + str(img_size) + '/',
                           transform=Compose([
                               Resize(img_size),
                               ToTensor(),
