@@ -60,7 +60,7 @@ def print_style(msg, color=None, formatting=None):
 
 def select_device(cuda_device):
     if torch.cuda.is_available():
-        print_style("CUDA device selected.", color='CYAN', formatting="ITALIC")
+        print_style('CUDA (' + cuda_device + ') device selected.', color='CYAN', formatting="ITALIC")
         return torch.device(cuda_device)
     elif torch.backends.mps.is_available():
         print_style("MPS device selected.", color='CYAN', formatting="ITALIC")
