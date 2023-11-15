@@ -87,7 +87,7 @@ def _make_cifar10_dataset(batch_size: int, img_size: int, classification: bool, 
         return dataloader
 
 
-def _make_celeba_dataset(image_size: int, batch_size: int):
+def _make_celeba_dataset(batch_size: int, image_size: int):
     path = './datasets/CelebA/data.zip'
 
     if not os.path.exists(path):
