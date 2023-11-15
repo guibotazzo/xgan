@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision.utils import make_grid
 from lib import utils, datasets, models
 from tqdm import tqdm
-from captum.attr import Saliency, DeepLift, GuidedGradCam
+from captum.attr import Saliency, DeepLift, InputXGradient
 
 
 def _xai_method(method: str, model):
@@ -16,7 +16,7 @@ def _xai_method(method: str, model):
     elif method == 'deeplift':
         return DeepLift(model)
     elif method == 'gradcam':
-        return GuidedGradCam(model, model.network[-1])
+        return InputXGradient(model)
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
 
