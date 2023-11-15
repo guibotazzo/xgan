@@ -14,6 +14,6 @@ rm -r runs
 mkdir datasets/CR128/Benign/one_class/
 mv datasets/CR128/Benign/*.png datasets/CR128/Benign/one_class/
 python xwgangp.py -x gradcam -d cr -s 128 -c 3 -e 100 --feature_maps 64
-mv weights/xwgangp/cr/gradcam/disc_epoch_100.pth weights/xwgangp/mnist/gradcam/run1/
-mv weights/xwgangp/cr/gradcam/gen_epoch_100.pth weights/xwgangp/mnist/gradcam/run1/
+mv weights/xwgangp/cr/gradcam/disc_epoch_100.pth weights/xwgangp/cr/gradcam/run1/
+mv weights/xwgangp/cr/gradcam/gen_epoch_100.pth weights/xwgangp/cr/gradcam/run1/
 mv runs/* weights/xwgangp/cr/gradcam/run1/
