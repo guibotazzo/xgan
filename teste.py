@@ -15,6 +15,12 @@ from lib import datasets, models, utils
 
 
 def main(args):
+    weights_path = 'weights/' + args.loss_D + '/' + args.dataset
+
+    if not os.path.exists(weights_path):
+        path = pathlib.Path(weights_path)
+        path.mkdir(parents=True)
+
     device = utils.select_device(args.cuda_device)
 
     # weights_path = 'Output/GANlosses/'
@@ -364,6 +370,10 @@ def main(args):
                 fake = generator(fixed_noise)
                 img_grid_fake = make_grid(fake[:32], normalize=True)
                 writer.add_image(args.loss_D.upper(), img_grid_fake, global_step=epoch)
+
+            # Save models
+            torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch + 1:02d}.pth')
+            torch.save(discriminator.state_dict(), weights_path + f'/disc_epoch_{epoch + 1:02d}.pth')
 
             # Log results so we can see them in TensorBoard after
             # log_value('Diff', -(errD.data.item()+errG.data.item()), i)
