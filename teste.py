@@ -283,18 +283,33 @@ def main(args):
 
                     if args.loss_D in ['WGAN-GP'] or args.grad_penalty:
                         # Gradient penalty
-                        u.data.resize_(current_batch_size, 1, 1, 1)
-                        u.uniform_(0, 1)
-                        x_both = real * u + fake * (1 - u)
-                        if args.cuda:
-                            x_both = x_both.cuda()
+                        b, c, h, w = real.shape
+                        alpha = torch.rand((b, 1, 1, 1)).repeat(1, c, h, w).to(device)
+                        interpolated_images = real * alpha + fake * (1 - alpha)
+                        mixed_scores = discriminator(interpolated_images)
+                        gradient = torch.autograd.grad(
+                            inputs=interpolated_images,
+                            outputs=mixed_scores,
+                            grad_outputs=torch.ones_like(mixed_scores),
+                            create_graph=True,
+                            retain_graph=True,
+                        )[0]
+                        gradient = gradient.view(gradient.shape[0], -1)
+                        gradient_norm = gradient.norm(2, dim=1)
+                        grad_penalty = torch.mean((gradient_norm - 1) ** 2)
+
+                        # u.data.resize_(current_batch_size, 1, 1, 1)
+                        # u.uniform_(0, 1)
+                        # x_both = real * u + fake * (1 - u)
+                        # if args.cuda:
+                        #     x_both = x_both.cuda()
                         # We only want the gradients with respect to x_both
-                        x_both = Variable(x_both, requires_grad=True)
-                        grad = torch.autograd.grad(outputs=discriminator(x_both), inputs=x_both, grad_outputs=grad_outputs,
-                                                   retain_graph=True,
-                                                   create_graph=True, only_inputs=True)[0]
+                        # x_both = Variable(x_both, requires_grad=True)
+                        # grad = torch.autograd.grad(outputs=discriminator(x_both), inputs=x_both, grad_outputs=grad_outputs,
+                        #                            retain_graph=True,
+                        #                            create_graph=True, only_inputs=True)[0]
                         # We need to norm 3 times (over n_colors x image_size x image_size) to get only a vector of size "batch_size"
-                        grad_penalty = args.penalty * ((grad.norm(2, 1).norm(2, 1).norm(2, 1) - 1) ** 2).mean()
+                        # grad_penalty = args.penalty * ((grad.norm(2, 1).norm(2, 1).norm(2, 1) - 1) ** 2).mean()
                         grad_penalty.backward()
                     discriminator_optimizer.step()
 
@@ -447,7 +462,7 @@ if __name__ == '__main__':
     parser.add_argument('--image_size', '-s', type=int, default=32)
     parser.add_argument('--n_colors', '-c', type=int, default=3)
     parser.add_argument('--batch_size', type=int,
-                        default=32)  # DCGAN paper original value used 128 (32 is generally better to prevent vanishing gradients with SGAN and LSGAN, not important with relativistic GANs)
+                        default=32)  # DCGAN paper used 128 (generally better to prevent vanishing gradients with SGAN and LSGAN, not important with RAGANs)
     parser.add_argument('--beta1', type=float, default=0.5,
                         help='Adam betas[0], DCGAN paper recommends .50 instead of the usual .90')
     parser.add_argument('--beta2', type=float, default=0.999, help='Adam betas[1]')
@@ -514,7 +529,7 @@ if __name__ == '__main__':
     conf = PrettyTable()
     conf.field_names = ["Parameters", "Values"]
     conf.add_row(["Method", arguments.loss_D])
-    conf.add_row(["Dataset", arguments.dataset])
+    conf.add_row(["Dataset", arguments.dataset.upper()])
     conf.add_row(["Image size", arguments.image_size])
     conf.add_row(["Channels", arguments.n_colors])
     conf.add_row(["Batch size", arguments.batch_size])
