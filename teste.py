@@ -1,5 +1,4 @@
 import os
-import time
 import argparse
 import numpy
 import torch
@@ -8,52 +7,60 @@ import torchvision.utils as vutils
 import random
 import torch.backends.cudnn as cudnn
 from tqdm import tqdm
+import pathlib
+from torch.utils.tensorboard import SummaryWriter
+from torchvision.utils import make_grid
+from prettytable import PrettyTable
 from lib import datasets, models, utils
 
 
 def main(args):
     device = utils.select_device(args.cuda_device)
 
-    start = time.time()
+    # weights_path = 'Output/GANlosses/'
+
+    # if not os.path.exists(weights_path):
+    #     path = pathlib.Path(weights_path)
+    #     path.mkdir(parents=True)
 
     # Setting the title for the file saved
-    if args.loss_D == 'DCGAN':
-        title = 'GAN_'
-    if args.loss_D == 'LSGAN':
-        title = 'LSGAN_'
-    if args.loss_D == 'WGAN-GP':
-        title = 'WGANGP_'
-    if args.loss_D == 'HingeGAN':
-        title = 'HingeGAN_'
-    if args.loss_D == 'RSGAN':
-        title = 'RSGAN_'
-    if args.loss_D == 'RaSGAN':
-        title = 'RaSGAN_'
-    if args.loss_D == 'RaLSGAN':
-        title = 'RaLSGAN_'
-    if args.loss_D == 'RaHingeGAN':
-        title = 'RaHingeGAN_'
-
-    if args.seed is not None:
-        title = title + 'seed%i' % args.seed
+    # if args.loss_D == 'DCGAN':
+    #     title = 'GAN_'
+    # if args.loss_D == 'LSGAN':
+    #     title = 'LSGAN_'
+    # if args.loss_D == 'WGAN-GP':
+    #     title = 'WGANGP_'
+    # if args.loss_D == 'HingeGAN':
+    #     title = 'HingeGAN_'
+    # if args.loss_D == 'RSGAN':
+    #     title = 'RSGAN_'
+    # if args.loss_D == 'RaSGAN':
+    #     title = 'RaSGAN_'
+    # if args.loss_D == 'RaLSGAN':
+    #     title = 'RaLSGAN_'
+    # if args.loss_D == 'RaHingeGAN':
+    #     title = 'RaHingeGAN_'
+    #
+    # if args.seed is not None:
+    #     title = title + 'seed%i' % args.seed
 
     # Check folder run-i for all i=0,1,... until it finds run-j which does not exists, then creates a new folder run-j
-    run = 0
-    base_dir = f"{args.output_folder}/{title}-{run}"
-    while os.path.exists(base_dir):
-        run += 1
-        base_dir = f"{args.output_folder}/{title}-{run}"
-    os.mkdir(base_dir)
-    logs_dir = f"{base_dir}/logs"
-    os.mkdir(logs_dir)
-    os.mkdir(f"{base_dir}/images")
-    if args.gen_extra_images > 0 and not os.path.exists(f"{args.extra_folder}"):
-        os.mkdir(f"{args.extra_folder}")
-
-    # where we save the output
-    log_output = open(f"{logs_dir}/log.txt", 'w')
-    print(args)
-    print(args, file=log_output)
+    # run = 0
+    # base_dir = f"{args.output_folder}/{title}-{run}"
+    # while os.path.exists(base_dir):
+    #     run += 1
+    #     base_dir = f"{args.output_folder}/{title}-{run}"
+    # os.mkdir(base_dir)
+    # logs_dir = f"{base_dir}/logs"
+    # os.mkdir(logs_dir)
+    # os.mkdir(f"{base_dir}/images")
+    # if args.gen_extra_images > 0 and not os.path.exists(f"{args.extra_folder}"):
+    #     os.mkdir(f"{args.extra_folder}")
+    #
+    # # where we save the output
+    # log_output = open(f"{logs_dir}/log.txt", 'w')
+    # print(args)
+    # print(args, file=log_output)
 
     # For plotting the Loss of discriminator and generator using tensorboard
     # To fix later, not compatible with using tensorflow
@@ -70,8 +77,8 @@ def main(args):
 
     if args.seed is None:
         args.seed = random.randint(1, 10000)
-    print(f"Random Seed: {args.seed}")
-    print(f"Random Seed: {args.seed}", file=log_output)
+    # print(f"Random Seed: {args.seed}")
+    # print(f"Random Seed: {args.seed}", file=log_output)
     random.seed(args.seed)
     numpy.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -95,13 +102,13 @@ def main(args):
     # random_sample = generate_random_sample()
 
     # Load models
-    generator = models.Generator(args).apply(models.weights_init)
-    discriminator = models.Discriminator(args).apply(models.weights_init)
+    generator = models.Generator(args).apply(models.weights_init).to(device)
+    discriminator = models.Discriminator(args).apply(models.weights_init).to(device)
 
     # Criterion
-    criterion = torch.nn.BCELoss()
-    bce_stable = torch.nn.BCEWithLogitsLoss()
-    bce_stable_no_reduce = torch.nn.BCEWithLogitsLoss(reduce=False)
+    criterion = torch.nn.BCELoss().to(device)
+    bce_stable = torch.nn.BCEWithLogitsLoss().to(device)
+    bce_stable_no_reduce = torch.nn.BCEWithLogitsLoss(reduction='none').to(device)
 
     real_label = 1.
     fake_label = 0.
@@ -110,27 +117,25 @@ def main(args):
     # x = torch.FloatTensor(args.batch_size, args.n_colors, args.image_size, args.image_size)
     # x_fake = torch.FloatTensor(args.batch_size, args.n_colors, args.image_size, args.image_size)
     # Weighted sum of fake and real image, for gradient penalty
-    x_both = torch.FloatTensor(args.batch_size, args.n_colors, args.image_size, args.image_size)
+    x_both = torch.FloatTensor(args.batch_size, args.n_colors, args.image_size, args.image_size).to(device)
     # Uniform weight
-    u = torch.FloatTensor(args.batch_size, 1, 1, 1)
+    u = torch.FloatTensor(args.batch_size, 1, 1, 1).to(device)
     # This is to see during training, size and values won't change
-    z_test = torch.FloatTensor(args.batch_size, args.z_size, 1, 1).normal_(0, 1)
+    z_test = torch.FloatTensor(args.batch_size, args.z_size, 1, 1).normal_(0, 1).to(device)
     # For the gradients, we need to specify which one we want and want them all
-    grad_outputs = torch.ones(args.batch_size)
+    grad_outputs = torch.ones(args.batch_size).to(device)
 
     # Everything cuda
-    if args.cuda:
-        generator = generator.cuda()
-        discriminator = discriminator.cuda()
-        criterion = criterion.cuda()
-        bce_stable.cuda()
-        bce_stable_no_reduce.cuda()
-        # x = x.cuda()
-        # x_fake = x_fake.cuda()
-        x_both = x_both.cuda()
-        u = u.cuda()
-        z_test = z_test.cuda()
-        grad_outputs = grad_outputs.cuda()
+    # if args.cuda:
+    #     criterion = criterion.cuda()
+    #     bce_stable.cuda()
+    #     bce_stable_no_reduce.cuda()
+    #     # x = x.cuda()
+    #     # x_fake = x_fake.cuda()
+    #     x_both = x_both.cuda()
+    #     u = u.cuda()
+    #     z_test = z_test.cuda()
+    #     grad_outputs = grad_outputs.cuda()
 
     # Now Variables
     # x = Variable(x)
@@ -167,16 +172,21 @@ def main(args):
         current_set_images = 0
         iter_offset = 0
 
-    print(generator)
-    print(generator, file=log_output)
-    print(discriminator)
-    print(discriminator, file=log_output)
+    # print(generator)
+    # print(generator, file=log_output)
+    # print(discriminator)
+    # print(discriminator, file=log_output)
 
-    # Fitting model
+    fixed_noise = torch.randn(32, args.z_size, 1, 1, device=device)
+
+    writer = SummaryWriter()
+    print("Starting Training Loop...")
     for epoch in range(iter_offset, args.epochs):
         # Fake images saved
-        fake_test = generator(z_test)
-        vutils.save_image(fake_test.data, '%s/images/fake_samples_iter%05d.png' % (base_dir, epoch), normalize=True)
+        running_loss_g = 0.0
+        running_loss_d = 0.0
+        # fake_test = generator(z_test)
+        # vutils.save_image(fake_test.data, '%s/images/fake_samples_iter%05d.png' % (base_dir, epoch), normalize=True)
 
         with tqdm(total=len(dataset), desc="Epoch {}".format(epoch + 1)) as pbar:
             for data in dataset:
@@ -343,17 +353,28 @@ def main(args):
 
                 pbar.update(1)
 
-                # Log results so we can see them in TensorBoard after
-                # log_value('Diff', -(errD.data.item()+errG.data.item()), i)
-                # log_value('errD', errD.data.item(), i)
-                # log_value('errG', errG.data.item(), i)
+            ###############
+            # Saving the results
+            ###############
+            writer.add_scalar(args.loss_D + '/loss/generator', running_loss_g / len(dataset.dataset), epoch)
+            writer.add_scalar(args.loss_D + '/loss/discriminator', running_loss_d / len(dataset.dataset), epoch)
 
-        if (epoch + 1) % args.print_every == 0:
-            end = time.time()
-            fmt = '[%d] Diff: %.4f loss_D: %.4f loss_G: %.4f time:%.4f'
-            s = fmt % (epoch, -errD.data.item() + errG.data.item(), errD.data.item(), errG.data.item(), end - start)
-            print(s)
-            print(s, file=log_output)
+            # Save images of the epoch
+            with torch.no_grad():
+                fake = generator(fixed_noise)
+                img_grid_fake = make_grid(fake[:32], normalize=True)
+                writer.add_image(args.loss_D.upper(), img_grid_fake, global_step=epoch)
+
+            # Log results so we can see them in TensorBoard after
+            # log_value('Diff', -(errD.data.item()+errG.data.item()), i)
+            # log_value('errD', errD.data.item(), i)
+            # log_value('errG', errG.data.item(), i)
+
+        # if (epoch + 1) % args.print_every == 0:
+        #     fmt = '[%d] Diff: %.4f loss_D: %.4f loss_G: %.4f time:%.4f'
+        #     s = fmt % (epoch, -errD.data.item() + errG.data.item(), errD.data.item(), errG.data.item(), end - start)
+        #     print(s)
+        #     print(s, file=log_output)
 
         # Evaluation metrics
         if (epoch + 1) % args.gen_every == 0:
@@ -376,8 +397,8 @@ def main(args):
                     'z_test': z_test,
                 }, '%s/models/state_%02d.pth' % (args.extra_folder, current_set_images))
                 s = 'Models saved'
-                print(s)
-                print(s, file=log_output)
+                # print(s)
+                # print(s, file=log_output)
 
             # Delete previously existing images
             if os.path.exists('%s/%01d/' % (args.extra_folder, current_set_images)):
@@ -406,13 +427,13 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--loss_D', type=str, default='GAN',
+    parser.add_argument('--loss_D', type=str, default='DCGAN',
                         choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'])
     parser.add_argument('--dataset', '-d',
                         type=str,
                         choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
                         default='cifar10')
-    parser.add_argument('--epochs', '-e', type=int, default=50)
+    parser.add_argument('--epochs', '-e', type=int, default=100)
     parser.add_argument('--image_size', '-s', type=int, default=32)
     parser.add_argument('--n_colors', '-c', type=int, default=3)
     parser.add_argument('--batch_size', type=int,
@@ -479,5 +500,15 @@ if __name__ == '__main__':
     parser.add_argument('--Diters', type=int, default=1, help='Number of iterations of D')
 
     arguments = parser.parse_args()
+
+    conf = PrettyTable()
+    conf.field_names = ["Parameters", "Values"]
+    conf.add_row(["Method", arguments.loss_D])
+    conf.add_row(["Dataset", arguments.dataset])
+    conf.add_row(["Image size", arguments.image_size])
+    conf.add_row(["Channels", arguments.n_colors])
+    conf.add_row(["Batch size", arguments.batch_size])
+    conf.add_row(["Epochs", arguments.epochs])
+    print(conf)
 
     main(arguments)
