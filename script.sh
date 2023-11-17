@@ -32,12 +32,12 @@ rm -r runs
 #mv runs/* weights/WGAN-GP/cifar10/run2/
 #rm weights/WGAN-GP/cifar10/*.pth
 
-python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-mkdir weights/WGAN-GP/cifar10/run3/
-mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run3/
-mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run3/
-mv runs/* weights/WGAN-GP/cifar10/run3/
-rm weights/WGAN-GP/cifar10/*.pth
+#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
+#mkdir weights/WGAN-GP/cifar10/run3/
+#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run3/
+#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run3/
+#mv runs/* weights/WGAN-GP/cifar10/run3/
+#rm weights/WGAN-GP/cifar10/*.pth
 
 python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
 mkdir weights/WGAN-GP/cifar10/run4/
