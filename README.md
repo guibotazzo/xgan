@@ -10,15 +10,15 @@
 
 |         | MNIST | FMNIST | CelebA | NHL256 |
 |---------|:-----:|:------:|:------:|:------:|
-| DCGAN   |   ✅   |   ✅    |   ✅    |   ❌    |
-| WGAN-GP |   ✅   |   ✅    |   ✅    |   ❌    |
+| DCGAN   |   ✅   |   ✅    |   ✅    |   ✅    |
+| WGAN-GP |   ✅   |   ✅    |   ✅    |   ✅    |
 
 ### Modelos novos
 
 |          | MNIST | FMNIST | CelebA | NHL256 |
 |----------|:-----:|:------:|:------:|:------:|
-| XDCGAN   |   ✅   |   ✅    |   ✅    |   ❌    |
-| XWGAN-GP |   ✅   |   ✅    |   ✅    |   ❌    |
+| XDCGAN   |   ✅   |   ✅    |   ✅    |   ✅    |
+| XWGAN-GP |   ✅   |   ✅    |   ✅    |   ✅    |
 
 ## 2 - Treinamento não supervisionado
 

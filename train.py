@@ -4,8 +4,6 @@ import os
 import argparse
 import numpy
 import torch
-from torch.autograd import Variable
-import torchvision.utils as vutils
 import random
 import torch.backends.cudnn as cudnn
 from tqdm import tqdm
@@ -13,7 +11,24 @@ import pathlib
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.utils import make_grid
 from prettytable import PrettyTable
+from captum.attr import Saliency, DeepLift, InputXGradient
 from lib import datasets, models, utils
+
+
+def _minmax_scaler(arr, *, vmin=1, vmax=2):
+    arr_min, arr_max = arr.min(), arr.max()
+    return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
+
+
+def _xai_method(method: str, model):
+    if method == 'saliency':
+        return Saliency(model)
+    elif method == 'deeplift':
+        return DeepLift(model)
+    elif method == 'gradcam':
+        return InputXGradient(model)
+    else:
+        utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
 
 
 def main(args):
@@ -26,7 +41,10 @@ def main(args):
     torch.utils.backcompat.broadcast_warning.enabled = True
 
     # Create weights folder
-    weights_path = 'weights/' + args.gan + '/' + args.dataset
+    if args.xai == 'none':
+        weights_path = 'weights/' + args.gan + '/' + args.dataset
+    else:
+        weights_path = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai
 
     if not os.path.exists(weights_path):
         path = pathlib.Path(weights_path)
@@ -240,8 +258,19 @@ def main(args):
                         # Non-saturating
                         errG = (torch.mean(torch.nn.ReLU()(1.0 + (y_pred - torch.mean(y_pred_fake)))) + torch.mean(
                             torch.nn.ReLU()(1.0 - (y_pred_fake - torch.mean(y_pred))))) / 2
-                    errG.backward()
-                    # D_G = y_pred_fake.data.mean()
+                    if args.xai != 'none':
+                        saliency = _xai_method(args.xai, discriminator)
+                        explanations = saliency.attribute(fake)
+                        explanations = _minmax_scaler(explanations)
+                        explanations = explanations.clone().detach().requires_grad_(True)
+
+                        errX = errG * explanations
+
+                        shape = torch.ones_like(input=explanations, dtype=torch.float32)
+                        errX.backward(gradient=shape)
+                    else:
+                        errG.backward()
+
                     generator_optimizer.step()
 
                 discriminator_decay.step()
@@ -301,6 +330,7 @@ if __name__ == '__main__':
     ################
     parser.add_argument('--gan', type=str, default='DCGAN',
                         choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'])
+    parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'gradcam'], default='none')
     parser.add_argument('--SELU', type=bool, default=False,
                         help='Use SELU which instead of ReLU with BatchNorm. This improves stability.')
     parser.add_argument("--NN_conv", type=bool, default=False,
