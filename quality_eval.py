@@ -60,7 +60,10 @@ def _compute_is(args, generator, dataset, device):
 def main(args):
     device = utils.select_device(args.cuda_device)
 
-    weights_path = 'weights/' + args.gan + '/' + args.dataset + f'/gen_epoch_{args.epoch:d}.pth'
+    if args.xai == 'none':
+        weights_path = 'weights/' + args.gan + '/' + args.dataset + f'/gen_epoch_{args.epoch:d}.pth'
+    else:
+        weights_path = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:d}.pth'
 
     # Load generator
     generator = models.Generator(args).to(device)
@@ -88,6 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('--gan', type=str,
                         choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'],
                         default='DCGAN')
+    parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
     parser.add_argument('--dataset', '-d', type=str,
                         choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
                         default='cifar10')
