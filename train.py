@@ -70,8 +70,12 @@ def main(args):
                                     train=True)
 
     # Load models
-    generator = models.Generator(args).apply(models.weights_init).to(device)
-    discriminator = models.Discriminator(args).apply(models.weights_init).to(device)
+    if args.dataset == 'mnist':
+        generator = models.GeneratorMNIST(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(device)
+        discriminator = models.DiscriminatorMNIST(args.channels, args.D_h_size).apply(models.weights_init).to(device)
+    else:
+        generator = models.Generator(args).apply(models.weights_init).to(device)
+        discriminator = models.Discriminator(args).apply(models.weights_init).to(device)
 
     # Criterion
     criterion = torch.nn.BCELoss().to(device)

@@ -178,6 +178,78 @@ class Discriminator(torch.nn.Module):
         return self.main(images).view(-1)
 
 
+class GeneratorMNIST(nn.Module):
+    """
+        Generator model for 28x28-sized images.
+    """
+    def __init__(self, noise_dim, channels, feature_maps):
+        super(GeneratorMNIST, self).__init__()
+        self.zd = noise_dim  # Size of the input noise
+        self.nf = feature_maps  # Number of feature maps
+        self.nc = channels  # Number of channels in the training images
+        self.network = nn.Sequential(
+            # input is Z, going into a convolution
+            nn.ConvTranspose2d(in_channels=self.zd, out_channels=self.nf * 8, kernel_size=4, stride=1,
+                               padding=0, bias=False),
+            nn.BatchNorm2d(self.nf * 8),
+            nn.ReLU(True),
+            # state size. (nf*8) x 4 x 4
+            nn.ConvTranspose2d(in_channels=self.nf * 8, out_channels=self.nf * 4, kernel_size=4, stride=2,
+                               padding=1, bias=False),
+            nn.BatchNorm2d(self.nf * 4),
+            nn.ReLU(True),
+            # state size. (nf*4) x 8 x 8
+            nn.ConvTranspose2d(in_channels=self.nf * 4, out_channels=self.nf * 2, kernel_size=4, stride=2,
+                               padding=1, bias=False),
+            nn.BatchNorm2d(self.nf * 2),
+            nn.ReLU(True),
+            # state size. (nf*2) x 16 x 16
+            nn.ConvTranspose2d(in_channels=self.nf * 2, out_channels=self.nf, kernel_size=4, stride=2,
+                               padding=1, bias=False),
+            nn.BatchNorm2d(self.nf),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=self.nf, out_channels=self.nc, kernel_size=1, stride=1,
+                               padding=2, bias=False),
+            nn.Tanh()
+        )
+
+    def forward(self, noise):
+        output = self.network(noise)
+        return output
+
+
+class DiscriminatorMNIST(nn.Module):
+    """
+        DCGAN Discriminator model for 28x28-sized images.
+    """
+
+    def __init__(self, channels, feature_maps):
+        super(DiscriminatorMNIST, self).__init__()
+        self.nf = feature_maps  # Size of feature maps
+        self.nc = channels  # Number of channels in the training images
+        self.network = nn.Sequential(
+            # input is (1) x 64 x 64
+            nn.Conv2d(in_channels=self.nc, out_channels=self.nf, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (nf) x 32 x 32
+            nn.Conv2d(in_channels=self.nf, out_channels=self.nf * 2, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(self.nf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (nf*2) x 16 x 16
+            nn.Conv2d(in_channels=self.nf * 2, out_channels=self.nf * 4, kernel_size=4, stride=2, padding=1,
+                      bias=False),
+            nn.BatchNorm2d(self.nf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            # state size. (nf*4) x 8 x 8
+            nn.Conv2d(in_channels=self.nf * 4, out_channels=1, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, img):
+        output = self.network(img)
+        return output.view(-1, 1).squeeze(1)
+
+
 ###########################
 # Models for classification
 ###########################
