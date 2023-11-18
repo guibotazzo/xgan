@@ -4,7 +4,7 @@ from gdown import download
 from zipfile import ZipFile
 from torch.utils.data import DataLoader, Subset
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, Grayscale, Lambda
-from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, ImageFolder
+from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, Caltech256, ImageFolder
 from lib.utils import print_style
 
 
@@ -85,6 +85,20 @@ def _make_cifar10_dataset(batch_size: int, img_size: int, classification: bool, 
         return dataset
     else:
         return dataloader
+
+
+def _make_caltech_dataset(batch_size: int, img_size: int):
+    dataset = Caltech256(root='./datasets',
+                         download=True,
+                         transform=Compose([
+                             Resize(img_size),
+                             ToTensor(),
+                             Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                         ]))
+
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    return dataloader
 
 
 def _make_celeba_dataset(batch_size: int, image_size: int):
@@ -228,5 +242,7 @@ def make_dataset(dataset: str, batch_size: int, img_size: int, classification: b
         return _make_cr_dataset(batch_size, img_size, classification)
     elif dataset == 'ucsb':
         return _make_ucsb_dataset(batch_size, img_size, classification)
+    elif dataset == 'caltech':
+        return _make_caltech_dataset(batch_size, img_size)
     else:
         print_style('LOAD DATASET ERROR: This dataset is not implemented.', color='RED', formatting="ITALIC")

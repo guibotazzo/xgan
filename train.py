@@ -324,7 +324,7 @@ if __name__ == '__main__':
     ####################
     parser.add_argument('--dataset', '-d',
                         type=str,
-                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
+                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl', 'caltech'],
                         default='cifar10')
     parser.add_argument('--image_size', '-s', type=int, default=32)
     parser.add_argument('--channels', '-c', type=int, default=3)
@@ -340,8 +340,6 @@ if __name__ == '__main__':
     parser.add_argument("--NN_conv", type=bool, default=False,
                         help="Uses nearest-neighbor resized convolutions instead of strided convolutions.")
     parser.add_argument('--penalty', type=float, default=10, help='Gradient penalty parameter for WGAN-GP')
-    parser.add_argument('--spectral', type=bool, default=False,
-                        help='Use spectral norm. to make the discriminator Lipschitz.')
     parser.add_argument('--Tanh_GD', type=bool, default=False, help='If True, tanh everywhere.')
     parser.add_argument('--grad_penalty', type=bool, default=False,
                         help='Use gradient penalty of WGAN-GP but with whichever gan chosen.')
@@ -361,9 +359,11 @@ if __name__ == '__main__':
     ##########################
     # Discriminator parameters
     ##########################
-    parser.add_argument('--lr_D', type=float, default=.0001, help='Discriminator learning rate')
     parser.add_argument('--D_h_size', type=int, default=128,
                         help='Number of feature maps in the Discriminator.')
+    parser.add_argument('--lr_D', type=float, default=.0001, help='Discriminator learning rate')
+    parser.add_argument('--spectral', type=bool, default=False,
+                        help='Use spectral norm. to make the discriminator Lipschitz.')
     parser.add_argument('--no_batch_norm_D', type=bool, default=False, help='If True, no batch norm in D.')
     parser.add_argument('--Diters', type=int, default=1, help='Number of iterations of D')
 
@@ -373,6 +373,7 @@ if __name__ == '__main__':
     conf = PrettyTable()
     conf.field_names = ["Parameters", "Values"]
     conf.add_row(["Method", arguments.gan])
+    conf.add_row(["XAI method", arguments.xai])
     conf.add_row(["Dataset", arguments.dataset.upper()])
     conf.add_row(["Image size", arguments.image_size])
     conf.add_row(["Channels", arguments.channels])
