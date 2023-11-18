@@ -91,7 +91,7 @@ def _make_caltech_dataset(batch_size: int, img_size: int):
     dataset = Caltech256(root='./datasets',
                          download=True,
                          transform=Compose([
-                             Resize(img_size),
+                             Resize((img_size,img_size)),
                              ToTensor(),
                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                          ]))
