@@ -4,7 +4,7 @@ from gdown import download
 from zipfile import ZipFile
 from torch.utils.data import DataLoader, Subset
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, Grayscale, Lambda
-from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, Caltech256, ImageFolder
+from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, Caltech101, ImageFolder
 from lib.utils import print_style
 
 
@@ -88,7 +88,7 @@ def _make_cifar10_dataset(batch_size: int, img_size: int, classification: bool, 
 
 
 def _make_caltech_dataset(batch_size: int, img_size: int):
-    dataset = Caltech256(root='./datasets',
+    dataset = Caltech101(root='./datasets',
                          download=True,
                          transform=Compose([
                              Resize((img_size,img_size)),
