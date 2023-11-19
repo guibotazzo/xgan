@@ -14,7 +14,9 @@ def _minmax_scaler(arr, *, vmin=0, vmax=255):
 def _compute_fid(args, generator, dataset, device):
     fid = FrechetInceptionDistance(feature=2048).to(device)
 
-    with tqdm(total=len(dataset), desc='Computing FID') as pbar:
+    end = 50000/32
+    i = 1
+    with tqdm(total=int(end), desc='Computing FID') as pbar:
         for reals, _ in dataset:
             reals = reals.to(device)
             reals = _minmax_scaler(reals)
@@ -34,6 +36,10 @@ def _compute_fid(args, generator, dataset, device):
             fid.update(fakes.to(torch.uint8), real=False)
 
             pbar.update(1)
+            i = i + 1
+
+            if i == end:
+                break
 
     print(fid.compute())
 
