@@ -14,9 +14,9 @@ def _minmax_scaler(arr, *, vmin=0, vmax=255):
 def _compute_fid(args, generator, dataset, device):
     fid = FrechetInceptionDistance(feature=2048).to(device)
 
-    end = 50000/32
+    end = int(50000/32)
     i = 1
-    with tqdm(total=int(end), desc='Computing FID') as pbar:
+    with tqdm(total=end, desc='Computing FID') as pbar:
         for reals, _ in dataset:
             reals = reals.to(device)
             reals = _minmax_scaler(reals)
@@ -72,7 +72,12 @@ def main(args):
         weights_path = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:d}.pth'
 
     # Load generator
-    generator = models.Generator(args).to(device)
+    if args.dataset == 'mnist':
+        generator = models.GeneratorMNIST(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(
+            device)
+    else:
+        generator = models.Generator(args).apply(models.weights_init).to(device)
+
     generator.load_state_dict(torch.load(weights_path, map_location=device))
 
     # Load the dataset (real images)
