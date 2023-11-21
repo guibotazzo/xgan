@@ -19,27 +19,6 @@ rm -r runs
 #mv runs/* weights/xwgangp/cr/gradcam/run1/
 
 python train.py --gan WGAN-GP --xai deeplift
-mkdir weights/WGAN-GP/cifar10/deeplift/run1/
-mv weights/WGAN-GP/cifar10/deeplift/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run1/
-mv weights/WGAN-GP/cifar10/deeplift/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run1/
-mv runs/* weights/WGAN-GP/cifar10/deeplift/run1/
-rm weights/WGAN-GP/cifar10/deeplift/*.pth
-
-python train.py --gan WGAN-GP --xai deeplift
-mkdir weights/WGAN-GP/cifar10/deeplift/run2/
-mv weights/WGAN-GP/cifar10/deeplift/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run2/
-mv weights/WGAN-GP/cifar10/deeplift/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run2/
-mv runs/* weights/WGAN-GP/cifar10/deeplift/run2/
-rm weights/WGAN-GP/cifar10/deeplift/*.pth
-
-python train.py --gan WGAN-GP --xai deeplift
-mkdir weights/WGAN-GP/cifar10/deeplift/run3/
-mv weights/WGAN-GP/cifar10/deeplift/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run3/
-mv weights/WGAN-GP/cifar10/deeplift/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run3/
-mv runs/* weights/WGAN-GP/cifar10/deeplift/run3/
-rm weights/WGAN-GP/cifar10/deeplift/*.pth
-
-python train.py --gan WGAN-GP --xai deeplift
 mkdir weights/WGAN-GP/cifar10/deeplift/run4/
 mv weights/WGAN-GP/cifar10/deeplift/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
 mv weights/WGAN-GP/cifar10/deeplift/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
@@ -53,72 +32,30 @@ mv weights/WGAN-GP/cifar10/deeplift/gen_epoch_100.pth weights/WGAN-GP/cifar10/de
 mv runs/* weights/WGAN-GP/cifar10/deeplift/run5/
 rm weights/WGAN-GP/cifar10/deeplift/*.pth
 
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run1/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run1/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run1/
-#mv runs/* weights/WGAN-GP/cifar10/run1/
-#rm weights/WGAN-GP/cifar10/*.pth
+python train.py --gan WGAN-GP --xai saliency
+mkdir weights/WGAN-GP/cifar10/saliency/run2/
+mv weights/WGAN-GP/cifar10/saliency/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run2/
+mv weights/WGAN-GP/cifar10/saliency/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run2/
+mv runs/* weights/WGAN-GP/cifar10/saliency/run2/
+rm weights/WGAN-GP/cifar10/saliency/*.pth
 
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run2/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run2/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run2/
-#mv runs/* weights/WGAN-GP/cifar10/run2/
-#rm weights/WGAN-GP/cifar10/*.pth
+python train.py --gan WGAN-GP --xai saliency
+mkdir weights/WGAN-GP/cifar10/saliency/run3/
+mv weights/WGAN-GP/cifar10/saliency/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run3/
+mv weights/WGAN-GP/cifar10/saliency/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run3/
+mv runs/* weights/WGAN-GP/cifar10/saliency/run3/
+rm weights/WGAN-GP/cifar10/saliency/*.pth
 
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run3/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run3/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run3/
-#mv runs/* weights/WGAN-GP/cifar10/run3/
-#rm weights/WGAN-GP/cifar10/*.pth
+python train.py --gan WGAN-GP --xai saliency
+mkdir weights/WGAN-GP/cifar10/saliency/run4/
+mv weights/WGAN-GP/cifar10/saliency/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
+mv weights/WGAN-GP/cifar10/saliency/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
+mv runs/* weights/WGAN-GP/cifar10/saliency/run4/
+rm weights/WGAN-GP/cifar10/saliency/*.pth
 
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run4/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run4/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run4/
-#mv runs/* weights/WGAN-GP/cifar10/run4/
-#rm weights/WGAN-GP/cifar10/*.pth
-#
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run5/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run5/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run5/
-#mv runs/* weights/WGAN-GP/cifar10/run5/
-#rm weights/WGAN-GP/cifar10/*.pth
-#
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run6/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run6/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run6/
-#mv runs/* weights/WGAN-GP/cifar10/run6/
-#rm weights/WGAN-GP/cifar10/*.pth
-#
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run7/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run7/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run7/
-#mv runs/* weights/WGAN-GP/cifar10/run7/
-#rm weights/WGAN-GP/cifar10/*.pth
-#
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run8/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run8/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run8/
-#mv runs/* weights/WGAN-GP/cifar10/run8/
-#rm weights/WGAN-GP/cifar10/*.pth
-#
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run9/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run9/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run9/
-#mv runs/* weights/WGAN-GP/cifar10/run9/
-#rm weights/WGAN-GP/cifar10/*.pth
-#
-#python train.py --gan WGAN-GP -d cifar10 -s 32 -c 3
-#mkdir weights/WGAN-GP/cifar10/run10/
-#mv weights/WGAN-GP/cifar10/disc_epoch_100.pth weights/WGAN-GP/cifar10/run10/
-#mv weights/WGAN-GP/cifar10/gen_epoch_100.pth weights/WGAN-GP/cifar10/run10/
-#mv runs/* weights/WGAN-GP/cifar10/run10/
-#rm weights/WGAN-GP/cifar10/*.pth
+python train.py --gan WGAN-GP --xai saliency
+mkdir weights/WGAN-GP/cifar10/saliency/run5/
+mv weights/WGAN-GP/cifar10/saliency/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run5/
+mv weights/WGAN-GP/cifar10/saliency/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run5/
+mv runs/* weights/WGAN-GP/cifar10/saliency/run5/
+rm weights/WGAN-GP/cifar10/saliency/*.pth
