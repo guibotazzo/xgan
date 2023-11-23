@@ -1,89 +1,58 @@
 #!/bin/bash
 
-rm -r weights
-rm -r runs
+###############################
+# DCGAN (inputxgrad) on CIFAR10
+###############################
 
-# python xwgangp.py -x gradcam -d mnist -s 28 -c 1 -e 100
-# mkdir weights/xwgangp/mnist/gradcam/run7/
-# mv weights/xwgangp/mnist/gradcam/disc_epoch_100.pth weights/xwgangp/mnist/gradcam/run7/
-# mv weights/xwgangp/mnist/gradcam/gen_epoch_100.pth weights/xwgangp/mnist/gradcam/run7/
-# mv runs/* weights/xwgangp/mnist/gradcam/run7/
-# rm weights/xwgangp/mnist/gradcam/*.pth
+GAN='DCGAN'
+XAI='inputxgrad'
+DATASET='cifar10'
+FOLDER='weights/'$GAN'/'$DATASET'/'$XAI'/'
 
-# Generate benign
-#mkdir datasets/CR128/Benign/one_class/
-#mv datasets/CR128/Benign/*.png datasets/CR128/Benign/one_class/
-#python xwgangp.py -x gradcam -d cr -s 128 -c 3 -e 100 --feature_maps 64
-#mv weights/xwgangp/cr/gradcam/disc_epoch_100.pth weights/xwgangp/cr/gradcam/run1/
-#mv weights/xwgangp/cr/gradcam/gen_epoch_100.pth weights/xwgangp/cr/gradcam/run1/
-#mv runs/* weights/xwgangp/cr/gradcam/run1/
+for i in 1 2 3 4 5
+do
+python train.py --gan $GAN -d $DATASET --xai $XAI
+mkdir $FOLDER'run'$i'/'
+mv $FOLDER'disc_epoch_100.pth' $FOLDER'run'$i'/'
+mv $FOLDER'gen_epoch_100.pth' $FOLDER'run'$i'/'
+mv runs/* $FOLDER'run'$i'/'
+rm $FOLDER'*.pth'
+done
 
-#python train.py --gan WGAN-GP --xai deeplift
-#mkdir weights/WGAN-GP/cifar10/deeplift/run4/
-#mv weights/WGAN-GP/cifar10/deeplift/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
-#mv weights/WGAN-GP/cifar10/deeplift/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
-#mv runs/* weights/WGAN-GP/cifar10/deeplift/run4/
-#rm weights/WGAN-GP/cifar10/deeplift/*.pth
+#################################
+# WGAN-GP (saliency) on CIFAR10
+#################################
+
+GAN='WGAN-GP'
+XAI='saliency'
+DATASET='cifar10'
+FOLDER='weights/'$GAN'/'$DATASET'/'$XAI'/'
+
+for i in 1 2 3 4 5
+do
+python train.py --gan $GAN -d $DATASET --xai $XAI
+mkdir $FOLDER'run'$i'/'
+mv $FOLDER'disc_epoch_100.pth' $FOLDER'run'$i'/'
+mv $FOLDER'gen_epoch_100.pth' $FOLDER'run'$i'/'
+mv runs/* $FOLDER'run'$i'/'
+rm $FOLDER'*.pth'
+done
+
+##################################
+## WGAN-GP (inputxgrad) on CIFAR10
+##################################
 #
-#python train.py --gan WGAN-GP --xai deeplift
-#mkdir weights/WGAN-GP/cifar10/deeplift/run5/
-#mv weights/WGAN-GP/cifar10/deeplift/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run5/
-#mv weights/WGAN-GP/cifar10/deeplift/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run5/
-#mv runs/* weights/WGAN-GP/cifar10/deeplift/run5/
-#rm weights/WGAN-GP/cifar10/deeplift/*.pth
+#GAN='WGAN-GP'
+#XAI='inputxgrad'
+#DATASET='cifar10'
+#FOLDER='weights/'$GAN'/'$DATASET'/'$XAI'/'
 #
-#python train.py --gan WGAN-GP --xai saliency
-#mkdir weights/WGAN-GP/cifar10/saliency/run2/
-#mv weights/WGAN-GP/cifar10/saliency/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run2/
-#mv weights/WGAN-GP/cifar10/saliency/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run2/
-#mv runs/* weights/WGAN-GP/cifar10/saliency/run2/
-#rm weights/WGAN-GP/cifar10/saliency/*.pth
-#
-#python train.py --gan WGAN-GP --xai saliency
-#mkdir weights/WGAN-GP/cifar10/saliency/run3/
-#mv weights/WGAN-GP/cifar10/saliency/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run3/
-#mv weights/WGAN-GP/cifar10/saliency/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run3/
-#mv runs/* weights/WGAN-GP/cifar10/saliency/run3/
-#rm weights/WGAN-GP/cifar10/saliency/*.pth
-#
-#python train.py --gan WGAN-GP --xai saliency
-#mkdir weights/WGAN-GP/cifar10/saliency/run4/
-#mv weights/WGAN-GP/cifar10/saliency/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
-#mv weights/WGAN-GP/cifar10/saliency/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
-#mv runs/* weights/WGAN-GP/cifar10/saliency/run4/
-#rm weights/WGAN-GP/cifar10/saliency/*.pth
-#
-python train.py --gan WGAN-GP --xai inputxgrad
-mkdir weights/WGAN-GP/cifar10/inputxgrad/run1/
-mv weights/WGAN-GP/cifar10/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run1/
-mv weights/WGAN-GP/cifar10/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run1/
-mv runs/* weights/WGAN-GP/cifar10/inputxgrad/run1/
-rm weights/WGAN-GP/cifar10/inputxgrad/*.pth
-
-python train.py --gan WGAN-GP --xai inputxgrad
-mkdir weights/WGAN-GP/cifar10/inputxgrad/run2/
-mv weights/WGAN-GP/cifar10/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run2/
-mv weights/WGAN-GP/cifar10/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run2/
-mv runs/* weights/WGAN-GP/cifar10/inputxgrad/run2/
-rm weights/WGAN-GP/cifar10/inputxgrad/*.pth
-
-python train.py --gan WGAN-GP --xai inputxgrad
-mkdir weights/WGAN-GP/cifar10/inputxgrad/run3/
-mv weights/WGAN-GP/cifar10/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run3/
-mv weights/WGAN-GP/cifar10/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run3/
-mv runs/* weights/WGAN-GP/cifar10/inputxgrad/run3/
-rm weights/WGAN-GP/cifar10/inputxgrad/*.pth
-
-python train.py --gan WGAN-GP --xai inputxgrad
-mkdir weights/WGAN-GP/cifar10/inputxgrad/run4/
-mv weights/WGAN-GP/cifar10/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
-mv weights/WGAN-GP/cifar10/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run4/
-mv runs/* weights/WGAN-GP/cifar10/inputxgrad/run4/
-rm weights/WGAN-GP/cifar10/inputxgrad/*.pth
-
-python train.py --gan WGAN-GP --xai inputxgrad
-mkdir weights/WGAN-GP/cifar10/inputxgrad/run5/
-mv weights/WGAN-GP/cifar10/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run5/
-mv weights/WGAN-GP/cifar10/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/cifar10/deeplift/run5/
-mv runs/* weights/WGAN-GP/cifar10/inputxgrad/run5/
-rm weights/WGAN-GP/cifar10/inputxgrad/*.pth
+#for i in 1 2 3 4 5
+#do
+#python train.py --gan $GAN -d $DATASET --xai $XAI
+#mkdir $FOLDER'run'$i'/'
+#mv $FOLDER'disc_epoch_100.pth' $FOLDER'run'$i'/'
+#mv $FOLDER'gen_epoch_100.pth' $FOLDER'run'$i'/'
+#mv runs/* $FOLDER'run'$i'/'
+#rm $FOLDER'*.pth'
+#done
