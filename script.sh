@@ -47,7 +47,7 @@ XAI='inputxgrad'
 DATASET='cifar10'
 FOLDER='weights/'$GAN'/'$DATASET'/'$XAI'/'
 
-for i in 1 2 3 4 5
+for i in 4 5
 do
 python train.py --gan $GAN -d $DATASET --xai $XAI
 mkdir $FOLDER'run'$i'/'
