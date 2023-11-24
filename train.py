@@ -70,16 +70,9 @@ def main(args):
                                     train=True)
 
     # Load models
-    # if args.dataset == 'mnist':
-    #     generator = models.GeneratorMNIST(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(device)
-    #     discriminator = models.DiscriminatorMNIST(args.channels, args.D_h_size).apply(models.weights_init).to(device)
-    # else:
-    #     generator = models.Generator(args).apply(models.weights_init).to(device)
-    #     discriminator = models.Discriminator(args).apply(models.weights_init).to(device)
-
-    if args.dataset == 'cifar10':
-        generator = models.GeneratorCIFAR(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(device)
-        discriminator = models.DiscriminatorCIFAR(args.channels, args.D_h_size).apply(models.weights_init).to(device)
+    if args.dataset == 'mnist':
+        generator = models.GeneratorMNIST(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(device)
+        discriminator = models.DiscriminatorMNIST(args.channels, args.D_h_size).apply(models.weights_init).to(device)
     else:
         generator = models.Generator(args).apply(models.weights_init).to(device)
         discriminator = models.Discriminator(args).apply(models.weights_init).to(device)
