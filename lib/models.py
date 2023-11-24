@@ -304,7 +304,7 @@ class DiscriminatorCIFAR(nn.Module):
         )
 
     def forward(self, img):
-        return self.network(img)
+        return self.network(img).view(-1, 1).squeeze(1)
 
 
 ###########################
