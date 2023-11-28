@@ -42,7 +42,7 @@
 ###############################
 
 GAN='DCGAN'
-XAI='saliency'
+XAI='deeplift'
 DATASET='cifar10'
 FOLDER='weights/'$GAN'/'$DATASET'/'$XAI'/'
 
