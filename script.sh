@@ -41,8 +41,8 @@
 # DCGAN (inputxgrad) on CIFAR10
 ###############################
 
-GAN='DCGAN'
-XAI='deeplift'
+GAN='WGAN-GP'
+XAI='saliency'
 DATASET='cifar10'
 FOLDER='weights/'$GAN'/'$DATASET'/'$XAI'/'
 
