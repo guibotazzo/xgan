@@ -324,7 +324,7 @@ if __name__ == '__main__':
     ####################
     parser.add_argument('--dataset', '-d',
                         type=str,
-                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl', 'caltech'],
+                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl', 'caltech', 'cr'],
                         default='cifar10')
     parser.add_argument('--image_size', '-s', type=int, default=32)
     parser.add_argument('--channels', '-c', type=int, default=3)
