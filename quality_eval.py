@@ -72,12 +72,11 @@ def main(args):
         weights_path = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:d}.pth'
 
     # Load generator
-    if args.dataset == 'mnist':
-        generator = models.GeneratorMNIST(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(
-            device)
-    else:
-        generator = models.Generator(args).apply(models.weights_init).to(device)
-
+    # if args.dataset == 'mnist':
+    #     generator = models.GeneratorMNIST(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(
+    #         device)
+    # else:
+    generator = models.Generator(args).apply(models.weights_init).to(device)
     generator.load_state_dict(torch.load(weights_path, map_location=device))
 
     # Load the dataset (real images)
