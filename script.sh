@@ -24,7 +24,7 @@ FOLDER='weights/'$GAN'/'$DATASET'/'
 
 for i in 2 3 4 5
 do
-python train.py --gan $GAN -d $DATASET
+python train.py --gan $GAN -d $DATASET -s 32 -c 1
 mkdir $FOLDER'run'$i'/'
 mv $FOLDER'disc_epoch_100.pth' $FOLDER'run'$i'/'
 mv $FOLDER'gen_epoch_100.pth' $FOLDER'run'$i'/'
