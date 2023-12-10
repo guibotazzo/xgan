@@ -292,10 +292,10 @@ def main(args):
             writer.add_scalar(args.gan + '/loss/discriminator', running_loss_d / len(dataset.dataset), epoch)
 
             # Save images of the epoch
-            # with torch.no_grad():
-            #     fake = generator(fixed_noise)
-            #     img_grid_fake = make_grid(fake[:32], normalize=True)
-            #     writer.add_image(args.gan.upper(), img_grid_fake, global_step=epoch)
+            with torch.no_grad():
+                fake = generator(fixed_noise)
+                img_grid_fake = make_grid(fake[:32], normalize=True)
+                writer.add_image(args.gan.upper(), img_grid_fake, global_step=epoch)
 
             # Save models
             torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch + 1:02d}.pth')
