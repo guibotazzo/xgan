@@ -18,11 +18,11 @@
 #rm $FOLDER'*.pth'
 #done
 
-GAN='DCGAN'
-DATASET='cr'
+GAN='RaSGAN'
+DATASET='mnist'
 FOLDER='weights/'$GAN'/'$DATASET'/'
 
-for i in 1 2 3 4 5
+for i in 2 3 4 5
 do
 python train.py --gan $GAN -d $DATASET
 mkdir $FOLDER'run'$i'/'
