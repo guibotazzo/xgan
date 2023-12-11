@@ -20,11 +20,12 @@
 
 GAN='RaSGAN'
 DATASET='mnist'
-FOLDER='weights/'$GAN'/'$DATASET'/'
+XAI='saliency'
+FOLDER='weights/'$GAN'/'$DATASET'/'$XAI
 
-for i in 2 3 4 5
+for i in 1 2 3 4 5
 do
-python train.py --gan $GAN -d $DATASET -s 32 -c 1
+python train.py --gan $GAN -d $DATASET -s 32 -c 1 $XAI
 mkdir $FOLDER'run'$i'/'
 mv $FOLDER'disc_epoch_100.pth' $FOLDER'run'$i'/'
 mv $FOLDER'gen_epoch_100.pth' $FOLDER'run'$i'/'
