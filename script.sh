@@ -38,7 +38,7 @@ DATASET='mnist'
 XAI='deeplift'
 FOLDER='weights/'$GAN'/'$DATASET'/'$XAI'/'
 
-for i in 3 4 5
+for i in 3
 do
 python train.py --gan $GAN -d $DATASET -s 32 -c 1 --xai $XAI
 mkdir $FOLDER'run'$i'/'
@@ -53,7 +53,7 @@ DATASET='mnist'
 XAI='inputxgrad'
 FOLDER='weights/'$GAN'/'$DATASET'/'$XAI'/'
 
-for i in 1 2 3 4 5
+for i in 1 2 3
 do
 python train.py --gan $GAN -d $DATASET -s 32 -c 1 --xai $XAI
 mkdir $FOLDER'run'$i'/'
