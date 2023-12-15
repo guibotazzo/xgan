@@ -130,21 +130,27 @@ def _make_celeba_dataset(batch_size: int, image_size: int):
 
 
 def _make_nhl_dataset(batch_size: int, img_size: int, classification: bool):
-    zip_path = './datasets/NHL256/nhl256_original.zip'
+    # zip_path = './datasets/NHL256/nhl256_original.zip'
+    zip_path = './datasets/NHL' + str(img_size) + '_original.zip'
 
-    if not os.path.exists('./datasets/NHL256'):
-        path = pathlib.Path('./datasets/NHL256')
-        path.mkdir(parents=True)
+    # if not os.path.exists('./datasets/NHL256'):
+    #     path = pathlib.Path('./datasets/NHL256')
+    #     path.mkdir(parents=True)
 
     if not os.path.exists(zip_path):
-        url = 'https://drive.google.com/uc?id=10iIJXAWjTWeMTmU8lRiWZ7YT5CSpbjE-'
+        if img_size == 256:
+            url = 'https://drive.google.com/uc?id=10iIJXAWjTWeMTmU8lRiWZ7YT5CSpbjE-'
+        elif img_size == 64:
+            url = 'https://drive.google.com/uc?id=1fad5RFsKIHwFaLeq4xANr9sWUD0D1_ht'
+        else:
+            url = ''
 
         download(url, zip_path, quiet=False)
 
         with ZipFile(zip_path, 'r') as zipobj:
-            zipobj.extractall('./datasets/NHL256/')
+            zipobj.extractall('./datasets/')
 
-    dataset = ImageFolder(root='./datasets/NHL256/NHL256/',
+    dataset = ImageFolder(root='./datasets/NHL' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
                           transform=Compose([
                               Resize(img_size),
                               ToTensor(),
@@ -171,6 +177,8 @@ def _make_cr_dataset(batch_size: int, img_size: int, classification: bool):
             url = 'https://drive.google.com/uc?id=1cCahPLuY2__RJ2V_L-TVgvIGYa97hEXG'
         elif img_size == 128:
             url = 'https://drive.google.com/uc?id=1iN3U7CgXiS-KJWaE0Zr2uf13J3zjq5w0'
+        elif img_size == 64:
+            url = 'https://drive.google.com/uc?id=1kt4HbpsaHGlHmf7btde6hlU2aGFJB5tP'
         else:
             url = ''
 
@@ -179,7 +187,7 @@ def _make_cr_dataset(batch_size: int, img_size: int, classification: bool):
         with ZipFile(zip_path, 'r') as zipobj:
             zipobj.extractall('./datasets/')
 
-    dataset = ImageFolder(root='./datasets/CR' + str(img_size) + '/Benign/',
+    dataset = ImageFolder(root='./datasets/CR' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
                           transform=Compose([
                               Resize(img_size),
                               ToTensor(),
@@ -195,21 +203,87 @@ def _make_cr_dataset(batch_size: int, img_size: int, classification: bool):
 
 
 def _make_ucsb_dataset(batch_size: int, img_size: int, classification: bool):
-    zip_path = './datasets/UCSB256_original.zip'
+    # zip_path = './datasets/UCSB256_original.zip'
+    zip_path = './datasets/UCSB' + str(img_size) + '_original.zip'
 
     # if not os.path.exists('./datasets/'):
     #     path = pathlib.Path('./datasets/')
     #     path.mkdir(parents=True)
 
     if not os.path.exists(zip_path):
-        url = 'https://drive.google.com/uc?id=16gaFfP5GzfitpMNi-lF63grOOCxVOx3Q'
+        if img_size == 256:
+            url = 'https://drive.google.com/uc?id=16gaFfP5GzfitpMNi-lF63grOOCxVOx3Q'
+        elif img_size == 64:
+            url = 'https://drive.google.com/uc?id=1tuoNpTYl5mRLDnk4_J27VYEJII5Z5Nm3'
+        else:
+            url = ''
 
         download(url, zip_path, quiet=False)
 
         with ZipFile(zip_path, 'r') as zipobj:
             zipobj.extractall('./datasets/')
 
-    dataset = ImageFolder(root='./datasets/UCSB256/',
+    dataset = ImageFolder(root='./datasets/UCSB' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
+                          transform=Compose([
+                              Resize(img_size),
+                              ToTensor(),
+                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                          ]))
+
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+
+    if classification:
+        return dataset
+    else:
+        return dataloader
+
+
+def _make_la_dataset(batch_size: int, img_size: int, classification: bool):
+    zip_path = './datasets/LA' + str(img_size) + '_original.zip'
+
+    # if not os.path.exists('./datasets/'):
+    #     path = pathlib.Path('./datasets/')
+    #     path.mkdir(parents=True)
+
+    if not os.path.exists(zip_path):
+        url = 'https://drive.google.com/uc?id=1kheHHPlTg60Lprlhq9v7p2InCj1lW4Lg'
+
+        download(url, zip_path, quiet=False)
+
+        with ZipFile(zip_path, 'r') as zipobj:
+            zipobj.extractall('./datasets/')
+
+    dataset = ImageFolder(root='./datasets/LA' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
+                          transform=Compose([
+                              Resize(img_size),
+                              ToTensor(),
+                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                          ]))
+
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+
+    if classification:
+        return dataset
+    else:
+        return dataloader
+
+
+def _make_lg_dataset(batch_size: int, img_size: int, classification: bool):
+    zip_path = './datasets/LG' + str(img_size) + '_original.zip'
+
+    # if not os.path.exists('./datasets/'):
+    #     path = pathlib.Path('./datasets/')
+    #     path.mkdir(parents=True)
+
+    if not os.path.exists(zip_path):
+        url = 'https://drive.google.com/uc?id=1WH12pOvHYqA64DkhkS_B9LX-L_ptFCF1'
+
+        download(url, zip_path, quiet=False)
+
+        with ZipFile(zip_path, 'r') as zipobj:
+            zipobj.extractall('./datasets/')
+
+    dataset = ImageFolder(root='./datasets/LG' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
                           transform=Compose([
                               Resize(img_size),
                               ToTensor(),
@@ -242,6 +316,10 @@ def make_dataset(dataset: str, batch_size: int, img_size: int, classification: b
         return _make_cr_dataset(batch_size, img_size, classification)
     elif dataset == 'ucsb':
         return _make_ucsb_dataset(batch_size, img_size, classification)
+    elif dataset == 'la':
+        return _make_la_dataset(batch_size, img_size, classification)
+    elif dataset == 'lg':
+        return _make_lg_dataset(batch_size, img_size, classification)
     elif dataset == 'caltech':
         return _make_caltech_dataset(batch_size, img_size)
     else:
