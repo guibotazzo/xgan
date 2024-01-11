@@ -174,11 +174,11 @@ def _make_cr_dataset(batch_size: int, img_size: int, classification: bool):
 
     if not os.path.exists(zip_path):
         if img_size == 256:
-            url = 'https://drive.google.com/uc?id=1cCahPLuY2__RJ2V_L-TVgvIGYa97hEXG'
+            url = 'https://drive.google.com/uc?id=1cCahPLuY2__RJ2V_L-TVgvIGYa97hEXG&confirm=t'
         elif img_size == 128:
-            url = 'https://drive.google.com/uc?id=1iN3U7CgXiS-KJWaE0Zr2uf13J3zjq5w0'
+            url = 'https://drive.google.com/uc?id=1iN3U7CgXiS-KJWaE0Zr2uf13J3zjq5w0&confirm=t'
         elif img_size == 64:
-            url = 'https://drive.google.com/uc?id=1kt4HbpsaHGlHmf7btde6hlU2aGFJB5tP'
+            url = 'https://drive.google.com/uc?id=1kt4HbpsaHGlHmf7btde6hlU2aGFJB5tP&confirm=t'
         else:
             url = ''
 
@@ -212,9 +212,9 @@ def _make_ucsb_dataset(batch_size: int, img_size: int, classification: bool):
 
     if not os.path.exists(zip_path):
         if img_size == 256:
-            url = 'https://drive.google.com/uc?id=16gaFfP5GzfitpMNi-lF63grOOCxVOx3Q'
+            url = 'https://drive.google.com/uc?id=16gaFfP5GzfitpMNi-lF63grOOCxVOx3Q&confirm=t'
         elif img_size == 64:
-            url = 'https://drive.google.com/uc?id=1tuoNpTYl5mRLDnk4_J27VYEJII5Z5Nm3'
+            url = 'https://drive.google.com/uc?id=1tuoNpTYl5mRLDnk4_J27VYEJII5Z5Nm3&confirm=t'
         else:
             url = ''
 
@@ -246,7 +246,7 @@ def _make_la_dataset(batch_size: int, img_size: int, classification: bool):
     #     path.mkdir(parents=True)
 
     if not os.path.exists(zip_path):
-        url = 'https://drive.google.com/uc?id=1kheHHPlTg60Lprlhq9v7p2InCj1lW4Lg'
+        url = 'https://drive.google.com/uc?id=1kheHHPlTg60Lprlhq9v7p2InCj1lW4Lg&confirm=t'
 
         download(url, zip_path, quiet=False)
 
@@ -276,7 +276,7 @@ def _make_lg_dataset(batch_size: int, img_size: int, classification: bool):
     #     path.mkdir(parents=True)
 
     if not os.path.exists(zip_path):
-        url = 'https://drive.google.com/uc?id=1WH12pOvHYqA64DkhkS_B9LX-L_ptFCF1'
+        url = 'https://drive.google.com/uc?id=1WH12pOvHYqA64DkhkS_B9LX-L_ptFCF1&confirm=t'
 
         download(url, zip_path, quiet=False)
 
