@@ -172,20 +172,20 @@ def _make_cr_dataset(batch_size: int, img_size: int, classification: bool):
     #     path = pathlib.Path('./datasets/')
     #     path.mkdir(parents=True)
 
-    if not os.path.exists(zip_path):
-        if img_size == 256:
-            url = 'https://drive.google.com/uc?id=1cCahPLuY2__RJ2V_L-TVgvIGYa97hEXG&confirm=t'
-        elif img_size == 128:
-            url = 'https://drive.google.com/uc?id=1iN3U7CgXiS-KJWaE0Zr2uf13J3zjq5w0&confirm=t'
-        elif img_size == 64:
-            url = 'https://drive.google.com/uc?id=1kt4HbpsaHGlHmf7btde6hlU2aGFJB5tP&confirm=t'
-        else:
-            url = ''
+    # if not os.path.exists(zip_path):
+    #     if img_size == 256:
+    #         url = 'https://drive.google.com/uc?id=1cCahPLuY2__RJ2V_L-TVgvIGYa97hEXG&confirm=t'
+    #     elif img_size == 128:
+    #         url = 'https://drive.google.com/uc?id=1iN3U7CgXiS-KJWaE0Zr2uf13J3zjq5w0&confirm=t'
+    #     elif img_size == 64:
+    #         url = 'https://drive.google.com/uc?id=1kt4HbpsaHGlHmf7btde6hlU2aGFJB5tP&confirm=t'
+    #     else:
+    #         url = ''
 
-        download(url, zip_path, quiet=False)
-
-        with ZipFile(zip_path, 'r') as zipobj:
-            zipobj.extractall('./datasets/')
+        # download(url, zip_path, quiet=False)
+        #
+        # with ZipFile(zip_path, 'r') as zipobj:
+        #     zipobj.extractall('./datasets/')
 
     dataset = ImageFolder(root='./datasets/CR' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
                           transform=Compose([
