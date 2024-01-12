@@ -39,7 +39,7 @@ unzip -q datasets/CR64_original.zip
 mv CR64 datasets
 rm -r datasets/CR64/Malignant
 
-python train.py --gan WGAN-GP --xai saliency -d la -s 64 -c 3
+python train.py --gan WGAN-GP --xai saliency -d cr -s 64 -c 3
 
 mkdir weights/WGAN-GP/cr/saliency/Benign
 mv runs/* weights/WGAN-GP/cr/saliency/Benign
@@ -52,7 +52,7 @@ unzip -q datasets/CR64_original.zip
 mv CR64 datasets
 rm -r datasets/CR64/Benign
 
-python train.py --gan WGAN-GP --xai saliency -d la -s 64 -c 3
+python train.py --gan WGAN-GP --xai saliency -d cr -s 64 -c 3
 
 mkdir weights/WGAN-GP/cr/saliency/Malignant
 mv runs/* weights/WGAN-GP/cr/saliency/Malignant
