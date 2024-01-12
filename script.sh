@@ -33,14 +33,28 @@
 #rm $FOLDER'*.pth'
 #done
 
-# CR
-python train.py --gan WGAN-GP --xai saliency -d cr -s 64 -c 3
-python train.py --gan WGAN-GP --xai deeplift -d cr -s 64 -c 3
-python train.py --gan WGAN-GP --xai inputxgrad -d cr -s 64 -c 3
-python train.py --gan WGAN-GP -d cr -s 64 -c 3
+# -- CR - SALIENCY --------------
+# -------- Benign --------
+unzip -q datasets/CR64_original.zip
+mv CR64 datasets
+rm -r datasets/CR64/Malignant
 
-# UCSB
-python train.py --gan WGAN-GP --xai saliency -d ucsb -s 64 -c 3
-python train.py --gan WGAN-GP --xai deeplift -d ucsb -s 64 -c 3
-python train.py --gan WGAN-GP --xai inputxgrad -d ucsb -s 64 -c 3
-python train.py --gan WGAN-GP -d ucsb -s 64 -c 3
+python train.py --gan WGAN-GP --xai saliency -d la -s 64 -c 3
+
+mkdir weights/WGAN-GP/cr/saliency/Benign
+mv runs/* weights/WGAN-GP/cr/saliency/Benign
+mv weights/WGAN-GP/cr/saliency/gen_epoch_100.pth weights/WGAN-GP/cr/saliency/Benign
+mv weights/WGAN-GP/cr/saliency/disc_epoch_100.pth weights/WGAN-GP/cr/saliency/Benign
+
+# -------- Malignant --------
+rm -r datasets/CR64
+unzip -q datasets/CR64_original.zip
+mv CR64 datasets
+rm -r datasets/CR64/Benign
+
+python train.py --gan WGAN-GP --xai saliency -d la -s 64 -c 3
+
+mkdir weights/WGAN-GP/cr/saliency/Malignant
+mv runs/* weights/WGAN-GP/cr/saliency/Malignant
+mv weights/WGAN-GP/cr/saliency/gen_epoch_100.pth weights/WGAN-GP/cr/saliency/Malignant
+mv weights/WGAN-GP/cr/saliency/disc_epoch_100.pth weights/WGAN-GP/cr/saliency/Malignant
