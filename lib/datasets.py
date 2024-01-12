@@ -210,18 +210,18 @@ def _make_ucsb_dataset(batch_size: int, img_size: int, classification: bool):
     #     path = pathlib.Path('./datasets/')
     #     path.mkdir(parents=True)
 
-    if not os.path.exists(zip_path):
-        if img_size == 256:
-            url = 'https://drive.google.com/uc?id=16gaFfP5GzfitpMNi-lF63grOOCxVOx3Q&confirm=t'
-        elif img_size == 64:
-            url = 'https://drive.google.com/uc?id=1tuoNpTYl5mRLDnk4_J27VYEJII5Z5Nm3&confirm=t'
-        else:
-            url = ''
-
-        download(url, zip_path, quiet=False)
-
-        with ZipFile(zip_path, 'r') as zipobj:
-            zipobj.extractall('./datasets/')
+    # if not os.path.exists(zip_path):
+    #     if img_size == 256:
+    #         url = 'https://drive.google.com/uc?id=16gaFfP5GzfitpMNi-lF63grOOCxVOx3Q&confirm=t'
+    #     elif img_size == 64:
+    #         url = 'https://drive.google.com/uc?id=1tuoNpTYl5mRLDnk4_J27VYEJII5Z5Nm3&confirm=t'
+    #     else:
+    #         url = ''
+    #
+    #     download(url, zip_path, quiet=False)
+    #
+    #     with ZipFile(zip_path, 'r') as zipobj:
+    #         zipobj.extractall('./datasets/')
 
     dataset = ImageFolder(root='./datasets/UCSB' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
                           transform=Compose([

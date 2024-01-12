@@ -35,26 +35,107 @@
 
 # -- CR - SALIENCY --------------
 # -------- Benign --------
-unzip -q datasets/CR64_original.zip
-mv CR64 datasets
-rm -r datasets/CR64/Malignant
+#unzip -q datasets/CR64_original.zip
+#mv CR64 datasets
+#rm -r datasets/CR64/Malignant
+#
+#python train.py --gan WGAN-GP --xai saliency -d cr -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/cr/saliency/Benign
+#mv runs/* weights/WGAN-GP/cr/saliency/Benign
+#mv weights/WGAN-GP/cr/saliency/gen_epoch_100.pth weights/WGAN-GP/cr/saliency/Benign
+#mv weights/WGAN-GP/cr/saliency/disc_epoch_100.pth weights/WGAN-GP/cr/saliency/Benign
+#
+## -------- Malignant --------
+#rm -r datasets/CR64
+#unzip -q datasets/CR64_original.zip
+#mv CR64 datasets
+#rm -r datasets/CR64/Benign
+#
+#python train.py --gan WGAN-GP --xai saliency -d cr -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/cr/saliency/Malignant
+#mv runs/* weights/WGAN-GP/cr/saliency/Malignant
+#mv weights/WGAN-GP/cr/saliency/gen_epoch_100.pth weights/WGAN-GP/cr/saliency/Malignant
+#mv weights/WGAN-GP/cr/saliency/disc_epoch_100.pth weights/WGAN-GP/cr/saliency/Malignant
 
-python train.py --gan WGAN-GP --xai saliency -d cr -s 64 -c 3
+# -- UCSB64 - SALIENCY --------------
+# -------- Benign --------
+unzip -q datasets/UCSB64_original.zip
+mv UCSB64 datasets
+rm -r datasets/UCSB64/Malignant
 
-mkdir weights/WGAN-GP/cr/saliency/Benign
-mv runs/* weights/WGAN-GP/cr/saliency/Benign
-mv weights/WGAN-GP/cr/saliency/gen_epoch_100.pth weights/WGAN-GP/cr/saliency/Benign
-mv weights/WGAN-GP/cr/saliency/disc_epoch_100.pth weights/WGAN-GP/cr/saliency/Benign
+python train.py --gan WGAN-GP --xai saliency -d ucsb -s 64 -c 3
+
+mkdir weights/WGAN-GP/ucsb/saliency/Benign
+mv runs/* weights/WGAN-GP/ucsb/saliency/Benign
+mv weights/WGAN-GP/ucsb/saliency/gen_epoch_100.pth weights/WGAN-GP/ucsb/saliency/Benign
+mv weights/WGAN-GP/ucsb/saliency/disc_epoch_100.pth weights/WGAN-GP/ucsb/saliency/Benign
 
 # -------- Malignant --------
-rm -r datasets/CR64
-unzip -q datasets/CR64_original.zip
-mv CR64 datasets
-rm -r datasets/CR64/Benign
+rm -r datasets/UCSB64
+unzip -q datasets/UCSB64_original.zip
+mv UCSB64 datasets
+rm -r datasets/UCSB64/Benign
 
-python train.py --gan WGAN-GP --xai saliency -d cr -s 64 -c 3
+python train.py --gan WGAN-GP --xai saliency -d ucsb -s 64 -c 3
 
-mkdir weights/WGAN-GP/cr/saliency/Malignant
-mv runs/* weights/WGAN-GP/cr/saliency/Malignant
-mv weights/WGAN-GP/cr/saliency/gen_epoch_100.pth weights/WGAN-GP/cr/saliency/Malignant
-mv weights/WGAN-GP/cr/saliency/disc_epoch_100.pth weights/WGAN-GP/cr/saliency/Malignant
+mkdir weights/WGAN-GP/ucsb/saliency/Malignant
+mv runs/* weights/WGAN-GP/ucsb/saliency/Malignant
+mv weights/WGAN-GP/ucsb/saliency/gen_epoch_100.pth weights/WGAN-GP/ucsb/saliency/Malignant
+mv weights/WGAN-GP/ucsb/saliency/disc_epoch_100.pth weights/WGAN-GP/ucsb/saliency/Malignant
+
+
+# -- UCSB64 - DEEPLIFT --------------
+# -------- Benign --------
+rm -r datasets/UCSB64
+unzip -q datasets/UCSB64_original.zip
+mv UCSB64 datasets
+rm -r datasets/UCSB64/Malignant
+
+python train.py --gan WGAN-GP --xai deeplift -d ucsb -s 64 -c 3
+
+mkdir weights/WGAN-GP/ucsb/deeplift/Benign
+mv runs/* weights/WGAN-GP/ucsb/deeplift/Benign
+mv weights/WGAN-GP/ucsb/deeplift/gen_epoch_100.pth weights/WGAN-GP/ucsb/deeplift/Benign
+mv weights/WGAN-GP/ucsb/deeplift/disc_epoch_100.pth weights/WGAN-GP/ucsb/deeplift/Benign
+
+# -------- Malignant --------
+rm -r datasets/UCSB64
+unzip -q datasets/UCSB64_original.zip
+mv UCSB64 datasets
+rm -r datasets/UCSB64/Benign
+
+python train.py --gan WGAN-GP --xai deeplift -d ucsb -s 64 -c 3
+
+mkdir weights/WGAN-GP/ucsb/deeplift/Malignant
+mv runs/* weights/WGAN-GP/ucsb/deeplift/Malignant
+mv weights/WGAN-GP/ucsb/deeplift/gen_epoch_100.pth weights/WGAN-GP/ucsb/deeplift/Malignant
+mv weights/WGAN-GP/ucsb/deeplift/disc_epoch_100.pth weights/WGAN-GP/ucsb/deeplift/Malignant
+
+# -- UCSB64 - INPUTXGRAD --------------
+# -------- Benign --------
+rm -r datasets/UCSB64
+unzip -q datasets/UCSB64_original.zip
+mv UCSB64 datasets
+rm -r datasets/UCSB64/Malignant
+
+python train.py --gan WGAN-GP --xai inputxgrad -d ucsb -s 64 -c 3
+
+mkdir weights/WGAN-GP/ucsb/inputxgrad/Benign
+mv runs/* weights/WGAN-GP/ucsb/inputxgrad/Benign
+mv weights/WGAN-GP/ucsb/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/ucsb/inputxgrad/Benign
+mv weights/WGAN-GP/ucsb/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/ucsb/inputxgrad/Benign
+
+# -------- Malignant --------
+rm -r datasets/UCSB64
+unzip -q datasets/UCSB64_original.zip
+mv UCSB64 datasets
+rm -r datasets/UCSB64/Benign
+
+python train.py --gan WGAN-GP --xai inputxgrad -d ucsb -s 64 -c 3
+
+mkdir weights/WGAN-GP/ucsb/inputxgrad/Malignant
+mv runs/* weights/WGAN-GP/ucsb/inputxgrad/Malignant
+mv weights/WGAN-GP/ucsb/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/ucsb/inputxgrad/Malignant
+mv weights/WGAN-GP/ucsb/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/ucsb/inputxgrad/Malignant
