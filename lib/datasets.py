@@ -245,13 +245,13 @@ def _make_la_dataset(batch_size: int, img_size: int, classification: bool):
     #     path = pathlib.Path('./datasets/')
     #     path.mkdir(parents=True)
 
-    if not os.path.exists(zip_path):
-        url = 'https://drive.google.com/uc?id=1kheHHPlTg60Lprlhq9v7p2InCj1lW4Lg&confirm=t'
-
-        download(url, zip_path, quiet=False)
-
-        with ZipFile(zip_path, 'r') as zipobj:
-            zipobj.extractall('./datasets/')
+    # if not os.path.exists(zip_path):
+    #     url = 'https://drive.google.com/uc?id=1kheHHPlTg60Lprlhq9v7p2InCj1lW4Lg&confirm=t'
+    #
+    #     download(url, zip_path, quiet=False)
+    #
+    #     with ZipFile(zip_path, 'r') as zipobj:
+    #         zipobj.extractall('./datasets/')
 
     dataset = ImageFolder(root='./datasets/LA' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
                           transform=Compose([
@@ -275,13 +275,13 @@ def _make_lg_dataset(batch_size: int, img_size: int, classification: bool):
     #     path = pathlib.Path('./datasets/')
     #     path.mkdir(parents=True)
 
-    if not os.path.exists(zip_path):
-        url = 'https://drive.google.com/uc?id=1WH12pOvHYqA64DkhkS_B9LX-L_ptFCF1&confirm=t'
-
-        download(url, zip_path, quiet=False)
-
-        with ZipFile(zip_path, 'r') as zipobj:
-            zipobj.extractall('./datasets/')
+    # if not os.path.exists(zip_path):
+    #     url = 'https://drive.google.com/uc?id=1WH12pOvHYqA64DkhkS_B9LX-L_ptFCF1&confirm=t'
+    #
+    #     download(url, zip_path, quiet=False)
+    #
+    #     with ZipFile(zip_path, 'r') as zipobj:
+    #         zipobj.extractall('./datasets/')
 
     dataset = ImageFolder(root='./datasets/LG' + str(img_size) + '/',  # Modificar apontamento para a pasta da classe desejada
                           transform=Compose([
