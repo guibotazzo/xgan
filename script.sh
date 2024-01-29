@@ -203,57 +203,57 @@
 # ------------------------
 # ------------ SALIENCY ------------
 # -------- 1 --------
-rm -r datasets/LG64
-unzip -q datasets/LG64_original.zip
-mv LG64 datasets
-rm -r datasets/LG64/Class\ 2
-
-python train.py --gan WGAN-GP --xai saliency -d lg -s 64 -c 3
-
-mkdir weights/WGAN-GP/lg/saliency/Class\ 1
-mv runs/* weights/WGAN-GP/lg/saliency/Class\ 1
-mv weights/WGAN-GP/lg/saliency/gen_epoch_100.pth weights/WGAN-GP/lg/saliency/Class\ 1
-mv weights/WGAN-GP/lg/saliency/disc_epoch_100.pth weights/WGAN-GP/lg/saliency/Class\ 1
-
-# -------- 2 --------
-rm -r datasets/LG64
-unzip -q datasets/LG64_original.zip
-mv LG64 datasets
-rm -r datasets/LG64/Class\ 1
-
-python train.py --gan WGAN-GP --xai saliency -d lg -s 64 -c 3
-
-mkdir weights/WGAN-GP/lg/saliency/Class\ 2
-mv runs/* weights/WGAN-GP/lg/saliency/Class\ 2
-mv weights/WGAN-GP/lg/saliency/gen_epoch_100.pth weights/WGAN-GP/lg/saliency/Class\ 2
-mv weights/WGAN-GP/lg/saliency/disc_epoch_100.pth weights/WGAN-GP/lg/saliency/Class\ 2
-
-# ------------ DEEPLIFT ------------
-# -------- 1 --------
-rm -r datasets/LG64
-unzip -q datasets/LG64_original.zip
-mv LG64 datasets
-rm -r datasets/LG64/Class\ 2
-
-python train.py --gan WGAN-GP --xai deeplift -d lg -s 64 -c 3
-
-mkdir weights/WGAN-GP/lg/deeplift/Class\ 1
-mv runs/* weights/WGAN-GP/lg/deeplift/Class\ 1
-mv weights/WGAN-GP/lg/deeplift/gen_epoch_100.pth weights/WGAN-GP/lg/deeplift/Class\ 1
-mv weights/WGAN-GP/lg/deeplift/disc_epoch_100.pth weights/WGAN-GP/lg/deeplift/Class\ 1
-
-# -------- 2 --------
-rm -r datasets/LG64
-unzip -q datasets/LG64_original.zip
-mv LG64 datasets
-rm -r datasets/LG64/Class\ 1
-
-python train.py --gan WGAN-GP --xai deeplift -d lg -s 64 -c 3
-
-mkdir weights/WGAN-GP/lg/deeplift/Class\ 2
-mv runs/* weights/WGAN-GP/lg/deeplift/Class\ 2
-mv weights/WGAN-GP/lg/deeplift/gen_epoch_100.pth weights/WGAN-GP/lg/deeplift/Class\ 2
-mv weights/WGAN-GP/lg/deeplift/disc_epoch_100.pth weights/WGAN-GP/lg/deeplift/Class\ 2
+#rm -r datasets/LG64
+#unzip -q datasets/LG64_original.zip
+#mv LG64 datasets
+#rm -r datasets/LG64/Class\ 2
+#
+#python train.py --gan WGAN-GP --xai saliency -d lg -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/lg/saliency/Class\ 1
+#mv runs/* weights/WGAN-GP/lg/saliency/Class\ 1
+#mv weights/WGAN-GP/lg/saliency/gen_epoch_100.pth weights/WGAN-GP/lg/saliency/Class\ 1
+#mv weights/WGAN-GP/lg/saliency/disc_epoch_100.pth weights/WGAN-GP/lg/saliency/Class\ 1
+#
+## -------- 2 --------
+#rm -r datasets/LG64
+#unzip -q datasets/LG64_original.zip
+#mv LG64 datasets
+#rm -r datasets/LG64/Class\ 1
+#
+#python train.py --gan WGAN-GP --xai saliency -d lg -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/lg/saliency/Class\ 2
+#mv runs/* weights/WGAN-GP/lg/saliency/Class\ 2
+#mv weights/WGAN-GP/lg/saliency/gen_epoch_100.pth weights/WGAN-GP/lg/saliency/Class\ 2
+#mv weights/WGAN-GP/lg/saliency/disc_epoch_100.pth weights/WGAN-GP/lg/saliency/Class\ 2
+#
+## ------------ DEEPLIFT ------------
+## -------- 1 --------
+#rm -r datasets/LG64
+#unzip -q datasets/LG64_original.zip
+#mv LG64 datasets
+#rm -r datasets/LG64/Class\ 2
+#
+#python train.py --gan WGAN-GP --xai deeplift -d lg -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/lg/deeplift/Class\ 1
+#mv runs/* weights/WGAN-GP/lg/deeplift/Class\ 1
+#mv weights/WGAN-GP/lg/deeplift/gen_epoch_100.pth weights/WGAN-GP/lg/deeplift/Class\ 1
+#mv weights/WGAN-GP/lg/deeplift/disc_epoch_100.pth weights/WGAN-GP/lg/deeplift/Class\ 1
+#
+## -------- 2 --------
+#rm -r datasets/LG64
+#unzip -q datasets/LG64_original.zip
+#mv LG64 datasets
+#rm -r datasets/LG64/Class\ 1
+#
+#python train.py --gan WGAN-GP --xai deeplift -d lg -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/lg/deeplift/Class\ 2
+#mv runs/* weights/WGAN-GP/lg/deeplift/Class\ 2
+#mv weights/WGAN-GP/lg/deeplift/gen_epoch_100.pth weights/WGAN-GP/lg/deeplift/Class\ 2
+#mv weights/WGAN-GP/lg/deeplift/disc_epoch_100.pth weights/WGAN-GP/lg/deeplift/Class\ 2
 
 # ------------ INPUTXGRAD ------------
 # -------- 1 --------
