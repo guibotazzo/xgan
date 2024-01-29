@@ -1,5 +1,132 @@
 #!/bin/bash
 
+# LG -- WGAN-GP
+# -------- 1 --------
+rm -r datasets/LG64
+unzip -q datasets/LG64_original.zip
+mv LG64 datasets
+rm -r datasets/LG64/Class\ 2
+
+python train.py --gan WGAN-GP -d lg -s 64 -c 3
+
+mkdir weights/WGAN-GP/lg/Class\ 1
+mv runs/* weights/WGAN-GP/lg/Class\ 1
+mv weights/WGAN-GP/lg/gen_epoch_100.pth weights/WGAN-GP/lg/Class\ 1
+mv weights/WGAN-GP/lg/disc_epoch_100.pth weights/WGAN-GP/lg/Class\ 1
+
+# -------- 2 --------
+rm -r datasets/LG64
+unzip -q datasets/LG64_original.zip
+mv LG64 datasets
+rm -r datasets/LG64/Class\ 1
+
+python train.py --gan WGAN-GP -d lg -s 64 -c 3
+
+mkdir weights/WGAN-GP/lg/Class\ 2
+mv runs/* weights/WGAN-GP/lg/Class\ 2
+mv weights/WGAN-GP/lg/gen_epoch_100.pth weights/WGAN-GP/lg/Class\ 2
+mv weights/WGAN-GP/lg/disc_epoch_100.pth weights/WGAN-GP/lg/Class\ 2
+
+
+
+
+
+
+# LA -- WGAN-GP
+# -------- 1 --------
+rm -r datasets/LA64
+unzip -q datasets/LA64_original.zip
+mv LA64 datasets
+rm -r datasets/LA64/2
+rm -r datasets/LA64/3
+rm -r datasets/LA64/4
+
+python train.py --gan WGAN-GP -d la -s 64 -c 3
+
+mkdir weights/WGAN-GP/la/1
+mv runs/* weights/WGAN-GP/la/1
+mv weights/WGAN-GP/la/gen_epoch_100.pth weights/WGAN-GP/la/1
+mv weights/WGAN-GP/la/disc_epoch_100.pth weights/WGAN-GP/la/1
+
+# -------- 2 --------
+rm -r datasets/LA64
+unzip -q datasets/LA64_original.zip
+mv LA64 datasets
+rm -r datasets/LA64/1
+rm -r datasets/LA64/3
+rm -r datasets/LA64/4
+
+python train.py --gan WGAN-GP -d la -s 64 -c 3
+
+mkdir weights/WGAN-GP/la/2
+mv runs/* weights/WGAN-GP/la/2
+mv weights/WGAN-GP/la/gen_epoch_100.pth weights/WGAN-GP/la/2
+mv weights/WGAN-GP/la/disc_epoch_100.pth weights/WGAN-GP/la/2
+
+# -------- 3 --------
+rm -r datasets/LA64
+unzip -q datasets/LA64_original.zip
+mv LA64 datasets
+rm -r datasets/LA64/1
+rm -r datasets/LA64/2
+rm -r datasets/LA64/4
+
+python train.py --gan WGAN-GP -d la -s 64 -c 3
+
+mkdir weights/WGAN-GP/la/3
+mv runs/* weights/WGAN-GP/la/3
+mv weights/WGAN-GP/la/gen_epoch_100.pth weights/WGAN-GP/la/3
+mv weights/WGAN-GP/la/disc_epoch_100.pth weights/WGAN-GP/la/3
+
+# -------- 4 --------
+rm -r datasets/LA64
+unzip -q datasets/LA64_original.zip
+mv LA64 datasets
+rm -r datasets/LA64/1
+rm -r datasets/LA64/2
+rm -r datasets/LA64/3
+
+python train.py --gan WGAN-GP -d la -s 64 -c 3
+
+mkdir weights/WGAN-GP/la/4
+mv runs/* weights/WGAN-GP/la/4
+mv weights/WGAN-GP/la/gen_epoch_100.pth weights/WGAN-GP/la/4
+mv weights/WGAN-GP/la/disc_epoch_100.pth weights/WGAN-GP/la/4
+
+
+
+
+# UCSB64 -- WGAN-GP
+# -------- Benign --------
+unzip -q datasets/UCSB64_original.zip
+mv UCSB64 datasets
+rm -r datasets/UCSB64/Malignant
+
+python train.py --gan WGAN-GP -d ucsb -s 64 -c 3
+
+mkdir weights/WGAN-GP/ucsb/Benign
+mv runs/* weights/WGAN-GP/ucsb/Benign
+mv weights/WGAN-GP/ucsb/gen_epoch_100.pth weights/WGAN-GP/ucsb/Benign
+mv weights/WGAN-GP/ucsb/disc_epoch_100.pth weights/WGAN-GP/ucsb/Benign
+
+# -------- Malignant --------
+rm -r datasets/UCSB64
+unzip -q datasets/UCSB64_original.zip
+mv UCSB64 datasets
+rm -r datasets/UCSB64/Benign
+
+python train.py --gan WGAN-GP -d ucsb -s 64 -c 3
+
+mkdir weights/WGAN-GP/ucsb/Malignant
+mv runs/* weights/WGAN-GP/ucsb/Malignant
+mv weights/WGAN-GP/ucsb/gen_epoch_100.pth weights/WGAN-GP/ucsb/Malignant
+mv weights/WGAN-GP/ucsb/disc_epoch_100.pth weights/WGAN-GP/ucsb/Malignant
+
+
+
+
+
+
 #GAN='DCGAN'
 #DATASET='cifar10'
 #FOLDER='weights/'$GAN'/'$DATASET'/'
@@ -257,30 +384,30 @@
 
 # ------------ INPUTXGRAD ------------
 # -------- 1 --------
-rm -r datasets/LG64
-unzip -q datasets/LG64_original.zip
-mv LG64 datasets
-rm -r datasets/LG64/Class\ 2
-
-python train.py --gan WGAN-GP --xai inputxgrad -d lg -s 64 -c 3
-
-mkdir weights/WGAN-GP/lg/inputxgrad/Class\ 1
-mv runs/* weights/WGAN-GP/lg/inputxgrad/Class\ 1
-mv weights/WGAN-GP/lg/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/lg/inputxgrad/Class\ 1
-mv weights/WGAN-GP/lg/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/lg/inputxgrad/Class\ 1
-
-# -------- 2 --------
-rm -r datasets/LG64
-unzip -q datasets/LG64_original.zip
-mv LG64 datasets
-rm -r datasets/LG64/Class\ 1
-
-python train.py --gan WGAN-GP --xai inputxgrad -d lg -s 64 -c 3
-
-mkdir weights/WGAN-GP/lg/inputxgrad/Class\ 2
-mv runs/* weights/WGAN-GP/lg/inputxgrad/Class\ 2
-mv weights/WGAN-GP/lg/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/lg/inputxgrad/Class\ 2
-mv weights/WGAN-GP/lg/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/lg/inputxgrad/Class\ 2
+#rm -r datasets/LG64
+#unzip -q datasets/LG64_original.zip
+#mv LG64 datasets
+#rm -r datasets/LG64/Class\ 2
+#
+#python train.py --gan WGAN-GP --xai inputxgrad -d lg -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/lg/inputxgrad/Class\ 1
+#mv runs/* weights/WGAN-GP/lg/inputxgrad/Class\ 1
+#mv weights/WGAN-GP/lg/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/lg/inputxgrad/Class\ 1
+#mv weights/WGAN-GP/lg/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/lg/inputxgrad/Class\ 1
+#
+## -------- 2 --------
+#rm -r datasets/LG64
+#unzip -q datasets/LG64_original.zip
+#mv LG64 datasets
+#rm -r datasets/LG64/Class\ 1
+#
+#python train.py --gan WGAN-GP --xai inputxgrad -d lg -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/lg/inputxgrad/Class\ 2
+#mv runs/* weights/WGAN-GP/lg/inputxgrad/Class\ 2
+#mv weights/WGAN-GP/lg/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/lg/inputxgrad/Class\ 2
+#mv weights/WGAN-GP/lg/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/lg/inputxgrad/Class\ 2
 
 
 ## -- UCSB64 - SALIENCY --------------
