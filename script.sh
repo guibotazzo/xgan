@@ -2,19 +2,21 @@
 
 # NHL -- WGAN-GP
 # -------- CLL --------
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/FL
-rm -r datasets/NHL64/MCL
-
-python train.py --gan WGAN-GP -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/CLL
-mv runs/* weights/WGAN-GP/nhl/CLL
-mv weights/WGAN-GP/nhl/gen_epoch_100.pth weights/WGAN-GP/nhl/CLL
-mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/CLL
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/FL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/CLL
+#mv runs/* weights/WGAN-GP/nhl/CLL
+#mv weights/WGAN-GP/nhl/gen_epoch_100.pth weights/WGAN-GP/nhl/CLL
+#mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/CLL
 
 # -------- FL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/CLL
@@ -28,6 +30,7 @@ mv weights/WGAN-GP/nhl/gen_epoch_100.pth weights/WGAN-GP/nhl/FL
 mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/FL
 
 # -------- MCL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/CLL
@@ -48,6 +51,7 @@ mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/MCL
 
 # NHL -- WGAN-GP - SALIENCY
 # -------- CLL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/FL
@@ -61,6 +65,7 @@ mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/C
 mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
 
 # -------- FL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/CLL
@@ -74,6 +79,7 @@ mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/F
 mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
 
 # -------- MCL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/CLL
@@ -95,6 +101,7 @@ mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/
 
 # NHL -- WGAN-GP - DEEPLIFT
 # -------- CLL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/FL
@@ -108,6 +115,7 @@ mv weights/WGAN-GP/nhl/deeplift/gen_epoch_100.pth weights/WGAN-GP/nhl/deeplift/C
 mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/CLL
 
 # -------- FL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/CLL
@@ -121,6 +129,7 @@ mv weights/WGAN-GP/nhl/deeplift/gen_epoch_100.pth weights/WGAN-GP/nhl/deeplift/F
 mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/FL
 
 # -------- MCL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/CLL
@@ -139,6 +148,7 @@ mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/
 
 # NHL -- WGAN-GP - INPUTXGRAD
 # -------- CLL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/FL
@@ -152,6 +162,7 @@ mv weights/WGAN-GP/nhl/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/nhl/inputxgr
 mv weights/WGAN-GP/nhl/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/CLL
 
 # -------- FL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/CLL
@@ -165,6 +176,7 @@ mv weights/WGAN-GP/nhl/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/nhl/inputxgr
 mv weights/WGAN-GP/nhl/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/FL
 
 # -------- MCL --------
+rm -r datasets/NHL64
 unzip -q datasets/NHL64_original.zip
 mv NHL64 datasets
 rm -r datasets/NHL64/CLL

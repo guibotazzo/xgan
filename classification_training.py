@@ -179,7 +179,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='XGAN')
     parser.add_argument('--epochs', '-e', type=int, default=10)
     parser.add_argument('--batch_size', '-b', type=int, default=32)
-    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'nhl'], default='mnist')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'nhl', 'ucsb'], default='mnist')
     # parser.add_argument('--artificial', '-a', action=argparse.BooleanOptionalAction)
     parser.add_argument('--artificial', '-a', type=bool, default=False)
     parser.add_argument('--model', '-m', type=str, choices=['convnet', 'alexnet', 'densenet121', 'vgg16'], default='convnet')
