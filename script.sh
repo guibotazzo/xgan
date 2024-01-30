@@ -16,81 +16,81 @@
 #mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/CLL
 
 # -------- FL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/MCL
-
-python train.py --gan WGAN-GP -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/FL
-mv runs/* weights/WGAN-GP/nhl/FL
-mv weights/WGAN-GP/nhl/gen_epoch_100.pth weights/WGAN-GP/nhl/FL
-mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/FL
-
-# -------- MCL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/FL
-
-python train.py --gan WGAN-GP -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/MCL
-mv runs/* weights/WGAN-GP/nhl/MCL
-mv weights/WGAN-GP/nhl/gen_epoch_100.pth weights/WGAN-GP/nhl/MCL
-mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/MCL
-
-
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/FL
+#mv runs/* weights/WGAN-GP/nhl/FL
+#mv weights/WGAN-GP/nhl/gen_epoch_100.pth weights/WGAN-GP/nhl/FL
+#mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/FL
+#
+## -------- MCL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/FL
+#
+#python train.py --gan WGAN-GP -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/MCL
+#mv runs/* weights/WGAN-GP/nhl/MCL
+#mv weights/WGAN-GP/nhl/gen_epoch_100.pth weights/WGAN-GP/nhl/MCL
+#mv weights/WGAN-GP/nhl/disc_epoch_100.pth weights/WGAN-GP/nhl/MCL
 
 
 
 
 
-# NHL -- WGAN-GP - SALIENCY
-# -------- CLL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/FL
-rm -r datasets/NHL64/MCL
 
-python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
 
-mkdir weights/WGAN-GP/nhl/saliency/CLL
-mv runs/* weights/WGAN-GP/nhl/saliency/CLL
-mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
-mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
-
-# -------- FL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/MCL
-
-python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/saliency/FL
-mv runs/* weights/WGAN-GP/nhl/saliency/FL
-mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
-mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
-
-# -------- MCL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/FL
-
-python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/saliency/MCL
-mv runs/* weights/WGAN-GP/nhl/saliency/MCL
-mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
-mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
+## NHL -- WGAN-GP - SALIENCY
+## -------- CLL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/FL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/saliency/CLL
+#mv runs/* weights/WGAN-GP/nhl/saliency/CLL
+#mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
+#mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
+#
+## -------- FL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/saliency/FL
+#mv runs/* weights/WGAN-GP/nhl/saliency/FL
+#mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
+#mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
+#
+## -------- MCL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/FL
+#
+#python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/saliency/MCL
+#mv runs/* weights/WGAN-GP/nhl/saliency/MCL
+#mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
+#mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
 
 
 
