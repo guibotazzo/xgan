@@ -101,18 +101,18 @@
 
 # NHL -- WGAN-GP - DEEPLIFT
 # -------- CLL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/FL
-rm -r datasets/NHL64/MCL
-
-python train.py --gan WGAN-GP --xai deeplift -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/deeplift/CLL
-mv runs/* weights/WGAN-GP/nhl/deeplift/CLL
-mv weights/WGAN-GP/nhl/deeplift/gen_epoch_100.pth weights/WGAN-GP/nhl/deeplift/CLL
-mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/CLL
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/FL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP --xai deeplift -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/deeplift/CLL
+#mv runs/* weights/WGAN-GP/nhl/deeplift/CLL
+#mv weights/WGAN-GP/nhl/deeplift/gen_epoch_100.pth weights/WGAN-GP/nhl/deeplift/CLL
+#mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/CLL
 
 # -------- FL --------
 rm -r datasets/NHL64
