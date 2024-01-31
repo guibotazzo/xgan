@@ -64,33 +64,33 @@
 #mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
 #mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
 #
-## -------- FL --------
-#rm -r datasets/NHL64
-#unzip -q datasets/NHL64_original.zip
-#mv NHL64 datasets
-#rm -r datasets/NHL64/CLL
-#rm -r datasets/NHL64/MCL
-#
-#python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
-#
-#mkdir weights/WGAN-GP/nhl/saliency/FL
-#mv runs/* weights/WGAN-GP/nhl/saliency/FL
-#mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
-#mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
-#
-## -------- MCL --------
-#rm -r datasets/NHL64
-#unzip -q datasets/NHL64_original.zip
-#mv NHL64 datasets
-#rm -r datasets/NHL64/CLL
-#rm -r datasets/NHL64/FL
-#
-#python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
-#
-#mkdir weights/WGAN-GP/nhl/saliency/MCL
-#mv runs/* weights/WGAN-GP/nhl/saliency/MCL
-#mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
-#mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
+# -------- FL --------
+rm -r datasets/NHL64
+unzip -q datasets/NHL64_original.zip
+mv NHL64 datasets
+rm -r datasets/NHL64/CLL
+rm -r datasets/NHL64/MCL
+
+python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
+
+mkdir weights/WGAN-GP/nhl/saliency/FL
+mv runs/* weights/WGAN-GP/nhl/saliency/FL
+mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
+mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
+
+# -------- MCL --------
+rm -r datasets/NHL64
+unzip -q datasets/NHL64_original.zip
+mv NHL64 datasets
+rm -r datasets/NHL64/CLL
+rm -r datasets/NHL64/FL
+
+python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
+
+mkdir weights/WGAN-GP/nhl/saliency/MCL
+mv runs/* weights/WGAN-GP/nhl/saliency/MCL
+mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
+mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
 
 
 
@@ -115,79 +115,79 @@
 #mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/CLL
 
 # -------- FL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/MCL
-
-python train.py --gan WGAN-GP --xai deeplift -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/deeplift/FL
-mv runs/* weights/WGAN-GP/nhl/deeplift/FL
-mv weights/WGAN-GP/nhl/deeplift/gen_epoch_100.pth weights/WGAN-GP/nhl/deeplift/FL
-mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/FL
-
-# -------- MCL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/FL
-
-python train.py --gan WGAN-GP --xai deeplift -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/deeplift/MCL
-mv runs/* weights/WGAN-GP/nhl/deeplift/MCL
-mv weights/WGAN-GP/nhl/deeplift/gen_epoch_100.pth weights/WGAN-GP/nhl/deeplift/MCL
-mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/MCL
-
-
-
-
-
-# NHL -- WGAN-GP - INPUTXGRAD
-# -------- CLL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/FL
-rm -r datasets/NHL64/MCL
-
-python train.py --gan WGAN-GP --xai inputxgrad -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/inputxgrad/CLL
-mv runs/* weights/WGAN-GP/nhl/inputxgrad/CLL
-mv weights/WGAN-GP/nhl/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/CLL
-mv weights/WGAN-GP/nhl/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/CLL
-
-# -------- FL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/MCL
-
-python train.py --gan WGAN-GP --xai inputxgrad -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/inputxgrad/FL
-mv runs/* weights/WGAN-GP/nhl/inputxgrad/FL
-mv weights/WGAN-GP/nhl/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/FL
-mv weights/WGAN-GP/nhl/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/FL
-
-# -------- MCL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/FL
-
-python train.py --gan WGAN-GP --xai inputxgrad -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/inputxgrad/MCL
-mv runs/* weights/WGAN-GP/nhl/inputxgrad/MCL
-mv weights/WGAN-GP/nhl/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/MCL
-mv weights/WGAN-GP/nhl/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/MCL
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP --xai deeplift -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/deeplift/FL
+#mv runs/* weights/WGAN-GP/nhl/deeplift/FL
+#mv weights/WGAN-GP/nhl/deeplift/gen_epoch_100.pth weights/WGAN-GP/nhl/deeplift/FL
+#mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/FL
+#
+## -------- MCL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/FL
+#
+#python train.py --gan WGAN-GP --xai deeplift -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/deeplift/MCL
+#mv runs/* weights/WGAN-GP/nhl/deeplift/MCL
+#mv weights/WGAN-GP/nhl/deeplift/gen_epoch_100.pth weights/WGAN-GP/nhl/deeplift/MCL
+#mv weights/WGAN-GP/nhl/deeplift/disc_epoch_100.pth weights/WGAN-GP/nhl/deeplift/MCL
+#
+#
+#
+#
+#
+## NHL -- WGAN-GP - INPUTXGRAD
+## -------- CLL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/FL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP --xai inputxgrad -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/inputxgrad/CLL
+#mv runs/* weights/WGAN-GP/nhl/inputxgrad/CLL
+#mv weights/WGAN-GP/nhl/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/CLL
+#mv weights/WGAN-GP/nhl/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/CLL
+#
+## -------- FL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP --xai inputxgrad -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/inputxgrad/FL
+#mv runs/* weights/WGAN-GP/nhl/inputxgrad/FL
+#mv weights/WGAN-GP/nhl/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/FL
+#mv weights/WGAN-GP/nhl/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/FL
+#
+## -------- MCL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/FL
+#
+#python train.py --gan WGAN-GP --xai inputxgrad -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/inputxgrad/MCL
+#mv runs/* weights/WGAN-GP/nhl/inputxgrad/MCL
+#mv weights/WGAN-GP/nhl/inputxgrad/gen_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/MCL
+#mv weights/WGAN-GP/nhl/inputxgrad/disc_epoch_100.pth weights/WGAN-GP/nhl/inputxgrad/MCL
 
 
 
