@@ -28,7 +28,7 @@ def _xai_method(method: str, model):
     elif method == 'inputxgrad':
         return InputXGradient(model)
     else:
-        utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting="ITALIC")
+        utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting='ITALIC')
 
 
 def main(args):
@@ -41,10 +41,7 @@ def main(args):
     torch.utils.backcompat.broadcast_warning.enabled = True
 
     # Create weights folder
-    if args.xai == 'none':
-        weights_path = 'weights/' + args.gan + '/' + args.dataset
-    else:
-        weights_path = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai
+    weights_path = f'weights/{args.gan}/{args.dataset}/{args.xai}/'
 
     if not os.path.exists(weights_path):
         path = pathlib.Path(weights_path)
@@ -62,12 +59,7 @@ def main(args):
         torch.cuda.manual_seed_all(args.seed)
 
     # Load dataset
-    dataset = datasets.make_dataset(dataset=args.dataset,
-                                    batch_size=args.batch_size,
-                                    img_size=args.image_size,
-                                    classification=False,
-                                    artificial=False,
-                                    train=True)
+    dataset = datasets.make_dataset(args, train=True)
 
     # Load models
     # if args.dataset == 'mnist':
@@ -121,13 +113,13 @@ def main(args):
     fixed_noise = torch.randn(32, args.z_size, 1, 1, device=device)
 
     writer = SummaryWriter()
-    print("Starting Training Loop...")
+    print('Starting Training Loop...')
     for epoch in range(iter_offset, args.epochs):
         # Fake images saved
         running_loss_g = 0.0
         running_loss_d = 0.0
 
-        with tqdm(total=len(dataset), desc="Epoch {}".format(epoch + 1)) as pbar:
+        with tqdm(total=len(dataset), desc=f'Epoch {epoch+1}') as pbar:
             for data in dataset:
                 real = data[0].to(device)
                 current_batch_size = real.size(0)
@@ -298,8 +290,8 @@ def main(args):
                 writer.add_image(args.gan.upper(), img_grid_fake, global_step=epoch)
 
             # Save models
-            torch.save(generator.state_dict(), weights_path + f'/gen_epoch_{epoch + 1:02d}.pth')
-            torch.save(discriminator.state_dict(), weights_path + f'/disc_epoch_{epoch + 1:02d}.pth')
+            torch.save(generator.state_dict(), weights_path + f'gen_epoch_{epoch+1:02d}.pth')
+            torch.save(discriminator.state_dict(), weights_path + f'disc_epoch_{epoch+1:02d}.pth')
 
 
 if __name__ == '__main__':
