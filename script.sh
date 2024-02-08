@@ -1,5 +1,53 @@
 #!/bin/bash
 
+GAN=("WGAN-GP") #GAN=("DCGAN" "WGAN-GP" "RaSGAN")
+XAI=("none" "saliency" "deeplift" "inputxgrad")
+DATASET=("cr") #DATASET=("cr" "la" "lg" "ucsb")
+
+for dataset in "${DATASET[@]}"
+do
+  for gan in "${GAN[@]}"
+  do
+    for xai in "${XAI[@]}"
+    do
+
+      if [ "$dataset" = "cr" ]; then
+        # CR dataset (Benign x Malignant)
+        # -------- Benign --------
+        rm -r datasets/CR64
+        unzip -q datasets/CR64_original.zip -d datasets/
+        rm -r datasets/LA64/Malignant/
+
+        python train.py -d cr -s 64 -c 3 --gan "$gan" --xai "$xai"
+
+        CURRENT_DIR=weights/"$gan"/"$dataset"/"$xai"/
+        OUT_DIR=weights/"$gan"/"$dataset"/"$xai"/Benign/
+
+        mkdir "$OUT_DIR"
+        mv runs/* "$OUT_DIR"
+        mv "$CURRENT_DIR"gen_epoch_*.pth "$OUT_DIR"
+        mv "$CURRENT_DIR"disc_epoch_*.pth "$OUT_DIR"
+
+        # -------- Malignant --------
+        rm -r datasets/CR64
+        unzip -q datasets/CR64_original.zip -d datasets/
+        rm -r datasets/LA64/Benign/
+
+        python train.py -d cr -s 64 -c 3 --gan "$gan" --xai "$xai"
+
+        CURRENT_DIR=weights/"$gan"/"$dataset"/"$xai"/
+        OUT_DIR=weights/"$gan"/"$dataset"/"$xai"/Malignant/
+
+        mkdir "$OUT_DIR"
+        mv runs/* "$OUT_DIR"
+        mv "$CURRENT_DIR"gen_epoch_*.pth "$OUT_DIR"
+        mv "$CURRENT_DIR"disc_epoch_*.pth "$OUT_DIR"
+      fi
+
+    done
+  done
+done
+
 # NHL -- WGAN-GP
 # -------- CLL --------
 #rm -r datasets/NHL64
@@ -64,33 +112,33 @@
 #mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
 #mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/CLL
 #
-# -------- FL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/MCL
-
-python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/saliency/FL
-mv runs/* weights/WGAN-GP/nhl/saliency/FL
-mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
-mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
-
-# -------- MCL --------
-rm -r datasets/NHL64
-unzip -q datasets/NHL64_original.zip
-mv NHL64 datasets
-rm -r datasets/NHL64/CLL
-rm -r datasets/NHL64/FL
-
-python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
-
-mkdir weights/WGAN-GP/nhl/saliency/MCL
-mv runs/* weights/WGAN-GP/nhl/saliency/MCL
-mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
-mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
+## -------- FL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/MCL
+#
+#python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/saliency/FL
+#mv runs/* weights/WGAN-GP/nhl/saliency/FL
+#mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
+#mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/FL
+#
+## -------- MCL --------
+#rm -r datasets/NHL64
+#unzip -q datasets/NHL64_original.zip
+#mv NHL64 datasets
+#rm -r datasets/NHL64/CLL
+#rm -r datasets/NHL64/FL
+#
+#python train.py --gan WGAN-GP --xai saliency -d nhl -s 64 -c 3
+#
+#mkdir weights/WGAN-GP/nhl/saliency/MCL
+#mv runs/* weights/WGAN-GP/nhl/saliency/MCL
+#mv weights/WGAN-GP/nhl/saliency/gen_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
+#mv weights/WGAN-GP/nhl/saliency/disc_epoch_100.pth weights/WGAN-GP/nhl/saliency/MCL
 
 
 
