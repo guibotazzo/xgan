@@ -23,7 +23,7 @@ class Generator(torch.nn.Module):
         main = torch.nn.Sequential()
 
         # We need to know how many layers we will use at the beginning
-        mult = args.image_size // 8
+        mult = args.img_size // 8
 
         # Start block
         # Z_size random numbers
@@ -130,7 +130,7 @@ class Discriminator(torch.nn.Module):
                 main.add_module('Start-Tanh', torch.nn.Tanh())
             else:
                 main.add_module('Start-LeakyReLU', torch.nn.LeakyReLU(0.2, inplace=True))
-        image_size_new = args.image_size // 2
+        image_size_new = args.img_size // 2
         # Size = D_h_size x image_size/2 x image_size/2
 
         # Middle block (Done until we reach ? x 4 x 4)
