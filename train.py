@@ -318,7 +318,7 @@ if __name__ == '__main__':
                         type=str,
                         choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl', 'caltech', 'cr', 'ucsb', 'la', 'lg'],
                         default='cifar10')
-    parser.add_argument('--image_size', '-s', type=int, default=32)
+    parser.add_argument('--img_size', '-s', type=int, default=32)
     parser.add_argument('--channels', '-c', type=int, default=3)
 
     ################
@@ -367,7 +367,7 @@ if __name__ == '__main__':
     conf.add_row(["Method", arguments.gan])
     conf.add_row(["XAI method", arguments.xai])
     conf.add_row(["Dataset", arguments.dataset.upper()])
-    conf.add_row(["Image size", arguments.image_size])
+    conf.add_row(["Image size", arguments.img_size])
     conf.add_row(["Channels", arguments.channels])
     conf.add_row(["Batch size", arguments.batch_size])
     conf.add_row(["Epochs", arguments.epochs])
