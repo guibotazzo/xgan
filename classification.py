@@ -1,0 +1,368 @@
+import os
+import copy
+import torch
+import argparse
+import pathlib
+import numpy as np
+import timm
+from tqdm import tqdm
+from lib import datasets
+from numpy import Infinity, zeros
+from torch.optim import lr_scheduler
+from torch.nn import CrossEntropyLoss
+from torch.utils.data import DataLoader, Subset, ConcatDataset
+from torch.utils.data.sampler import SubsetRandomSampler
+from torchvision.models import densenet121, resnet50, efficientnet_b2
+from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
+from sklearn.metrics import classification_report, confusion_matrix
+from prettytable import PrettyTable
+from lib import utils
+
+
+class PhaseHistory:
+    def __init__(self, epochs: int) -> None:
+        self.accuracy = zeros(epochs)
+        self.loss = zeros(epochs)
+
+
+class ModelLearningSummary:
+    def __init__(self, epochs: int) -> None:
+        self.best_accuracy = 0.0
+        self.best_loss = Infinity
+        self.training = PhaseHistory(epochs)
+        self.eval = PhaseHistory(epochs)
+
+
+def _load_model(args, device):
+    if args.model == 'densenet121':
+        model = densenet121(weights='DEFAULT') if args.transfer_learning else densenet121()
+        in_features = model.classifier.in_features
+        model.classifier = torch.nn.Linear(in_features=in_features, out_features=args.num_classes)
+        # model.apply(models.reset_weights)
+        return model.to(device)
+
+    elif args.model == 'resnet50':
+        model = resnet50(weights='DEFAULT') if args.transfer_learning else resnet50()
+        in_features = model.fc.in_features
+        model.fc = torch.nn.Linear(in_features=in_features, out_features=args.num_classes)
+        return model.to(device)
+
+    elif args.model == 'efficientnet_b2':
+        model = efficientnet_b2(weights='DEFAULT') if args.transfer_learning else efficientnet_b2()
+        in_features = model.classifier[1].in_features
+        model.classifier[1] = torch.nn.Linear(in_features=in_features, out_features=args.num_classes)
+        return model.to(device)
+
+    elif args.model == 'vit':
+        if args.transfer_learning:
+            model = timm.create_model('vit_base_patch16_224', img_size=args.img_size, pretrained=True)
+        else:
+            model = timm.create_model('vit_base_patch16_224', img_size=args.img_size, pretrained=False)
+
+        model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
+        return model.to(device)
+
+    elif args.model == 'pvt':
+        if args.transfer_learning:
+            model = timm.create_model('pvt_v2_b5', img_size=args.img_size, pretrained=True)
+        else:
+            model = timm.create_model('pvt_v2_b5', img_size=args.img_size, pretrained=False)
+
+        model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
+        return model.to(device)
+
+
+def train(args):
+    if args.augmentation:
+        weights_path = f'weights/classification/{args.dataset}/{args.model}/augmentation/{args.gan}/{args.xai}/'
+    else:
+        weights_path = f'weights/classification/{args.dataset}/{args.model}/no_augmentation/'
+
+    if not os.path.exists(weights_path):
+        path = pathlib.Path(weights_path)
+        path.mkdir(parents=True)
+
+    # Print parameters
+    settings = PrettyTable(['Parameters', 'Values'])
+    settings.align['Parameters'] = 'l'
+    settings.align['Values'] = 'l'
+
+    settings.add_row(['Classifier', args.model.upper()])
+    settings.add_row(['Transfer learning', 'Yes' if args.transfer_learning else 'No'])
+    settings.add_row(['Dataset', args.dataset.upper()])
+    settings.add_row(['Image size', str(args.img_size) + ' x ' + str(args.img_size)])
+    settings.add_row(['Number of classes', str(args.num_classes) + ' classes'])
+    settings.add_row(['Number of epochs', str(args.epochs) + ' epochs'])
+    settings.add_row(['Batch size', args.batch_size])
+    settings.add_row(['Number of folds', str(args.num_folds) + '-folds'])
+    settings.add_row(['Test set size', str(args.test_set_size * 100) + '%'])
+
+    if args.augmentation:
+        settings.add_row(['Data augmentation', 'Yes'])
+        settings.add_row(['GAN', args.gan])
+        settings.add_row(['XAI', args.xai.upper()])
+    else:
+        settings.add_row(['Data augmentation', 'No'])
+
+    print(settings)
+
+    with open(weights_path + 'results.txt', 'w') as file:
+        file.write('#######################################\n')
+        file.write('## CLASSIFICATION WITH DEEP LEARNING ##\n')
+        file.write('#######################################\n\n')
+        file.write(settings.get_string())
+        file.close()
+
+    device = utils.select_device(args.cuda_device)
+    history = ModelLearningSummary(args.epochs)
+    best_acc = 0.0
+    avg_acc_val = []
+    avg_acc_test = []
+
+    results = PrettyTable(['Fold', 'Validation', 'Test'])
+    results.align['Fold'] = 'l'
+    results.align['Validation'] = 'l'
+    results.align['Test'] = 'l'
+
+    dataset = datasets.make_dataset(args, train=True)
+
+    #############
+    # Split dataset into train and test sets
+    #############
+    sss = StratifiedShuffleSplit(n_splits=1, test_size=args.test_set_size, random_state=42)
+
+    for train_idx, test_idx in sss.split(dataset, dataset.targets):
+        train_ds = Subset(dataset, train_idx)
+        test_ds = Subset(dataset, test_idx)
+
+    # It is not possible to access the targets through a Subset object, so we have to take these targets 'manually'
+    targets_train = []
+    for i in train_idx:
+        targets_train.append(dataset.targets[i])
+
+    targets_test = []
+    for i in test_idx:
+        targets_test.append(dataset.targets[i])
+
+    #############
+    # Split the training dataset into k folds
+    #############
+    skf = StratifiedKFold(n_splits=args.num_folds, shuffle=True, random_state=42)
+
+    for fold, (k_train_idx, k_val_idx) in enumerate(skf.split(train_ds, targets_train)):
+        print(f"--- Fold {fold + 1} ---")
+
+        #############
+        # Determine train and validation sets for the current fold
+        #############
+        if args.augmentation:
+            aug_dataset = datasets.load_aug_dataset(args)
+
+            for i, (_, k_aug_idx) in enumerate(skf.split(aug_dataset, aug_dataset.targets)):
+                k_aug_ds = Subset(aug_dataset, k_aug_idx)
+
+                if i == fold:
+                    break
+
+            k_train_ds_temp = Subset(train_ds, k_train_idx)
+
+            k_train_ds = DataLoader(ConcatDataset([k_train_ds_temp, k_aug_ds]), batch_size=args.batch_size)
+        else:
+            train_sampler = SubsetRandomSampler(k_train_idx)
+            k_train_ds = DataLoader(train_ds, batch_size=args.batch_size, sampler=train_sampler)
+
+        val_sampler = SubsetRandomSampler(k_val_idx)
+        k_val_ds = DataLoader(train_ds, batch_size=args.batch_size, sampler=val_sampler)
+
+        #############
+        # Determine test set for the current fold
+        #############
+        for i, (_, k_test_idx) in enumerate(skf.split(test_ds, targets_test)):
+            test_sampler = SubsetRandomSampler(k_test_idx)
+            k_test_ds = DataLoader(test_ds, batch_size=args.batch_size, sampler=test_sampler)
+
+            if i == fold:
+                break
+
+        #############
+        # Begin training
+        #############
+        dataset_sizes = {'train': len(k_train_idx), 'valid': len(k_val_idx)}
+
+        # Reset model
+        model = _load_model(args, device)
+
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+        scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
+        criterion = CrossEntropyLoss()
+
+        # Training loop
+        print("Starting Training Loop...")
+        for epoch in range(args.epochs):
+            # Each epoch has a training and validation phase
+            for phase in ['train', 'valid']:
+                if phase == 'train':
+                    model.train()  # Set model to training mode
+                    ds = k_train_ds
+                    description = "Epoch {} ".format(epoch + 1) + "(" + phase + ")"
+                else:
+                    model.eval()  # Set model to evaluate mode
+                    ds = k_val_ds
+                    description = '{}'.format(' ' * len("Epoch {} ".format(epoch + 1))) + "(" + phase + ")"
+
+                running_loss = 0.0
+                running_corrects = 0
+
+                # Iterate over data.
+                with tqdm(total=len(ds), desc=description) as pbar:
+                    for inputs, labels in ds:
+                        inputs = inputs.to(device)
+                        labels = labels.to(device)
+
+                        # zero the parameter gradients
+                        optimizer.zero_grad()
+
+                        # forward
+                        # track history if only in train
+                        with torch.set_grad_enabled(phase == 'train'):
+                            outputs = model(inputs)
+                            _, preds = torch.max(outputs, 1)
+                            loss = criterion(outputs, labels)
+
+                            # backward + optimize only if in training phase
+                            if phase == 'train':
+                                loss.backward()
+                                optimizer.step()
+
+                        # statistics
+                        running_loss += loss.item() * inputs.size(0)
+                        running_corrects += torch.sum(preds == labels.data)
+
+                        pbar.update(1)
+
+                if phase == 'train':
+                    scheduler.step()
+
+                epoch_loss = running_loss / dataset_sizes[phase]
+                epoch_acc = running_corrects.float() / dataset_sizes[phase]
+
+                # Save data to history
+                if phase == 'train':
+                    history.training.accuracy[epoch] = epoch_acc
+                    history.training.loss[epoch] = epoch_loss
+                else:
+                    history.eval.accuracy[epoch] = epoch_acc
+                    history.eval.loss[epoch] = epoch_loss
+
+                # deep copy the model
+                if phase == 'valid' and epoch_acc > best_acc:
+                    best_acc = epoch_acc
+                    history.best_accuracy = best_acc
+                    best_model_wts = copy.deepcopy(model.state_dict())
+
+            model.load_state_dict(best_model_wts)
+
+        print(f'Validation Accuracy: {best_acc:.4f}\n')
+        avg_acc_val.append(best_acc)
+
+        #############
+        # Begin testing
+        #############
+        actual = np.array([])
+        expected = np.array([])
+
+        print("Starting Testing Loop...")
+        with tqdm(total=len(k_test_ds), desc="Processing images: ") as pbar:
+            for inputs, true_labels in k_test_ds:
+                inputs = inputs.to(device)
+                true_labels = true_labels.to(device)
+
+                outputs = model(inputs)
+
+                _, predictions = torch.max(outputs, 1)
+
+                actual = np.concatenate([actual, predictions.cpu().numpy()])
+                expected = np.concatenate([expected, true_labels.cpu().numpy()])
+
+                pbar.update(1)
+
+        test_acc = (actual == expected).sum() / actual.size
+        print(f'Test Accuracy: {test_acc:.4f}\n')
+        avg_acc_test.append(test_acc)
+
+        results.add_row([f'Fold {fold + 1}', f'{best_acc * 100:.2f}%', f'{test_acc * 100:.2f}%'])
+
+        with open(weights_path + 'results.txt', 'a') as file:
+            file.write('\n\n##################################\n')
+            file.write(f'## Results on FOLD {fold + 1} (Test set) ##\n')
+            file.write('##################################\n\n\n')
+            file.write('--- Confusion matrix ---\n')
+            file.write(np.array2string(confusion_matrix(expected, actual)))
+            file.write('\n\n--- Classification report ---\n')
+            file.write(classification_report(expected, actual, digits=4))
+            file.close()
+
+        # Plot graphs
+        # graph_file_name = 'results/cotton/graphs/acc/' + file + '_fold_' + str(fold)
+        # display.plot_acc(train_acc=history.training.accuracy, val_acc=history.eval.accuracy, file=graph_file_name)
+        # display.print_style('Acc graph saved as: ' + graph_file_name, color='GREEN')
+
+        # graph_file_name = 'results/cotton/graphs/loss/' + file + '_fold_' + str(fold)
+        # display.plot_loss(train_loss=history.training.loss, val_loss=history.training.loss, file=graph_file_name)
+        # display.print_style('Loss graph saved as: ' + graph_file_name, color='GREEN')
+
+        # Save model weights
+        trained_model_file = weights_path + 'fold_' + str(fold + 1)
+        torch.save(model.state_dict(), trained_model_file)
+        # display.print_style('Models weights saved as: ' + trained_model_file, color='GREEN')
+
+    avg_acc_val = sum(avg_acc_val) / len(avg_acc_val)
+    avg_acc_test = sum(avg_acc_test) / len(avg_acc_test)
+
+    results.add_row(['Average', f'{avg_acc_val * 100:.2f}%', f'{avg_acc_test * 100:.2f}%'])
+
+    with open(weights_path + 'results.txt', 'a') as file:
+        file.write('\n\n######################################################\n')
+        file.write('## SUMMARY OF THE CLASSIFICATION RESULTS (ACCURACY) ##\n')
+        file.write('######################################################\n\n')
+        file.write(results.get_string())
+        file.close()
+
+    print(results.get_string(title='Classification results (Accuracy)'))
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Classification with Deep Learning')
+    # Model settings
+    parser.add_argument('--model', '-m', type=str, default='densenet121',
+                        choices=['densenet121', 'resnet50', 'efficientnet_b2', 'vit', 'pvt'])
+    parser.add_argument('--transfer_learning', type=bool, default=True)
+
+    # Dataset settings
+    parser.add_argument('--dataset', '-d', type=str, choices=['cr', 'la', 'lg', 'ucsb', 'nhl'], default='ucsb')
+    parser.add_argument('--img_size', '-s', type=int, default=64)
+    parser.add_argument('--num_classes', type=int, default=2)
+
+    # Training settings
+    parser.add_argument('--epochs', '-e', type=int, default=10)
+    parser.add_argument('--batch_size', '-b', type=int, default=32)
+    parser.add_argument('--num_folds', '-k', type=int, default=5)
+    parser.add_argument('--test_set_size', type=float, default=.2)
+
+    # Data augmentation settings
+    parser.add_argument('--augmentation', type=bool, default=True)
+    parser.add_argument('--gan', type=str, default='WGAN-GP',
+                        choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'])
+    parser.add_argument('--xai', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
+
+    # Other settings
+    parser.add_argument('--artificial', '-a', type=bool, default=False)
+    parser.add_argument('--classification', type=bool, default=True)
+    parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
+    args = parser.parse_args()
+
+    train(args)
+
+
+if __name__ == '__main__':
+    main()
