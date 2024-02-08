@@ -8,3 +8,5 @@ tensorboardx~=2.6
 captum~=0.6.0
 torchmetrics~=0.11.4
 scikit-learn~=1.2.1
+prettytable~=3.9.0
+timm~=0.6.13
