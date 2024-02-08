@@ -273,7 +273,7 @@ def _make_lg_dataset(batch_size: int, img_size: int, classification: bool):
 
 
 def load_aug_dataset(args):
-    return ImageFolder(root=f'datasets/artificial/{args.dataset.upper()}{args.img_size}/{args.xai}/',
+    return ImageFolder(root=f'datasets/artificial/{args.dataset.upper()}{args.img_size}/{args.gan}/{args.xai}/',
                        transform=Compose([
                            Resize(args.img_size),
                            ToTensor(),
@@ -283,7 +283,7 @@ def load_aug_dataset(args):
 
 def make_dataset(args, train: bool):
     if args.dataset == 'mnist':
-        return _make_mnist_dataset(args.batch_size, args.img_size, args.classification, args.train)
+        return _make_mnist_dataset(args.batch_size, args.img_size, args.classification, train)
     elif args.dataset == 'fmnist':
         return _make_fmnist_dataset(args.batch_size, args.img_size, args.classification, train)
     elif args.dataset == 'cifar10':
