@@ -53,6 +53,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create a artificial dataset')
     parser.add_argument('--dataset', '-d', type=str, choices=['cr', 'ucsb', 'la', 'lg', 'nhl'])
     parser.add_argument('--image_size', '-s', type=int, default=64)
+    parser.add_argument('--channels', '-c', type=int, default=3)
     parser.add_argument('--num_imgs', '-n', type=int, default=1000)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--epoch', '-e', type=int, default=100)
