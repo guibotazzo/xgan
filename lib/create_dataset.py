@@ -9,10 +9,7 @@ from torchvision.utils import save_image
 def _create_dataset(args):
     device = torch.device('cpu')
 
-    if args.xai == 'none':
-        pathh = 'weights/' + args.gan + '/' + args.dataset + '/'
-    else:
-        pathh = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai + '/'
+    pathh = f'./weights/{args.gan}/{args.dataset}/{args.xai}/'
 
     generator = models.Generator(args).apply(models.weights_init).to(device)
 
@@ -25,7 +22,7 @@ def _create_dataset(args):
     else:
         labels = ['cll', 'fl', 'mcl']
 
-    path = '../datasets/artificial/' + args.dataset.upper() + str(args.image_size) + '/'
+    path = f'./datasets/artificial/{args.dataset.upper()}{args.img_size}/{args.gan}/{args.xai}/'
 
     for label in labels:
         if not os.path.exists(path + label):
@@ -52,7 +49,7 @@ def _create_dataset(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create a artificial dataset')
     parser.add_argument('--dataset', '-d', type=str, choices=['cr', 'ucsb', 'la', 'lg', 'nhl'])
-    parser.add_argument('--image_size', '-s', type=int, default=64)
+    parser.add_argument('--img_size', '-s', type=int, default=64)
     parser.add_argument('--channels', '-c', type=int, default=3)
     parser.add_argument('--num_imgs', '-n', type=int, default=1000)
     parser.add_argument('--batch_size', type=int, default=32)
