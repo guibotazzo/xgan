@@ -309,6 +309,7 @@ if __name__ == '__main__':
                         help='Helps convergence but leads to artifacts in images, not recommended.')
     parser.add_argument('--decay', type=float, default=0,
                         help='Decay to apply to lr each cycle.')
+    parser.add_argument('--classification', type=bool, default=False)
     parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
 
     ####################
