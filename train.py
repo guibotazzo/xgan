@@ -290,8 +290,9 @@ def main(args):
                 writer.add_image(args.gan.upper(), img_grid_fake, global_step=epoch)
 
             # Save models
-            torch.save(generator.state_dict(), weights_path + f'gen_epoch_{epoch+1:02d}.pth')
-            torch.save(discriminator.state_dict(), weights_path + f'disc_epoch_{epoch+1:02d}.pth')
+            if epoch%10 == 0:
+                torch.save(generator.state_dict(), weights_path + f'gen_epoch_{epoch+1:02d}.pth')
+                torch.save(discriminator.state_dict(), weights_path + f'disc_epoch_{epoch+1:02d}.pth')
 
 
 if __name__ == '__main__':
