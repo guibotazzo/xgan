@@ -291,8 +291,8 @@ def main(args):
 
             # Save models
             if epoch%10 == 0:
-                torch.save(generator.state_dict(), weights_path + f'gen_epoch_{epoch+1:02d}.pth')
-                torch.save(discriminator.state_dict(), weights_path + f'disc_epoch_{epoch+1:02d}.pth')
+                torch.save(generator.state_dict(), weights_path + f'gen_epoch_{epoch+1:03d}.pth')
+                torch.save(discriminator.state_dict(), weights_path + f'disc_epoch_{epoch+1:03d}.pth')
 
 
 if __name__ == '__main__':
