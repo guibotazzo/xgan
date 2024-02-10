@@ -30,7 +30,7 @@ def _create_dataset(args):
             folder = pathlib.Path(folder)
             folder.mkdir(parents=True)
 
-        weights_path = pathh + label + f'/gen_epoch_{args.epoch:d}.pth'
+        weights_path = pathh + label + f'/gen_epoch_{args.epoch:03d}.pth'
 
         generator.load_state_dict(torch.load(weights_path, map_location=device))
 
