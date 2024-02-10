@@ -66,26 +66,13 @@ def _compute_is(args, generator, dataset, device):
 def main(args):
     device = utils.select_device(args.cuda_device)
 
-    if args.xai == 'none':
-        weights_path = 'weights/' + args.gan + '/' + args.dataset + f'/gen_epoch_{args.epoch:d}.pth'
-    else:
-        weights_path = 'weights/' + args.gan + '/' + args.dataset + '/' + args.xai + f'/gen_epoch_{args.epoch:d}.pth'
+    weights_path = f'weights/{args.gan}/{args.dataset}/{args.xai}/gen_epoch_{args.epoch:03d}.pth'
 
-    # Load generator
-    # if args.dataset == 'mnist':
-    #     generator = models.GeneratorMNIST(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(
-    #         device)
-    # else:
     generator = models.Generator(args).apply(models.weights_init).to(device)
     generator.load_state_dict(torch.load(weights_path, map_location=device))
 
     # Load the dataset (real images)
-    dataset = datasets.make_dataset(dataset=args.dataset,
-                                    batch_size=args.batch_size,
-                                    img_size=args.image_size,
-                                    classification=False,
-                                    artificial=False,
-                                    train=True)
+    dataset = datasets.make_dataset(args, train=True)
     utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
 
     # Compute metric
