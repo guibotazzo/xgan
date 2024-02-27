@@ -10,13 +10,29 @@ from lib import datasets
 from numpy import Infinity, zeros
 from torch.optim import lr_scheduler
 from torch.nn import CrossEntropyLoss
-from torch.utils.data import DataLoader, Subset, ConcatDataset
+from torch.utils.data import DataLoader, Subset, ConcatDataset, Dataset
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize, RandomRotation, \
+    RandomHorizontalFlip, ColorJitter
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision.models import densenet121, resnet50, efficientnet_b2
 from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 from sklearn.metrics import classification_report, confusion_matrix
 from prettytable import PrettyTable
 from lib import utils
+
+
+class AugDataset(Dataset):
+    def __init__(self, base_dataset, transforms):
+        super(AugDataset, self).__init__()
+        self.base = base_dataset
+        self.transforms = transforms
+
+    def __len__(self):
+        return len(self.base)
+
+    def __getitem__(self, idx):
+        x, y = self.base[idx]
+        return self.transforms(x), y
 
 
 class PhaseHistory:
@@ -73,8 +89,10 @@ def _load_model(args, device):
 
 
 def train(args):
-    if args.augmentation:
+    if args.gan_aug:
         weights_path = f'weights/classification/{args.dataset}/{args.model}/augmentation/{args.gan}/{args.xai}/'
+    elif args.classic_aug:
+        weights_path = f'weights/classification/{args.dataset}/{args.model}/augmentation/classic/'
     else:
         weights_path = f'weights/classification/{args.dataset}/{args.model}/no_augmentation/'
 
@@ -97,10 +115,12 @@ def train(args):
     settings.add_row(['Number of folds', str(args.num_folds) + '-folds'])
     settings.add_row(['Test set size', str(args.test_set_size * 100) + '%'])
 
-    if args.augmentation:
-        settings.add_row(['Data augmentation', 'Yes'])
+    if args.gan_aug:
+        settings.add_row(['Data augmentation', 'GAN'])
         settings.add_row(['GAN', args.gan])
         settings.add_row(['XAI', args.xai.upper()])
+    elif args.classic_aug:
+        settings.add_row(['Data augmentation', 'Classic'])
     else:
         settings.add_row(['Data augmentation', 'No'])
 
@@ -125,6 +145,16 @@ def train(args):
     results.align['Test'] = 'l'
 
     dataset = datasets.make_dataset(args, train=True)
+
+    if args.classic_aug:
+        transforms = Compose([
+            ToTensor(),
+            Resize(args.img_size),
+            RandomRotation(degrees=(-360, 360)),
+            RandomHorizontalFlip(),
+            ColorJitter(hue=.05, saturation=.05),
+            Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
 
     #############
     # Split dataset into train and test sets
@@ -155,7 +185,7 @@ def train(args):
         #############
         # Determine train and validation sets for the current fold
         #############
-        if args.augmentation:
+        if args.gan_aug:
             aug_dataset = datasets.load_aug_dataset(args)
 
             for i, (_, k_aug_idx) in enumerate(skf.split(aug_dataset, aug_dataset.targets)):
@@ -350,7 +380,8 @@ def main():
     parser.add_argument('--test_set_size', type=float, default=.2)
 
     # Data augmentation settings
-    parser.add_argument('--augmentation', type=bool, default=True)
+    parser.add_argument('--gan_aug', action='store_true')
+    parser.add_argument('--classic_aug', action='store_true')
     parser.add_argument('--gan', type=str, default='WGAN-GP',
                         choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'])
     parser.add_argument('--xai', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
