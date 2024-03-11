@@ -1,8 +1,12 @@
+import io
 import os
+import pandas as pd
+import numpy as np
 import pathlib
 from gdown import download
 from zipfile import ZipFile
-from torch.utils.data import DataLoader, Subset, ConcatDataset
+import torch
+from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import Compose, Resize, ToTensor, Normalize, CenterCrop, RandomRotation, \
     RandomHorizontalFlip, ColorJitter
 from torchvision.datasets import MNIST, FashionMNIST, CIFAR10, Caltech101, ImageFolder
@@ -114,6 +118,74 @@ def _make_celeba_dataset(batch_size: int, image_size: int):
     return dataloader
 
 
+# # Load a dataset from a .csv file
+# def _make_deepweeds_dataset(args, csv_path):
+#     # Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+#     dataset = CustomDataset(csv_path=csv_path,
+#                             root_dir='./datasets/DeepWeeds/images/',
+#                             transform=Compose([
+#                                 Resize((args.img_size, args.img_size)),
+#                                 ToTensor(),
+#                                 Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+#                             ]))
+#
+#     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+#
+#     if args.classification:
+#         return dataset
+#     else:
+#         return dataloader
+#
+#
+# class CustomDataset(Dataset):
+#     """Custom dataset class"""
+#
+#     def __init__(self, csv_path, root_dir, transform=None):
+#         """
+#         Args:
+#             csv_path (string): Path to the csv file with annotations.
+#             root_dir (string): Directory with all the images.
+#             transform (callable, optional): Optional transform to be applied
+#                 on a sample.
+#         """
+#         self.samples = pd.read_csv(csv_path)
+#         self.root_dir = root_dir
+#         self.transform = transform
+#
+#     def __len__(self):
+#         return len(self.samples)
+#
+#     def __getitem__(self, idx):
+#         if torch.is_tensor(idx):
+#             idx = idx.tolist()
+#
+#         img_name = os.path.join(self.root_dir, self.samples.iloc[idx, 0])
+#         image = io.imread(img_name)
+#
+#         label = self.samples.iloc[idx, 1]
+#         label = np.array([label])
+#
+#         if self.transform:
+#             image = self.transform(image.copy())
+#
+#         label = torch.from_numpy(label)
+#         sample = {'image': image, 'label': label}
+#
+#         return sample
+
+
+def make_he_crop_dataset(args):
+    dataset = ImageFolder(root='./datasets/NHL/',
+                          transform=Compose([
+                              ToTensor(),
+                              Resize(args.img_size),
+                              RandomRotation(degrees=(-360, 360)),
+                              RandomHorizontalFlip(),
+                              ColorJitter(hue=.05, saturation=.05),
+                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                          ]))
+
+
 def _make_he_dataset(args):
     if not os.path.exists('./datasets/'):
         path = pathlib.Path('./datasets/')
@@ -145,10 +217,6 @@ def _make_he_dataset(args):
         dataset = ImageFolder(root=f'./datasets/{args.dataset.upper()}{args.img_size}/',
                               transform=Compose([
                                   ToTensor(),
-                                  Resize(args.img_size),
-                                  RandomRotation(degrees=(-360, 360)),
-                                  RandomHorizontalFlip(),
-                                  ColorJitter(hue=.05, saturation=.05),
                                   Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                               ]))
 
@@ -180,7 +248,7 @@ def make_dataset(args, train: bool):
         return _make_celeba_dataset(args.batch_size, args.img_size)
     elif args.dataset == 'caltech':
         return _make_caltech_dataset(args.batch_size, args.img_size)
-    elif args.dataset == 'cr' or args.dataset == 'la' or args.dataset == 'lg' or args.dataset == 'ucsb' or\
+    elif args.dataset == 'cr' or args.dataset == 'la' or args.dataset == 'lg' or args.dataset == 'ucsb' or \
             args.dataset == 'nhl':
         return _make_he_dataset(args)
 
