@@ -11,8 +11,6 @@ from numpy import Infinity, zeros
 from torch.optim import lr_scheduler
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader, Subset, ConcatDataset, Dataset
-from torchvision.transforms import Compose, Resize, ToTensor, Normalize, RandomRotation, \
-    RandomHorizontalFlip, ColorJitter
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision.models import densenet121, resnet50, efficientnet_b2
 from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
@@ -144,80 +142,29 @@ def train(args):
     results.align['Validation'] = 'l'
     results.align['Test'] = 'l'
 
-    dataset = datasets.make_dataset(args, train=True)
+    path = f'./datasets/patches/{args.dataset}{args.img_size}/'
+    test_ds = datasets.make_dataset(args, f'{path}test_set.csv')
+    test_dl = DataLoader(test_ds, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
-    if args.classic_aug:
-        transforms = Compose([
-            ToTensor(),
-            Resize(args.img_size),
-            RandomRotation(degrees=(-360, 360)),
-            RandomHorizontalFlip(),
-            ColorJitter(hue=.05, saturation=.05),
-            Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
-
-    #############
-    # Split dataset into train and test sets
-    #############
-    sss = StratifiedShuffleSplit(n_splits=1, test_size=args.test_set_size, random_state=42)
-
-    for train_idx, test_idx in sss.split(dataset, dataset.targets):
-        train_ds = Subset(dataset, train_idx)
-        test_ds = Subset(dataset, test_idx)
-
-    # It is not possible to access the targets through a Subset object, so we have to take these targets 'manually'
-    targets_train = []
-    for i in train_idx:
-        targets_train.append(dataset.targets[i])
-
-    targets_test = []
-    for i in test_idx:
-        targets_test.append(dataset.targets[i])
-
-    #############
-    # Split the training dataset into k folds
-    #############
-    skf = StratifiedKFold(n_splits=args.num_folds, shuffle=True, random_state=42)
-
-    for fold, (k_train_idx, k_val_idx) in enumerate(skf.split(train_ds, targets_train)):
+    for fold in range(args.num_folds):
         print(f"--- Fold {fold + 1} ---")
 
-        #############
-        # Determine train and validation sets for the current fold
-        #############
+        val_ds = datasets.make_dataset(args, f'{path}val_set_{fold}.csv')
+        val_dl = DataLoader(val_ds, batch_size=args.batch_size, shuffle=True, num_workers=2)
+
+        train_ds = datasets.make_dataset(args, f'{path}train_set_{fold}.csv')
+
         if args.gan_aug:
-            aug_dataset = datasets.load_aug_dataset(args)
-
-            for i, (_, k_aug_idx) in enumerate(skf.split(aug_dataset, aug_dataset.targets)):
-                k_aug_ds = Subset(aug_dataset, k_aug_idx)
-
-                if i == fold:
-                    break
-
-            k_train_ds_temp = Subset(train_ds, k_train_idx)
-
-            k_train_ds = DataLoader(ConcatDataset([k_train_ds_temp, k_aug_ds]), batch_size=args.batch_size)
+            aug_ds = datasets.load_aug_dataset(args)
+            new_train_ds = ConcatDataset([train_ds, aug_ds])
+            train_dl = DataLoader(new_train_ds, batch_size=args.batch_size, shuffle=True, num_workers=2)
         else:
-            train_sampler = SubsetRandomSampler(k_train_idx)
-            k_train_ds = DataLoader(train_ds, batch_size=args.batch_size, sampler=train_sampler)
+            train_dl = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
-        val_sampler = SubsetRandomSampler(k_val_idx)
-        k_val_ds = DataLoader(train_ds, batch_size=args.batch_size, sampler=val_sampler)
-
-        #############
-        # Determine test set for the current fold
-        #############
-        for i, (_, k_test_idx) in enumerate(skf.split(test_ds, targets_test)):
-            test_sampler = SubsetRandomSampler(k_test_idx)
-            k_test_ds = DataLoader(test_ds, batch_size=args.batch_size, sampler=test_sampler)
-
-            if i == fold:
-                break
-
-        #############
+        ################
         # Begin training
-        #############
-        dataset_sizes = {'train': len(k_train_idx), 'valid': len(k_val_idx)}
+        ################
+        dataset_sizes = {'train': len(train_dl.dataset), 'valid': len(val_dl.dataset)}
 
         # Reset model
         model = _load_model(args, device)
@@ -233,11 +180,11 @@ def train(args):
             for phase in ['train', 'valid']:
                 if phase == 'train':
                     model.train()  # Set model to training mode
-                    ds = k_train_ds
+                    ds = train_dl
                     description = "Epoch {} ".format(epoch + 1) + "(" + phase + ")"
                 else:
                     model.eval()  # Set model to evaluate mode
-                    ds = k_val_ds
+                    ds = val_dl
                     description = '{}'.format(' ' * len("Epoch {} ".format(epoch + 1))) + "(" + phase + ")"
 
                 running_loss = 0.0
@@ -302,8 +249,8 @@ def train(args):
         expected = np.array([])
 
         print("Starting Testing Loop...")
-        with tqdm(total=len(k_test_ds), desc="Processing images: ") as pbar:
-            for inputs, true_labels in k_test_ds:
+        with tqdm(total=len(test_dl), desc="Processing images: ") as pbar:
+            for inputs, true_labels in test_dl:
                 inputs = inputs.to(device)
                 true_labels = true_labels.to(device)
 
@@ -383,7 +330,7 @@ def main():
     parser.add_argument('--gan_aug', action='store_true')
     parser.add_argument('--classic_aug', action='store_true')
     parser.add_argument('--gan', type=str, default='WGAN-GP',
-                        choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'])
+                        choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN', 'StyleGAN2'])
     parser.add_argument('--xai', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
 
     # Other settings
