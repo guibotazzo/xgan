@@ -1,5 +1,5 @@
-import io
 import os
+import skimage.io as skio
 import pandas as pd
 import numpy as np
 import pathlib
@@ -135,64 +135,52 @@ def _make_celeba_dataset(batch_size: int, image_size: int):
 #         return dataset
 #     else:
 #         return dataloader
-#
-#
-# class CustomDataset(Dataset):
-#     """Custom dataset class"""
-#
-#     def __init__(self, csv_path, root_dir, transform=None):
-#         """
-#         Args:
-#             csv_path (string): Path to the csv file with annotations.
-#             root_dir (string): Directory with all the images.
-#             transform (callable, optional): Optional transform to be applied
-#                 on a sample.
-#         """
-#         self.samples = pd.read_csv(csv_path)
-#         self.root_dir = root_dir
-#         self.transform = transform
-#
-#     def __len__(self):
-#         return len(self.samples)
-#
-#     def __getitem__(self, idx):
-#         if torch.is_tensor(idx):
-#             idx = idx.tolist()
-#
-#         img_name = os.path.join(self.root_dir, self.samples.iloc[idx, 0])
-#         image = io.imread(img_name)
-#
-#         label = self.samples.iloc[idx, 1]
-#         label = np.array([label])
-#
-#         if self.transform:
-#             image = self.transform(image.copy())
-#
-#         label = torch.from_numpy(label)
-#         sample = {'image': image, 'label': label}
-#
-#         return sample
 
 
-def make_he_crop_dataset(args):
-    dataset = ImageFolder(root='./datasets/NHL/',
-                          transform=Compose([
-                              ToTensor(),
-                              Resize(args.img_size),
-                              RandomRotation(degrees=(-360, 360)),
-                              RandomHorizontalFlip(),
-                              ColorJitter(hue=.05, saturation=.05),
-                              Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                          ]))
+class CustomDataset(Dataset):
+    """Custom dataset class"""
+
+    def __init__(self, csv_path, root_dir, transform=None):
+        """
+        Args:
+            csv_path (string): Path to the csv file with annotations.
+            root_dir (string): Directory with all the images.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.samples = pd.read_csv(csv_path)
+        self.root_dir = root_dir
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        img_name = os.path.join(self.root_dir, self.samples.iloc[idx, 0])
+        image = skio.imread(img_name)
+
+        label = self.samples.iloc[idx, 1]
+        label = np.array(label)
+
+        if self.transform:
+            image = self.transform(image.copy())
+
+        label = torch.from_numpy(label)
+        # sample = {'image': image, 'label': label}
+
+        return image, label
 
 
-def _make_he_dataset(args):
+def _make_he_dataset(args, csv_path):
     if not os.path.exists('./datasets/'):
         path = pathlib.Path('./datasets/')
         path.mkdir(parents=True)
 
     zip_path = f'./datasets/{args.dataset.upper()}{args.img_size}_original.zip'
-    if not os.path.exists(zip_path):
+    if not os.path.exists(f'./datasets/patches/{args.dataset.upper()}{args.img_size}'):
         if args.dataset == 'cr':
             url = 'https://drive.google.com/uc?id=1kt4HbpsaHGlHmf7btde6hlU2aGFJB5tP&confirm=t'
         elif args.dataset == 'la':
@@ -212,13 +200,15 @@ def _make_he_dataset(args):
             zipobj.extractall('./datasets/')
 
     if args.classic_aug:
-        dataset = ImageFolder(root=f'./datasets/{args.dataset.upper()}{args.img_size}/')
+        dataset = CustomDataset(csv_path=csv_path,
+                                root_dir=f'./datasets/patches/{args.dataset.upper()}{args.img_size}/')
     else:
-        dataset = ImageFolder(root=f'./datasets/{args.dataset.upper()}{args.img_size}/',
-                              transform=Compose([
-                                  ToTensor(),
-                                  Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                              ]))
+        dataset = CustomDataset(csv_path=csv_path,
+                                root_dir=f'./datasets/patches/{args.dataset.upper()}{args.img_size}/',
+                                transform=Compose([
+                                    ToTensor(),
+                                    Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                ]))
 
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
@@ -237,7 +227,7 @@ def load_aug_dataset(args):
                        ]))
 
 
-def make_dataset(args, train: bool):
+def make_dataset(args, csv_path, train=True):
     if args.dataset == 'mnist':
         return _make_mnist_dataset(args.batch_size, args.img_size, args.classification, train)
     elif args.dataset == 'fmnist':
@@ -250,7 +240,6 @@ def make_dataset(args, train: bool):
         return _make_caltech_dataset(args.batch_size, args.img_size)
     elif args.dataset == 'cr' or args.dataset == 'la' or args.dataset == 'lg' or args.dataset == 'ucsb' or \
             args.dataset == 'nhl':
-        return _make_he_dataset(args)
-
+        return _make_he_dataset(args, csv_path)
     else:
         print_style('LOAD DATASET ERROR: This dataset is not implemented.', color='RED', formatting='ITALIC')
