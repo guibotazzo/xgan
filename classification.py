@@ -142,7 +142,7 @@ def train(args):
     results.align['Validation'] = 'l'
     results.align['Test'] = 'l'
 
-    path = f'./datasets/patches/{args.dataset}{args.img_size}/'
+    path = f'./datasets/patches/{args.dataset.upper()}{args.img_size}/'
     test_ds = datasets.make_dataset(args, f'{path}test_set.csv')
     test_dl = DataLoader(test_ds, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
