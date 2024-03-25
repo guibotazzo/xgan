@@ -3,6 +3,7 @@ import torch
 import argparse
 import pathlib
 import models
+import pandas as pd
 from torchvision.utils import save_image
 
 
@@ -20,9 +21,12 @@ def _create_dataset(args):
     elif args.dataset == 'lg':
         labels = ['Class 1', 'Class 2']
     else:
-        labels = ['cll', 'fl', 'mcl']
+        labels = ['CLL', 'FL', 'MCL']
 
     path = f'./datasets/artificial/{args.dataset.upper()}{args.img_size}/{args.gan}/{args.xai}/'
+
+    data = []
+    k = 0
 
     for label in labels:
         if not os.path.exists(path + label):
@@ -34,7 +38,7 @@ def _create_dataset(args):
 
         generator.load_state_dict(torch.load(weights_path, map_location=device))
 
-        output_folder = path + label + '/'
+        output_folder = f'{path}{label}/'
 
         i = 1
         for _ in range(int(args.num_imgs/args.batch_size)):
@@ -42,8 +46,14 @@ def _create_dataset(args):
             fake = generator(noise)
 
             for j in range(args.batch_size):
-                save_image(fake[j], output_folder + f'{i:04d}' + '.png', normalize=True)
+                save_image(fake[j], f'{output_folder}{i:04d}.png', normalize=True)
+                data.append([f'{label}/{i:04d}.png', k])
                 i += 1
+
+        k += 1
+
+    dataframe = pd.DataFrame(data, columns=['File', 'Label'])
+    dataframe.to_csv(path_or_buf=f'{path}labels.csv', sep=',', index=False)
 
 
 if __name__ == '__main__':

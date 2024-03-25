@@ -219,12 +219,13 @@ def _make_he_dataset(args, csv_path):
 
 
 def load_aug_dataset(args):
-    return ImageFolder(root=f'datasets/artificial/{args.dataset.upper()}{args.img_size}/{args.gan}/{args.xai}/',
-                       transform=Compose([
-                           Resize(args.img_size),
-                           ToTensor(),
-                           Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                       ]))
+    csv_path = f'datasets/artificial/{args.dataset.upper()}{args.img_size}/{args.gan}/{args.xai}/labels.csv'
+    return CustomDataset(csv_path=csv_path,
+                         root_dir=f'datasets/artificial/{args.dataset.upper()}{args.img_size}/{args.gan}/{args.xai}/',
+                         transform=Compose([
+                             ToTensor(),
+                             Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                         ]))
 
 
 def make_dataset(args, csv_path, train=True):
