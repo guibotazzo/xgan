@@ -66,7 +66,7 @@ def create_csv(args):
     print(f'Original dataset\'s csv file saved at: {patch_path}.')
 
 
-def create_csv_patch(args):
+def create_csv_patch(args, num_patches):
     print('Creating the patch dataset\'s csv file...')
 
     phases = ['train_set_', 'val_set_']
@@ -74,7 +74,8 @@ def create_csv_patch(args):
     dir_out = f'./datasets/patches/{args.dataset.upper()}{args.patch_size}/'
 
     _, size = dataset_info(args.dataset)
-    num_patches = int(((size['width'] - args.patch_size + 1) * (size['height'] - args.patch_size + 1)) / args.patch_size**2)
+    # n = int(((size['width'] - args.patch_size + 1) * (size['height'] - args.patch_size + 1)) / args.patch_size**2)
+    # print('CONTA MALUCA = ', n)
 
     # Generate for train and validation sets
     for phase in phases:
@@ -86,7 +87,7 @@ def create_csv_patch(args):
                 file_name = df['File'][idx]
                 file_name = file_name[0:-4]  # Remove '.png'
 
-                for jdx in range(1, num_patches + 2):
+                for jdx in range(1, num_patches):
                     data.append([f'{file_name}({jdx}).png', df['Label'][idx]])
 
             dataframe = pd.DataFrame(data, columns=['File', 'Label'])
@@ -176,6 +177,9 @@ def make_patches(args):
 
                 pbar.update(1)
 
+    # print('K = ', k)
+    create_csv_patch(args, k-2)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Create folds for the k-fold cross validation patches classification')
@@ -198,7 +202,6 @@ def main():
     create_csv(args)
     create_folds(args)
     make_patches(args)
-    create_csv_patch(args)
 
 
 if __name__ == '__main__':
