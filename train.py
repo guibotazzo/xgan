@@ -59,7 +59,8 @@ def main(args):
         torch.cuda.manual_seed_all(args.seed)
 
     # Load dataset
-    dataset = datasets.make_dataset(args, train=True)
+    path = f'./datasets/patches/{args.dataset.upper()}{args.img_size}/'
+    dataset = datasets.make_dataset(args, f'{path}labels.csv')
 
     # Load models
     # if args.dataset == 'mnist':
@@ -301,7 +302,7 @@ if __name__ == '__main__':
     # Training parameters
     #####################
     parser.add_argument('--seed', type=int)
-    parser.add_argument('--epochs', '-e', type=int, default=100)
+    parser.add_argument('--epochs', '-e', type=int, default=200)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--beta1', type=float, default=0.5,
                         help='Adam betas[0], DCGAN paper recommends .50 instead of the usual .90')
