@@ -175,30 +175,6 @@ class CustomDataset(Dataset):
 
 
 def _make_he_dataset(args, csv_path):
-    if not os.path.exists('./datasets/'):
-        path = pathlib.Path('./datasets/')
-        path.mkdir(parents=True)
-
-    # zip_path = f'./datasets/{args.dataset.upper()}{args.img_size}_original.zip'
-    # if not os.path.exists(f'./datasets/patches/{args.dataset.upper()}{args.img_size}'):
-    #     if args.dataset == 'cr':
-    #         url = 'https://drive.google.com/uc?id=1kt4HbpsaHGlHmf7btde6hlU2aGFJB5tP&confirm=t'
-    #     elif args.dataset == 'la':
-    #         url = 'https://drive.google.com/uc?id=1kheHHPlTg60Lprlhq9v7p2InCj1lW4Lg&confirm=t'
-    #     elif args.dataset == 'lg':
-    #         url = 'https://drive.google.com/uc?id=1WH12pOvHYqA64DkhkS_B9LX-L_ptFCF1&confirm=t'
-    #     elif args.dataset == 'ucsb':
-    #         url = 'https://drive.google.com/uc?id=1tuoNpTYl5mRLDnk4_J27VYEJII5Z5Nm3&confirm=t'
-    #     elif args.dataset == 'nhl':
-    #         url = 'https://drive.google.com/uc?id=1fad5RFsKIHwFaLeq4xANr9sWUD0D1_ht'
-    #     else:
-    #         url = ''
-    #
-    #     download(url, zip_path, quiet=False)
-    #
-    #     with ZipFile(zip_path, 'r') as zipobj:
-    #         zipobj.extractall('./datasets/')
-
     if args.classic_aug:
         dataset = CustomDataset(csv_path=csv_path,
                                 root_dir=f'./datasets/patches/{args.dataset.upper()}{args.img_size}/')
