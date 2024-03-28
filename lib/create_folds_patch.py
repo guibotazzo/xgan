@@ -66,66 +66,6 @@ def create_csv(args):
     print(f'Original dataset\'s csv file saved at: {patch_path}.')
 
 
-def create_csv_patch(args):
-    print('Creating the patch dataset\'s csv file...')
-
-    dir_out = f'./datasets/patches/{args.dataset.upper()}{args.patch_size}/'
-
-    # Create labels.csv
-    labels, _ = dataset_info(args.dataset)
-
-    k = 0
-    data = []
-    for label in labels:
-        file_list = os.listdir(f'{dir_out}{label}')
-        files = [f'{label}/{file}' for file in file_list]
-
-        labels = [k] * len(files)
-        data = data + [[file, label] for file, label in zip(files, labels)]
-        k += 1
-
-    df_labels_csv = pd.DataFrame(data, columns=['File', 'Label'])
-    df_labels_csv = df_labels_csv.sort_values('File')
-    df_labels_csv.to_csv(path_or_buf=f'{dir_out}labels.csv', sep=',', index=False)
-
-    # Create folds' csv files
-    phases = ['train_set_', 'val_set_']
-    root = f'./datasets/original/{args.dataset.upper()}/'
-
-    _, size = dataset_info(args.dataset)
-
-    # Generate for train and validation sets
-    for phase in phases:
-        for fold in range(args.num_folds):
-            df_fold = pd.read_csv(f'{root}{phase}{fold}.csv')
-
-            temp = []
-            for idx in df_fold.index:
-                file_name = df_fold['File'][idx]
-                file_name = file_name[0:-4]  # Remove '.png'
-
-                # Get all elements with the file_name name
-                elements = df_labels_csv['File'].str.contains(file_name, regex=False)
-                temp.append(df_labels_csv.loc[elements])
-
-            dataframe = pd.concat(temp)
-            dataframe.to_csv(path_or_buf=f'{dir_out}{phase}{fold}.csv', sep=',', index=False)
-
-    # Generate for test set
-    df_test = pd.read_csv(f'{root}test_set.csv')
-
-    temp = []
-    for idx in df_test.index:
-        file_name = df_test['File'][idx]
-        file_name = file_name[0:-4]  # Remove '.png'
-
-        elements = df_labels_csv['File'].str.contains(file_name, regex=False)
-        temp.append(df_labels_csv.loc[elements])
-
-    dataframe = pd.concat(temp)
-    dataframe.to_csv(path_or_buf=f'{dir_out}test_set.csv', sep=',', index=False)
-
-
 def create_folds(args):
     print(f'Creating csv files for {args.num_folds} folds...')
 
@@ -196,6 +136,82 @@ def make_patches(args):
                 pbar.update(1)
 
 
+def create_csv_patch(args):
+    print('Creating the patch dataset\'s csv file...')
+
+    dir_out = f'./datasets/patches/{args.dataset.upper()}{args.patch_size}/'
+
+    # Create labels.csv
+    labels, _ = dataset_info(args.dataset)
+
+    k = 0
+    data = []
+    for label in labels:
+        file_list = os.listdir(f'{dir_out}{label}')
+        files = [f'{label}/{file}' for file in file_list]
+
+        labels = [k] * len(files)
+        data = data + [[file, label] for file, label in zip(files, labels)]
+        k += 1
+
+    df_labels_csv = pd.DataFrame(data, columns=['File', 'Label'])
+    df_labels_csv = df_labels_csv.sort_values('File')
+    df_labels_csv.to_csv(path_or_buf=f'{dir_out}labels.csv', sep=',', index=False)
+
+    # Create folds' csv files
+    phases = ['train_set_', 'val_set_']
+    root = f'./datasets/original/{args.dataset.upper()}/'
+
+    _, size = dataset_info(args.dataset)
+
+    # Generate for train and validation sets
+    for phase in phases:
+        for fold in range(args.num_folds):
+            df_fold = pd.read_csv(f'{root}{phase}{fold}.csv')
+
+            temp = []
+            for idx in df_fold.index:
+                file_name = df_fold['File'][idx]
+                file_name = file_name[0:-4]  # Remove '.png'
+
+                # Get all elements with the file_name name
+                elements = df_labels_csv['File'].str.contains(file_name, regex=False)
+                temp.append(df_labels_csv.loc[elements])
+
+            dataframe = pd.concat(temp)
+            dataframe.to_csv(path_or_buf=f'{dir_out}{phase}{fold}.csv', sep=',', index=False)
+
+    # Generate for test set
+    df_test = pd.read_csv(f'{root}test_set.csv')
+
+    temp = []
+    for idx in df_test.index:
+        file_name = df_test['File'][idx]
+        file_name = file_name[0:-4]  # Remove '.png'
+
+        elements = df_labels_csv['File'].str.contains(file_name, regex=False)
+        temp.append(df_labels_csv.loc[elements])
+
+    dataframe = pd.concat(temp)
+    dataframe.to_csv(path_or_buf=f'{dir_out}test_set.csv', sep=',', index=False)
+
+
+def create_csv_labels(args):
+    path = f'./datasets/patches/{args.dataset}{args.patch_size}/'
+    main_df = pd.read_csv(f'{path}labels.csv')
+
+    labels, _ = dataset_info(args.dataset)
+
+    k = 0
+    for label in labels:
+        elements = main_df['Label'].astype('str').str.contains(str(k))
+
+        df = pd.DataFrame(main_df.loc[elements], columns=['File', 'Label'])
+        df.to_csv(path_or_buf=f'{path}labels_{label}.csv', sep=',', index=False)
+
+        k += 1
+
+
 def main():
     parser = argparse.ArgumentParser(description='Create folds for the k-fold cross validation patches classification')
     parser.add_argument('--dataset', type=str, choices=['cr', 'ucsb', 'la', 'lg', 'nhl'], default='cr')
@@ -218,6 +234,7 @@ def main():
     create_folds(args)
     make_patches(args)
     create_csv_patch(args)
+    create_csv_labels(args)
 
 
 if __name__ == '__main__':
