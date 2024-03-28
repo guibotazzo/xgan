@@ -60,7 +60,11 @@ def main(args):
 
     # Load dataset
     path = f'./datasets/patches/{args.dataset.upper()}{args.img_size}/'
-    dataset = datasets.make_dataset(args, f'{path}labels.csv')
+
+    if args.label == 'all':
+        dataset = datasets.make_dataset(args, f'{path}labels.csv')
+    else:
+        dataset = datasets.make_dataset(args, f'{path}labels_{args.label}.csv')
 
     # Load models
     # if args.dataset == 'mnist':
@@ -313,6 +317,7 @@ if __name__ == '__main__':
                         help='Decay to apply to lr each cycle.')
     parser.add_argument('--classification', type=bool, default=False)
     parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
+    parser.add_argument('--classic_aug', action='store_true')
 
     ####################
     # Dataset parameters
@@ -321,6 +326,7 @@ if __name__ == '__main__':
                         type=str,
                         choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl', 'caltech', 'cr', 'ucsb', 'la', 'lg'],
                         default='cifar10')
+    parser.add_argument('--label', type=str, default='all')
     parser.add_argument('--img_size', '-s', type=int, default=32)
     parser.add_argument('--channels', '-c', type=int, default=3)
 
