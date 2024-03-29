@@ -29,20 +29,7 @@ do
     do
       for current_class in "${CLASSES[@]}"
       do
-
-        DATASET_DIR="${dataset^^}""$IMG_SIZE"
-        rm -r datasets/"$DATASET_DIR" # Delete the dataset folder from past experiments
-        unzip -q datasets/"$DATASET_DIR"_original.zip -d datasets/ # Unzip the whole dataset again
-
-        # Remove other classes' folders, we want to train the GAN for one class only
-        for other_class in "${CLASSES[@]}"
-        do
-          if [ "$other_class" != "$current_class" ]; then
-            rm -r datasets/"$DATASET_DIR"/"$other_class"/
-          fi
-        done
-
-        python train.py -d "$dataset" -s "$IMG_SIZE" -c "$CHANNELS" -e "$EPOCHS" --gan "$gan" --xai "$xai"
+        python train.py -d "$dataset" -s "$IMG_SIZE" -c "$CHANNELS" -e "$EPOCHS" --gan "$gan" --xai "$xai" --label "$current_class"
 
         # Create a folder to save the results of the current class
         CURRENT_DIR=weights/"$gan"/"$dataset"/"$xai"/
