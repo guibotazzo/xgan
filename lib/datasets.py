@@ -174,10 +174,17 @@ class CustomDataset(Dataset):
         return image, label
 
 
-def _make_he_dataset(args, csv_path):
-    if args.classic_aug:
+def _make_he_dataset(args, csv_path, classic_aug):
+    if classic_aug:
         dataset = CustomDataset(csv_path=csv_path,
-                                root_dir=f'./datasets/patches/{args.dataset.upper()}{args.img_size}/')
+                                root_dir=f'./datasets/patches/{args.dataset.upper()}{args.img_size}/',
+                                transform=Compose([
+                                    ToTensor(),
+                                    RandomRotation(degrees=(-360, 360)),
+                                    RandomHorizontalFlip(),
+                                    ColorJitter(hue=.05, saturation=.05),
+                                    Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                                ]))
     else:
         dataset = CustomDataset(csv_path=csv_path,
                                 root_dir=f'./datasets/patches/{args.dataset.upper()}{args.img_size}/',
@@ -204,7 +211,7 @@ def load_aug_dataset(args):
                          ]))
 
 
-def make_dataset(args, csv_path, train=True):
+def make_dataset(args, csv_path, classic_aug=False, train=True):
     if args.dataset == 'mnist':
         return _make_mnist_dataset(args.batch_size, args.img_size, args.classification, train)
     elif args.dataset == 'fmnist':
@@ -217,6 +224,6 @@ def make_dataset(args, csv_path, train=True):
         return _make_caltech_dataset(args.batch_size, args.img_size)
     elif args.dataset == 'cr' or args.dataset == 'la' or args.dataset == 'lg' or args.dataset == 'ucsb' or \
             args.dataset == 'nhl':
-        return _make_he_dataset(args, csv_path)
+        return _make_he_dataset(args, csv_path, classic_aug)
     else:
         print_style('LOAD DATASET ERROR: This dataset is not implemented.', color='RED', formatting='ITALIC')
