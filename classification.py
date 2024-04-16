@@ -322,7 +322,8 @@ def train(args):
         file.write(results.get_string())
         file.close()
 
-    print(results.get_string(title='Classification results (Accuracy)') + '\n')
+    print(results.get_string(title='Classification results (Accuracy)'))
+    print('\n\n')
 
 
 def main():
