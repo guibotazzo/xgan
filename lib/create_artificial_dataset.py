@@ -4,6 +4,7 @@ import argparse
 import pathlib
 import models
 import pandas as pd
+from tqdm import tqdm
 from torchvision.utils import save_image
 
 
@@ -41,14 +42,17 @@ def _create_dataset(args):
         output_folder = f'{path}{label}/'
 
         i = 1
-        for _ in range(int(args.num_imgs/args.batch_size)):
-            noise = torch.randn(args.batch_size, args.z_size, 1, 1, device=device)
-            fake = generator(noise)
+        with tqdm(total=int(args.num_imgs/args.batch_size), desc='Generating patches for the ' + label + ' class') as pbar:
+            for _ in range(int(args.num_imgs/args.batch_size)):
+                noise = torch.randn(args.batch_size, args.z_size, 1, 1, device=device)
+                fake = generator(noise)
 
-            for j in range(args.batch_size):
-                save_image(fake[j], f'{output_folder}{i:04d}.png', normalize=True)
-                data.append([f'{label}/{i:04d}.png', k])
-                i += 1
+                for j in range(args.batch_size):
+                    save_image(fake[j], f'{output_folder}{i:04d}.png', normalize=True)
+                    data.append([f'{label}/{i:04d}.png', k])
+                    i += 1
+
+                pbar.update(1)
 
         k += 1
 
