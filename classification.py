@@ -85,6 +85,15 @@ def _load_model(args, device):
         model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
         return model.to(device)
 
+    elif args.model == 'beit':
+        if args.transfer_learning:
+            model = timm.create_model('beit_base_patch16_224', img_size=args.img_size, pretrained=True)
+        else:
+            model = timm.create_model('beit_base_patch16_224', img_size=args.img_size, pretrained=False)
+
+        model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
+        return model.to(device)
+
 
 def train(args):
     if args.gan_aug:
@@ -152,7 +161,10 @@ def train(args):
         val_ds = datasets.make_dataset(args, f'{path}val_set_{fold}.csv')
         val_dl = DataLoader(val_ds, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
-        train_ds = datasets.make_dataset(args, f'{path}train_set_{fold}.csv')
+        if args.classic_aug:
+            train_ds = datasets.make_dataset(args, f'{path}train_set_{fold}.csv', classic_aug=True)
+        else:
+            train_ds = datasets.make_dataset(args, f'{path}train_set_{fold}.csv')
 
         if args.gan_aug:
             aug_ds = datasets.load_aug_dataset(args)
@@ -305,14 +317,14 @@ def train(args):
         file.write(results.get_string())
         file.close()
 
-    print(results.get_string(title='Classification results (Accuracy)'))
+    print(results.get_string(title='Classification results (Accuracy)') + '\n')
 
 
 def main():
     parser = argparse.ArgumentParser(description='Classification with Deep Learning')
     # Model settings
     parser.add_argument('--model', '-m', type=str, default='densenet121',
-                        choices=['densenet121', 'resnet50', 'efficientnet_b2', 'vit', 'pvt'])
+                        choices=['densenet121', 'resnet50', 'efficientnet_b2', 'vit', 'pvt', 'beit'])
     parser.add_argument('--transfer_learning', type=bool, default=True)
 
     # Dataset settings
