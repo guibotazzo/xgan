@@ -69,29 +69,29 @@ def _load_model(args, device):
 
     elif args.model == 'vit':
         if args.transfer_learning:
-            model = timm.create_model('vit_base_patch16_224', img_size=args.img_size, pretrained=True)
+            model = timm.create_model('vit_base_patch16_224', img_size=args.img_size, pretrained=True, num_classes=args.num_classes)
         else:
-            model = timm.create_model('vit_base_patch16_224', img_size=args.img_size, pretrained=False)
+            model = timm.create_model('vit_base_patch16_224', img_size=args.img_size, pretrained=False, num_classes=args.num_classes)
 
-        model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
+        # model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
         return model.to(device)
 
     elif args.model == 'pvt':
         if args.transfer_learning:
-            model = timm.create_model('pvt_v2_b5', img_size=args.img_size, pretrained=True)
+            model = timm.create_model('pvt_v2_b5', img_size=args.img_size, pretrained=True, num_classes=args.num_classes)
         else:
-            model = timm.create_model('pvt_v2_b5', img_size=args.img_size, pretrained=False)
+            model = timm.create_model('pvt_v2_b5', img_size=args.img_size, pretrained=False, num_classes=args.num_classes)
 
-        model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
+        # model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
         return model.to(device)
 
-    elif args.model == 'beit':
+    elif args.model == 'dino':
         if args.transfer_learning:
-            model = timm.create_model('beit_base_patch16_224', img_size=args.img_size, pretrained=True)
+            model = timm.create_model('vit_base_patch8_224_dino', img_size=args.img_size, pretrained=True, num_classes=args.num_classes)
         else:
-            model = timm.create_model('beit_base_patch16_224', img_size=args.img_size, pretrained=False)
+            model = timm.create_model('vit_base_patch8_224_dino', img_size=args.img_size, pretrained=False, num_classes=args.num_classes)
 
-        model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
+        # model.head = torch.nn.Linear(model.head.in_features, args.num_classes)
         return model.to(device)
 
 
@@ -324,7 +324,7 @@ def main():
     parser = argparse.ArgumentParser(description='Classification with Deep Learning')
     # Model settings
     parser.add_argument('--model', '-m', type=str, default='densenet121',
-                        choices=['densenet121', 'resnet50', 'efficientnet_b2', 'vit', 'pvt', 'beit'])
+                        choices=['densenet121', 'resnet50', 'efficientnet_b2', 'vit', 'pvt', 'dino'])
     parser.add_argument('--transfer_learning', type=bool, default=True)
 
     # Dataset settings
