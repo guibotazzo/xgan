@@ -338,7 +338,7 @@ def main():
     parser = argparse.ArgumentParser(description='Classification with Deep Learning')
     # Model settings
     parser.add_argument('--model', '-m', type=str, default='densenet121',
-                        choices=['densenet121', 'resnet50', 'efficientnet_b2', 'vit', 'pvt', 'dino', 'deit'])
+                        choices=['densenet121', 'resnet50', 'efficientnet_b2', 'vit', 'pvt', 'dino', 'deit', 'coatnet'])
     parser.add_argument('--transfer_learning', type=bool, default=True)
 
     # Dataset settings
