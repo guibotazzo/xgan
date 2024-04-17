@@ -99,6 +99,14 @@ def _load_model(args, device):
             return timm.create_model('deit3_base_patch16_224', img_size=args.img_size, pretrained=False,
                                      num_classes=args.num_classes).to(device)
 
+    elif args.model == 'coatnet':
+        if args.transfer_learning:
+            return timm.create_model('coatnet_3_rw_224.sw_in12k', img_size=args.img_size, pretrained=True,
+                                     num_classes=args.num_classes).to(device)
+        else:
+            return timm.create_model('coatnet_3_rw_224.sw_in12k', img_size=args.img_size, pretrained=False,
+                                     num_classes=args.num_classes).to(device)
+
 
 def train(args):
     if args.gan_aug:
