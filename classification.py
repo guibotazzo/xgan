@@ -101,10 +101,10 @@ def _load_model(args, device):
 
     elif args.model == 'coatnet':
         if args.transfer_learning:
-            return timm.create_model('coatnet_3_rw_224.sw_in12k', img_size=args.img_size, pretrained=True,
+            return timm.create_model('coatnet_2_rw_224.sw_in12k', img_size=args.img_size, pretrained=True,
                                      num_classes=args.num_classes).to(device)
         else:
-            return timm.create_model('coatnet_3_rw_224.sw_in12k', img_size=args.img_size, pretrained=False,
+            return timm.create_model('coatnet_2_rw_224.sw_in12k', img_size=args.img_size, pretrained=False,
                                      num_classes=args.num_classes).to(device)
 
 
