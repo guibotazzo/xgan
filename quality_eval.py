@@ -41,7 +41,7 @@ def _compute_fid(args, generator, dataset, device):
             if i == end:
                 break
 
-    print(fid.compute().detach().numpy())
+    print(fid.compute().detach().cpu().numpy())
 
 
 def _compute_is(args, generator, dataset, device):
@@ -64,7 +64,7 @@ def _compute_is(args, generator, dataset, device):
 
 
 def main(args):
-    device = utils.select_device(args.cuda_device)
+    device = utils.select_device(args.cuda_device, verbose=False)
 
     # Load the dataset (real images)
     path = f'./datasets/patches/{args.dataset.upper()}{args.img_size}/'
@@ -76,7 +76,7 @@ def main(args):
         dataset = datasets.make_dataset(args, f'{path}labels_{args.label}.csv')
         weights_path = f'weights/{args.gan}/{args.dataset}/{args.xai}/{args.label}/gen_epoch_{args.epoch:03d}.pth'
 
-    utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
+    # utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
 
     generator = models.Generator(args).apply(models.weights_init).to(device)
     generator.load_state_dict(torch.load(weights_path, map_location=device))
