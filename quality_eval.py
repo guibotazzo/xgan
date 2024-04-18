@@ -41,7 +41,7 @@ def _compute_fid(args, generator, dataset, device):
             if i == end:
                 break
 
-    print(fid.compute())
+    print(fid.compute().detach().numpy())
 
 
 def _compute_is(args, generator, dataset, device):
