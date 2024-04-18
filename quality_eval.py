@@ -66,14 +66,20 @@ def _compute_is(args, generator, dataset, device):
 def main(args):
     device = utils.select_device(args.cuda_device)
 
-    weights_path = f'weights/{args.gan}/{args.dataset}/{args.xai}/gen_epoch_{args.epoch:03d}.pth'
+    # Load the dataset (real images)
+    path = f'./datasets/patches/{args.dataset.upper()}{args.img_size}/'
+
+    if args.label == 'all':
+        dataset = datasets.make_dataset(args, f'{path}labels.csv')
+        weights_path = f'weights/{args.gan}/{args.dataset}/{args.xai}/gen_epoch_{args.epoch:03d}.pth'
+    else:
+        dataset = datasets.make_dataset(args, f'{path}labels_{args.label}.csv')
+        weights_path = f'weights/{args.gan}/{args.dataset}/{args.xai}/{args.label}/gen_epoch_{args.epoch:03d}.pth'
+
+    utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
 
     generator = models.Generator(args).apply(models.weights_init).to(device)
     generator.load_state_dict(torch.load(weights_path, map_location=device))
-
-    # Load the dataset (real images)
-    dataset = datasets.make_dataset(args, train=True)
-    utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
 
     # Compute metric
     if args.metric == 'fid':
@@ -90,10 +96,11 @@ if __name__ == '__main__':
                         default='DCGAN')
     parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
     parser.add_argument('--dataset', '-d', type=str,
-                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl'],
-                        default='cifar10')
-    parser.add_argument('--epoch', '-e', type=int, default=100)
-    parser.add_argument('--image_size', '-s', type=int, default=32)
+                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'cr', 'la', 'lg', 'ucsb', 'nhl'],
+                        default='cr')
+    parser.add_argument('--label', type=str, default='all')
+    parser.add_argument('--epoch', '-e', type=int, default=200)
+    parser.add_argument('--image_size', '-s', type=int, default=64)
     parser.add_argument('--channels', '-c', type=int, default=3)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
