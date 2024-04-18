@@ -63,10 +63,10 @@ def _compute_is(args, generator, dataset, device):
 
             pbar.update(1)
 
-    print(f'IS ({args.gan}/{args.xai}/{args.label}): {inception_score.compute().detach().cpu().numpy()}')
+    print(f'IS ({args.gan}/{args.xai}/{args.label}): {inception_score.compute()}')
 
     with open(f'is_{args.dataset}.csv', 'a') as file:
-        file.write(f'{args.gan},{args.xai},{args.label},{inception_score.compute().detach().cpu().numpy()}')
+        file.write(f'{args.gan},{args.xai},{args.label},{inception_score.compute()[0]},{inception_score.compute()[1]}')
 
 
 def main(args):
