@@ -104,6 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('--channels', '-c', type=int, default=3)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
+    parser.add_argument('--classification', type=bool, default=False)
 
     ######################
     # Generator parameters
