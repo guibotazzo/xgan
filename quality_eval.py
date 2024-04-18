@@ -44,7 +44,7 @@ def _compute_fid(args, generator, dataset, device):
     print(f'FID ({args.gan}/{args.xai}/{args.label}): {fid.compute().detach().cpu().numpy()}')
 
     with open(f'fid_{args.dataset}.csv', 'a') as file:
-        file.write(f'{args.gan},{args.xai},{args.label},{fid.compute().detach().cpu().numpy():03d}')
+        file.write(f'{args.gan},{args.xai},{args.label},{fid.compute().detach().cpu().numpy()}')
 
 
 def _compute_is(args, generator, dataset, device):
@@ -66,7 +66,7 @@ def _compute_is(args, generator, dataset, device):
     print(f'IS ({args.gan}/{args.xai}/{args.label}): {inception_score.compute()}')
 
     with open(f'is_{args.dataset}.csv', 'a') as file:
-        file.write(f'{args.gan},{args.xai},{args.label},{inception_score.compute()[0]:03d},{inception_score.compute()[1]:03d}')
+        file.write(f'{args.gan},{args.xai},{args.label},{inception_score.compute()[0]},{inception_score.compute()[1]}')
 
 
 def main(args):
