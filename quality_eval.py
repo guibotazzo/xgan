@@ -100,7 +100,7 @@ if __name__ == '__main__':
                         default='cr')
     parser.add_argument('--label', type=str, default='all')
     parser.add_argument('--epoch', '-e', type=int, default=200)
-    parser.add_argument('--image_size', '-s', type=int, default=64)
+    parser.add_argument('--img_size', '-s', type=int, default=64)
     parser.add_argument('--channels', '-c', type=int, default=3)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
