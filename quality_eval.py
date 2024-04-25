@@ -17,7 +17,7 @@ def _compute_mifid(args, generator, dataset, device):
 
     end = int(50000/32)
     i = 1
-    with tqdm(total=end, desc='Computing FID') as pbar:
+    with tqdm(total=end, desc='Computing MIFID') as pbar:
         for reals, _ in dataset:
             reals = reals.to(device)
             reals = _minmax_scaler(reals)
@@ -42,9 +42,9 @@ def _compute_mifid(args, generator, dataset, device):
             if i == end:
                 break
 
-    print(f'FID ({args.gan}/{args.xai}/{args.label}): {mifid.compute().detach().cpu().numpy()}')
+    print(f'MIFID ({args.gan}/{args.xai}/{args.label}): {mifid.compute().detach().cpu().numpy()}')
 
-    with open(f'fid_{args.dataset}.csv', 'a') as file:
+    with open(f'mifid_{args.dataset}.csv', 'a') as file:
         file.write(f'{args.gan},{args.xai},{args.label},{args.epoch},{mifid.compute().detach().cpu().numpy()}\n')
 
 
