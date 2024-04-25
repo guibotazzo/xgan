@@ -43,10 +43,11 @@ def _compute_kid(args, generator, dataset, device):
             if i == end:
                 break
 
-    print(f'KID ({args.gan}/{args.xai}/{args.label}): {kid.compute().detach().cpu().numpy()}')
+    print(f'KID ({args.gan}/{args.xai}/{args.label}): {kid.compute()}')
 
     with open(f'kid_{args.dataset}.csv', 'a') as file:
-        file.write(f'{args.gan},{args.xai},{args.label},{args.epoch},{kid.compute().detach().cpu().numpy()}\n')
+        file.write(
+            f'{args.gan},{args.xai},{args.label},{args.epoch},{kid.compute()[0]},{kid.compute()[1]}\n')
 
 
 def _compute_mifid(args, generator, dataset, device):
