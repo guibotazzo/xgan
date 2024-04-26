@@ -11,7 +11,7 @@ import pathlib
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.utils import make_grid
 from prettytable import PrettyTable
-from captum.attr import Saliency, DeepLift, InputXGradient
+from captum.attr import Saliency, DeepLift, InputXGradient, GuidedGradCam
 from lib import datasets, models, utils
 
 
@@ -27,6 +27,8 @@ def _xai_method(method: str, model):
         return DeepLift(model)
     elif method == 'inputxgrad':
         return InputXGradient(model)
+    elif method == 'gradcam':
+        return GuidedGradCam(model, model.main[-2])
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting='ITALIC')
 
@@ -335,7 +337,7 @@ if __name__ == '__main__':
     ################
     parser.add_argument('--gan', type=str, default='DCGAN',
                         choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'])
-    parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
+    parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad', 'gradcam'], default='none')
     parser.add_argument('--SELU', type=bool, default=False,
                         help='Use SELU which instead of ReLU with BatchNorm. This improves stability.')
     parser.add_argument("--NN_conv", type=bool, default=False,
