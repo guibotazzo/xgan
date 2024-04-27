@@ -357,7 +357,7 @@ def main():
     parser.add_argument('--classic_aug', action='store_true')
     parser.add_argument('--gan', type=str, default='WGAN-GP',
                         choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN', 'StyleGAN2'])
-    parser.add_argument('--xai', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
+    parser.add_argument('--xai', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad', 'gradcam'], default='none')
 
     # Other settings
     parser.add_argument('--artificial', '-a', type=bool, default=False)
