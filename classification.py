@@ -328,10 +328,11 @@ def train(args):
         file.write('## SUMMARY OF THE CLASSIFICATION RESULTS (ACCURACY) ##\n')
         file.write('######################################################\n\n')
         file.write(results.get_string())
+        file.write('\n')
         file.close()
 
     print(results.get_string(title='Classification results (Accuracy)'))
-    print('\n\n')
+    print('\n')
 
 
 def main():
