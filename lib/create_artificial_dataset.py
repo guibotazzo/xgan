@@ -71,7 +71,7 @@ if __name__ == '__main__':
     parser.add_argument('--gan', type=str,
                         choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'],
                         default='DCGAN')
-    parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
+    parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad', 'gradcam'], default='none')
 
     ######################
     # Generator parameters
