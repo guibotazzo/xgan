@@ -60,7 +60,7 @@ def ensemble(args):
             actual = sigmoid(torch.from_numpy(actual))
             scores = torch.add(scores, actual)
 
-        preds = torch.argmax(scores, dim=1)
+        preds = torch.argmax(scores)
 
         print(classification_report(preds, true_labels, digits=4))
 
