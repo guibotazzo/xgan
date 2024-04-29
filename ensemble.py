@@ -54,15 +54,15 @@ def ensemble(args):
             for inputs, _ in test_dl:
                 inputs = inputs.to(device)
                 outputs = model(inputs)
-                _, predictions = torch.max(outputs, 1)
-                actual = np.concatenate([actual, predictions.cpu().numpy()])
+                actual = np.concatenate([actual, outputs.cpu().numpy()])
 
             actual = sigmoid(torch.from_numpy(actual))
             scores = torch.add(scores, actual)
 
-        preds = torch.argmax(scores)
+        preds = torch.argmax(scores, dim=1)
+        print(preds)
 
-        print(classification_report(preds, true_labels, digits=4))
+        # print(classification_report(preds, true_labels, digits=4))
 
 
 def main():
