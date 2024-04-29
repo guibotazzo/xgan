@@ -75,6 +75,7 @@ def main():
     parser.add_argument('--classic_aug', action='store_true')
     parser.add_argument('--gan', type=str, default='WGAN-GP', choices=['none', 'DCGAN', 'WGAN-GP', 'RaSGAN'])
     parser.add_argument('--xai', type=str, default='none', choices=['none', 'saliency', 'deeplift', 'inputxgrad'])
+    parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
     args = parser.parse_args()
 
     ensemble(args)
