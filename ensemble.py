@@ -69,6 +69,7 @@ def main():
     parser = argparse.ArgumentParser(description='Classification with Ensemble Learning')
     parser.add_argument('--folds', type=int, default=5)
     parser.add_argument('--dataset', type=str, choices=['cr', 'la', 'lg', 'ucsb'], default='cr')
+    parser.add_argument('--batch_size', '-b', type=int, default=32)
     parser.add_argument('--img_size', '-s', type=int, default=64)
     parser.add_argument('--num_classes', type=int, default=2)
     parser.add_argument('--gan_aug', action='store_true')
