@@ -57,7 +57,7 @@ def ensemble(args):
                 _, predictions = torch.max(outputs, 1)
                 actual = np.concatenate([actual, predictions.cpu().numpy()])
 
-            actual = sigmoid(actual)
+            actual = sigmoid(torch.from_numpy(actual))
             scores = torch.add(scores, actual)
 
         preds = torch.argmax(scores, dim=1)
