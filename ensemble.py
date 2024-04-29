@@ -36,7 +36,7 @@ def ensemble(args):
     true_labels = true_labels.astype('int')
 
     for fold in range(args.folds):
-        scores = torch.zeros(len(true_labels), args.num_classes)
+        scores = torch.zeros(len(true_labels), args.num_classes).to(device)
 
         for model_name in ['vit', 'pvt', 'deit']:
             if args.gan_aug:
@@ -49,7 +49,7 @@ def ensemble(args):
             model = _load_model(args, model_name, device)
             model.load_state_dict(torch.load(fold_path, map_location=device))
 
-            preds = torch.tensor([])
+            preds = torch.tensor([]).to(device)
 
             for inputs, _ in test_dl:
                 inputs = inputs.to(device)
