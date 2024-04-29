@@ -2,6 +2,7 @@ import timm
 import torch
 import argparse
 import pandas as pd
+from tqdm import tqdm
 import numpy as np
 from torch.utils.data import DataLoader
 from lib import utils, datasets
@@ -51,11 +52,13 @@ def ensemble(args):
 
             preds = torch.tensor([]).to(device)
 
-            for inputs, _ in test_dl:
-                inputs = inputs.to(device)
-                outputs = model(inputs)
-                preds = torch.cat((preds, outputs), 0)
-
+            with tqdm(total=len(test_dl), desc=f'Fold {fold + 1} - {model_name}:') as pbar:
+                for inputs, _ in test_dl:
+                    inputs = inputs.to(device)
+                    outputs = model(inputs)
+                    preds = torch.cat((preds, outputs), 0)
+                    pbar.update(1)
+            
             preds = sigmoid(preds)
             scores = torch.add(scores, preds)
 
