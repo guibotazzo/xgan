@@ -36,6 +36,8 @@ def ensemble(args):
     true_labels = true_labels.astype('int')
 
     for fold in range(args.folds):
+        scores = torch.zeros(len(true_labels), args.num_classes)
+
         for model_name in ['vit', 'pvt', 'deit']:
             if args.gan_aug:
                 fold_path = f'weights/classification/{args.dataset}/{model_name}/augmentation/{args.gan}/{args.xai}/fold_{fold + 1}'
@@ -47,17 +49,17 @@ def ensemble(args):
             model = _load_model(args, model_name, device)
             model.load_state_dict(torch.load(fold_path, map_location=device))
 
-            actual = np.array([])
+            preds = torch.tensor([])
 
             for inputs, _ in test_dl:
                 inputs = inputs.to(device)
                 outputs = model(inputs)
-                actual = np.concatenate([actual, outputs.detach().cpu().numpy()])
+                preds = torch.cat((preds, outputs), 0)
 
-            actual = sigmoid(torch.from_numpy(actual))
-            scores = torch.sum(actual, dim=1)
+            preds = sigmoid(preds)
+            scores = torch.add(scores, preds)
 
-        print(scores)
+        # print(scores)
 
         # preds = torch.argmax(scores, dim=1)
         # print(preds)
