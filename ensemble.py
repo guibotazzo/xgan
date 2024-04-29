@@ -54,7 +54,7 @@ def ensemble(args):
             for inputs, _ in test_dl:
                 inputs = inputs.to(device)
                 outputs = model(inputs)
-                actual = np.concatenate([actual, outputs.cpu().numpy()])
+                actual = np.concatenate([actual, outputs.detach().numpy()])
 
             actual = sigmoid(torch.from_numpy(actual))
             scores = torch.add(scores, actual)
