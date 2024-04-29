@@ -51,7 +51,7 @@ def ensemble(args):
 
             actual = np.array([])
 
-            for _, inputs in test_dl:
+            for inputs, _ in test_dl:
                 inputs = inputs.to(device)
                 outputs = model(inputs)
                 _, predictions = torch.max(outputs, 1)
