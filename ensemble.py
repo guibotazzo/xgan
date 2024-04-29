@@ -35,8 +35,6 @@ def ensemble(args):
     true_labels = true_labels[:, 1]
     true_labels = true_labels.astype('int')
 
-    scores = torch.zeros(true_labels.shape)
-
     for fold in range(args.folds):
         for model_name in ['vit', 'pvt', 'deit']:
             if args.gan_aug:
@@ -57,10 +55,12 @@ def ensemble(args):
                 actual = np.concatenate([actual, outputs.detach().cpu().numpy()])
 
             actual = sigmoid(torch.from_numpy(actual))
-            scores = torch.add(scores, actual)
+            scores = torch.sum(actual, dim=1)
 
-        preds = torch.argmax(scores, dim=1)
-        print(preds)
+        print(scores)
+
+        # preds = torch.argmax(scores, dim=1)
+        # print(preds)
 
         # print(classification_report(preds, true_labels, digits=4))
 
