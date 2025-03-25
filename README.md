@@ -1,4 +1,4 @@
-# XGAN: Generative Adversarial Networks Training Guided with XAI-based models
+# XGAN: Generative Adversarial Networks Training with XAI-based models
 
 Training Generative Adversarial Networks (GANs) aims to achieve a balance that is often challenging because the discriminator (D) typically outperforms the generator (G), as only D accesses the image features. To address this, we introduce a novel approach using methods based on Explainable Artificial Intelligence (XAI) to provide G with crucial information during training. We enhance the learning process by identifying key features learned by D and transferring this knowledge to G. Our modified loss function uses a matrix of XAI explanations instead of just a single error value, resulting in improved quality and greater variability in the generated images.
 
