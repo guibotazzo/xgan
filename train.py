@@ -11,7 +11,9 @@ import pathlib
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.utils import make_grid
 from prettytable import PrettyTable
-from captum.attr import Saliency, DeepLift, InputXGradient, GuidedGradCam
+from captum.attr import Saliency, DeepLift, InputXGradient
+
+# Custom libs
 from lib import datasets, models, utils
 
 
@@ -20,15 +22,13 @@ def _minmax_scaler(arr, *, vmin=1, vmax=2):
     return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
 
 
-def _xai_method(method: str, model):
+def make_xai_method(method: str, model):
     if method == 'saliency':
         return Saliency(model)
     elif method == 'deeplift':
         return DeepLift(model)
     elif method == 'inputxgrad':
         return InputXGradient(model)
-    elif method == 'gradcam':
-        return GuidedGradCam(model, model.main[-2])
     else:
         utils.print_style('ERROR: This XAI method is not implemented.', color='RED', formatting='ITALIC')
 
@@ -43,7 +43,7 @@ def main(args):
     torch.utils.backcompat.broadcast_warning.enabled = True
 
     # Create weights folder
-    weights_path = f'weights/{args.gan}/{args.dataset}/{args.xai}/'
+    weights_path = f'../results/{args.gan}/{args.dataset}/{args.xai}/'
 
     if not os.path.exists(weights_path):
         path = pathlib.Path(weights_path)
@@ -61,18 +61,14 @@ def main(args):
         torch.cuda.manual_seed_all(args.seed)
 
     # Load dataset
-    path = f'./datasets/patches/{args.dataset.upper()}{args.img_size}/'
+    path = f'./data/patches/{args.dataset.upper()}{args.img_size}/'
 
     if args.label == 'all':
         dataset = datasets.make_dataset(args, f'{path}labels.csv')
     else:
         dataset = datasets.make_dataset(args, f'{path}labels_{args.label}.csv')
 
-    # Load models
-    # if args.dataset == 'mnist':
-    #     generator = models.GeneratorMNIST(args.z_size, args.channels, args.G_h_size).apply(models.weights_init).to(device)
-    #     discriminator = models.DiscriminatorMNIST(args.channels, args.D_h_size).apply(models.weights_init).to(device)
-    # else:
+    
     generator = models.Generator(args).apply(models.weights_init).to(device)
     discriminator = models.Discriminator(args).apply(models.weights_init).to(device)
 
@@ -143,17 +139,14 @@ def main(args):
 
                     y_pred = discriminator(real)
 
-                    if args.gan in ['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN']:
+                    if args.gan in ['DCGAN', 'WGAN-GP']:
                         # Train with real data
                         y = torch.full((current_batch_size,), real_label, dtype=torch.float, device=device)
+
                         if args.gan == 'DCGAN':
                             errD_real = criterion(y_pred, y)
-                        if args.gan == 'LSGAN':
-                            errD_real = torch.mean((y_pred - y) ** 2)
                         if args.gan == 'WGAN-GP':
                             errD_real = -torch.mean(y_pred)
-                        if args.gan == 'HingeGAN':
-                            errD_real = torch.mean(torch.nn.ReLU()(1.0 - y_pred))
 
                         errD_real.backward()
 
@@ -166,16 +159,12 @@ def main(args):
 
                         if args.gan == 'DCGAN':
                             errD_fake = criterion(y_pred_fake, y)
-                        if args.gan == 'LSGAN':
-                            errD_fake = torch.mean(y_pred_fake ** 2)
                         if args.gan == 'WGAN-GP':
                             errD_fake = torch.mean(y_pred_fake)
-                        if args.gan == 'HingeGAN':
-                            errD_fake = torch.mean(torch.nn.ReLU()(1.0 + y_pred_fake))
 
                         errD_fake.backward()
                         errD = errD_real + errD_fake
-                    else:
+                    else: # If RaSGAN
                         y = torch.full((current_batch_size,), real_label, dtype=torch.float, device=device)
                         y2 = torch.full((current_batch_size,), fake_label, dtype=torch.float, device=device)
                         z = torch.randn(current_batch_size, args.z_size, 1, 1, device=device)
@@ -183,18 +172,8 @@ def main(args):
                         fake = generator(z)
                         y_pred_fake = discriminator(fake.detach())
 
-                        if args.gan == 'RSGAN':
-                            errD = bce_stable(y_pred - y_pred_fake, y)
-                        if args.gan == 'RaSGAN':
-                            errD = (bce_stable(y_pred - torch.mean(y_pred_fake), y) + bce_stable(
-                                y_pred_fake - torch.mean(y_pred),
-                                y2)) / 2
-                        if args.gan == 'RaLSGAN':  # (y_hat-1)^2 + (y_hat+1)^2
-                            errD = (torch.mean((y_pred - torch.mean(y_pred_fake) - y) ** 2) + torch.mean(
-                                (y_pred_fake - torch.mean(y_pred) + y) ** 2)) / 2
-                        if args.gan == 'RaHingeGAN':
-                            errD = (torch.mean(torch.nn.ReLU()(1.0 - (y_pred - torch.mean(y_pred_fake)))) + torch.mean(
-                                torch.nn.ReLU()(1.0 + (y_pred_fake - torch.mean(y_pred))))) / 2
+                        errD = (bce_stable(y_pred - torch.mean(y_pred_fake), y) + bce_stable(y_pred_fake - torch.mean(y_pred), y2)) / 2
+                        
                         errD_real = errD
                         errD_fake = errD
                         errD.backward()
@@ -236,34 +215,17 @@ def main(args):
 
                     if args.gan == 'DCGAN':
                         errG = criterion(y_pred_fake, y)
-                    if args.gan == 'LSGAN':
-                        errG = torch.mean((y_pred_fake - y) ** 2)
                     if args.gan == 'WGAN-GP':
                         errG = -torch.mean(y_pred_fake)
-                    if args.gan == 'HingeGAN':
-                        errG = -torch.mean(y_pred_fake)
-                    if args.gan == 'RSGAN':
-                        y_pred = discriminator(real)
-                        # Non-saturating
-                        errG = bce_stable(y_pred_fake - y_pred, y)
                     if args.gan == 'RaSGAN':
                         y_pred = discriminator(real)
                         # Non-saturating
                         y2 = torch.full((current_batch_size,), fake_label, dtype=torch.float, device=device)
-                        errG = (bce_stable(y_pred - torch.mean(y_pred_fake), y2) + bce_stable(y_pred_fake - torch.mean(y_pred),
-                                                                                              y)) / 2
-                    if args.gan == 'RaLSGAN':
-                        y_pred = discriminator(real)
-                        errG = (torch.mean((y_pred - torch.mean(y_pred_fake) + y) ** 2) + torch.mean(
-                            (y_pred_fake - torch.mean(y_pred) - y) ** 2)) / 2
-                    if args.gan == 'RaHingeGAN':
-                        y_pred = discriminator(real)
-                        # Non-saturating
-                        errG = (torch.mean(torch.nn.ReLU()(1.0 + (y_pred - torch.mean(y_pred_fake)))) + torch.mean(
-                            torch.nn.ReLU()(1.0 - (y_pred_fake - torch.mean(y_pred))))) / 2
+                        errG = (bce_stable(y_pred - torch.mean(y_pred_fake), y2) + bce_stable(y_pred_fake - torch.mean(y_pred), y)) / 2
+                    
                     if args.xai != 'none':
-                        saliency = _xai_method(args.xai, discriminator)
-                        explanations = saliency.attribute(fake)
+                        xai_method = make_xai_method(args.xai, discriminator)
+                        explanations = xai_method.attribute(fake)
                         explanations = _minmax_scaler(explanations)
                         explanations = explanations.clone().detach().requires_grad_(True)
 
@@ -310,24 +272,16 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int)
     parser.add_argument('--epochs', '-e', type=int, default=200)
     parser.add_argument('--batch_size', type=int, default=32)
-    parser.add_argument('--beta1', type=float, default=0.5,
-                        help='Adam betas[0], DCGAN paper recommends .50 instead of the usual .90')
+    parser.add_argument('--beta1', type=float, default=0.5, help='Adam betas[0], DCGAN paper recommends .50 instead of the usual .90')
     parser.add_argument('--beta2', type=float, default=0.999, help='Adam betas[1]')
-    parser.add_argument('--weight_decay', type=float, default=0,
-                        help='Helps convergence but leads to artifacts in images, not recommended.')
-    parser.add_argument('--decay', type=float, default=0,
-                        help='Decay to apply to lr each cycle.')
-    parser.add_argument('--classification', type=bool, default=False)
+    parser.add_argument('--weight_decay', type=float, default=0, help='Helps convergence but leads to artifacts in images, not recommended.')
+    parser.add_argument('--decay', type=float, default=0, help='Decay to apply to lr each cycle.')
     parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
-    parser.add_argument('--classic_aug', action='store_true')
 
     ####################
     # Dataset parameters
     ####################
-    parser.add_argument('--dataset', '-d',
-                        type=str,
-                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'nhl', 'caltech', 'cr', 'ucsb', 'la', 'lg'],
-                        default='cifar10')
+    parser.add_argument('--dataset', '-d', type=str, choices=['mnist', 'fmnist', 'cifar10', 'caltech', 'custom'], default='cifar10')
     parser.add_argument('--label', type=str, default='all')
     parser.add_argument('--img_size', '-s', type=int, default=32)
     parser.add_argument('--channels', '-c', type=int, default=3)
@@ -335,38 +289,30 @@ if __name__ == '__main__':
     ################
     # GAN parameters
     ################
-    parser.add_argument('--gan', type=str, default='DCGAN',
-                        choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'])
-    parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad', 'gradcam'], default='none')
-    parser.add_argument('--SELU', type=bool, default=False,
-                        help='Use SELU which instead of ReLU with BatchNorm. This improves stability.')
-    parser.add_argument("--NN_conv", type=bool, default=False,
-                        help="Uses nearest-neighbor resized convolutions instead of strided convolutions.")
+    parser.add_argument('--gan', type=str, default='DCGAN', choices=['DCGAN', 'LSGAN', 'WGAN-GP', 'HingeGAN', 'RSGAN', 'RaSGAN', 'RaLSGAN', 'RaHingeGAN'])
+    parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
+    parser.add_argument('--SELU', type=bool, default=False, help='Use SELU which instead of ReLU with BatchNorm. This improves stability.')
+    parser.add_argument("--NN_conv", type=bool, default=False, help="Uses nearest-neighbor resized convolutions instead of strided convolutions.")
     parser.add_argument('--penalty', type=float, default=10, help='Gradient penalty parameter for WGAN-GP')
     parser.add_argument('--Tanh_GD', type=bool, default=False, help='If True, tanh everywhere.')
-    parser.add_argument('--grad_penalty', type=bool, default=False,
-                        help='Use gradient penalty of WGAN-GP but with whichever gan chosen.')
+    parser.add_argument('--grad_penalty', type=bool, default=False, help='Use gradient penalty of WGAN-GP but with whichever gan chosen.')
 
     ######################
     # Generator parameters
     ######################
     parser.add_argument('--z_size', type=int, default=128)
-    parser.add_argument('--G_h_size', type=int, default=128,
-                        help='Number of hidden nodes in the Generator.')
+    parser.add_argument('--G_h_size', type=int, default=128, help='Number of hidden nodes in the Generator.')
     parser.add_argument('--lr_G', type=float, default=.0001, help='Generator learning rate')
     parser.add_argument('--Giters', type=int, default=1, help='Number of iterations of G.')
-    parser.add_argument('--spectral_G', type=bool, default=False,
-                        help='Use spectral norm. to make the generator Lipschitz (Generally only D is spectral).')
+    parser.add_argument('--spectral_G', type=bool, default=False, help='Use spectral norm. to make the generator Lipschitz (Generally only D is spectral).')
     parser.add_argument('--no_batch_norm_G', type=bool, default=False, help='If True, no batch norm in G.')
 
     ##########################
     # Discriminator parameters
     ##########################
-    parser.add_argument('--D_h_size', type=int, default=128,
-                        help='Number of feature maps in the Discriminator.')
+    parser.add_argument('--D_h_size', type=int, default=128, help='Number of feature maps in the Discriminator.')
     parser.add_argument('--lr_D', type=float, default=.0001, help='Discriminator learning rate')
-    parser.add_argument('--spectral', type=bool, default=False,
-                        help='Use spectral norm. to make the discriminator Lipschitz.')
+    parser.add_argument('--spectral', type=bool, default=False, help='Use spectral norm. to make the discriminator Lipschitz.')
     parser.add_argument('--no_batch_norm_D', type=bool, default=False, help='If True, no batch norm in D.')
     parser.add_argument('--Diters', type=int, default=1, help='Number of iterations of D')
 
