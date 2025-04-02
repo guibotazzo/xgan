@@ -8,12 +8,12 @@ from torchmetrics.image.kid import KernelInceptionDistance
 from lib import models, datasets, utils
 
 
-def _minmax_scaler(arr, *, vmin=0, vmax=255):
+def minmax_scaler(arr, *, vmin=0, vmax=255):
     arr_min, arr_max = arr.min(), arr.max()
     return ((arr - arr_min) / (arr_max - arr_min)) * (vmax - vmin) + vmin
 
 
-def _compute_kid(args, generator, dataset, device):
+def compute_kid(args, generator, dataset, device):
     kid = KernelInceptionDistance(feature=2048).to(device)
 
     end = int(50000/32)
@@ -21,7 +21,7 @@ def _compute_kid(args, generator, dataset, device):
     with tqdm(total=end, desc='Computing MIFID') as pbar:
         for reals, _ in dataset:
             reals = reals.to(device)
-            reals = _minmax_scaler(reals)
+            reals = minmax_scaler(reals)
 
             if args.channels == 1:
                 reals = reals.repeat(1, 3, 1, 1)
@@ -30,7 +30,7 @@ def _compute_kid(args, generator, dataset, device):
 
             noise = torch.randn(args.batch_size, args.z_size, 1, 1, device=device)
             fakes = generator(noise)
-            fakes = _minmax_scaler(fakes)
+            fakes = minmax_scaler(fakes)
 
             if args.channels == 1:
                 fakes = fakes.repeat(1, 3, 1, 1)
@@ -50,7 +50,7 @@ def _compute_kid(args, generator, dataset, device):
             f'{args.gan},{args.xai},{args.label},{args.epoch},{kid.compute()[0]},{kid.compute()[1]}\n')
 
 
-def _compute_mifid(args, generator, dataset, device):
+def compute_mifid(args, generator, dataset, device):
     mifid = MemorizationInformedFrechetInceptionDistance(feature=2048).to(device)
 
     end = int(50000/32)
@@ -58,7 +58,7 @@ def _compute_mifid(args, generator, dataset, device):
     with tqdm(total=end, desc='Computing MIFID') as pbar:
         for reals, _ in dataset:
             reals = reals.to(device)
-            reals = _minmax_scaler(reals)
+            reals = minmax_scaler(reals)
 
             if args.channels == 1:
                 reals = reals.repeat(1, 3, 1, 1)
@@ -67,7 +67,7 @@ def _compute_mifid(args, generator, dataset, device):
 
             noise = torch.randn(args.batch_size, args.z_size, 1, 1, device=device)
             fakes = generator(noise)
-            fakes = _minmax_scaler(fakes)
+            fakes = minmax_scaler(fakes)
 
             if args.channels == 1:
                 fakes = fakes.repeat(1, 3, 1, 1)
@@ -86,7 +86,7 @@ def _compute_mifid(args, generator, dataset, device):
         file.write(f'{args.gan},{args.xai},{args.label},{args.epoch},{mifid.compute().detach().cpu().numpy()}\n')
 
 
-def _compute_fid(args, generator, dataset, device):
+def compute_fid(args, generator, dataset, device):
     fid = FrechetInceptionDistance(feature=2048).to(device)
 
     end = int(50000/32)
@@ -94,7 +94,7 @@ def _compute_fid(args, generator, dataset, device):
     with tqdm(total=end, desc='Computing FID') as pbar:
         for reals, _ in dataset:
             reals = reals.to(device)
-            reals = _minmax_scaler(reals)
+            reals = minmax_scaler(reals)
 
             if args.channels == 1:
                 reals = reals.repeat(1, 3, 1, 1)
@@ -103,7 +103,7 @@ def _compute_fid(args, generator, dataset, device):
 
             noise = torch.randn(args.batch_size, args.z_size, 1, 1, device=device)
             fakes = generator(noise)
-            fakes = _minmax_scaler(fakes)
+            fakes = minmax_scaler(fakes)
 
             if args.channels == 1:
                 fakes = fakes.repeat(1, 3, 1, 1)
@@ -122,14 +122,14 @@ def _compute_fid(args, generator, dataset, device):
         file.write(f'{args.gan},{args.xai},{args.label},{args.epoch},{fid.compute().detach().cpu().numpy()}\n')
 
 
-def _compute_is(args, generator, dataset, device):
+def compute_is(args, generator, dataset, device):
     inception_score = InceptionScore().to(device)
 
     with tqdm(total=len(dataset), desc='Computing IS') as pbar:
         for _, _ in dataset:
             noise = torch.randn(args.batch_size, args.z_size, 1, 1, device=device)
             fakes = generator(noise)
-            fakes = _minmax_scaler(fakes)
+            fakes = minmax_scaler(fakes)
 
             if args.channels == 1:
                 fakes = fakes.repeat(1, 3, 1, 1)
@@ -160,17 +160,18 @@ def main(args):
     utils.print_style('Loaded dataset: ' + args.dataset.upper(), color='CYAN', formatting="ITALIC")
 
     generator = models.Generator(args).apply(models.weights_init).to(device)
-    generator.load_state_dict(torch.load(weights_path, map_location=device))
+    # Uncomment the line below
+    # generator.load_state_dict(torch.load(weights_path, map_location=device))
 
     # Compute metric
     if args.metric == 'fid':
-        _compute_fid(args, generator, dataset, device)
+        compute_fid(args, generator, dataset, device)
     elif args.metric == 'is':
-        _compute_is(args, generator, dataset, device)
+        compute_is(args, generator, dataset, device)
     elif args.metric == 'mifid':
-        _compute_mifid(args, generator, dataset, device)
+        compute_mifid(args, generator, dataset, device)
     elif args.metric == 'kid':
-        _compute_kid(args, generator, dataset, device)
+        compute_kid(args, generator, dataset, device)
 
 
 if __name__ == '__main__':
@@ -181,15 +182,14 @@ if __name__ == '__main__':
                         default='DCGAN')
     parser.add_argument('--xai', '-x', type=str, choices=['none', 'saliency', 'deeplift', 'inputxgrad'], default='none')
     parser.add_argument('--dataset', '-d', type=str,
-                        choices=['mnist', 'fmnist', 'cifar10', 'celeba', 'cr', 'la', 'lg', 'ucsb', 'nhl'],
-                        default='cr')
+                        choices=['mnist', 'fmnist', 'cifar10', 'caltech', 'custom'],
+                        default='mnist')
     parser.add_argument('--label', type=str, default='all')
     parser.add_argument('--epoch', '-e', type=int, default=200)
-    parser.add_argument('--img_size', '-s', type=int, default=64)
-    parser.add_argument('--channels', '-c', type=int, default=3)
+    parser.add_argument('--img_size', '-s', type=int, default=32)
+    parser.add_argument('--channels', '-c', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--cuda_device', type=str, choices=['cuda:0', 'cuda:1'], default='cuda:0')
-    parser.add_argument('--classification', type=bool, default=False)
 
     ######################
     # Generator parameters
